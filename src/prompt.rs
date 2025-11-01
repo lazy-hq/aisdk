@@ -346,10 +346,17 @@ mod tests {
         let prompt = Prompt::new_with_env("system/base", env);
         let result = prompt.generate();
 
+        #[cfg(target_os = "windows")]
+        assert_eq!(
+            "You are a helpful AI assistant. Your role is to assist the user.\r\n",
+            result
+        );
+
+        #[cfg(not(target_os = "windows"))]
         assert_eq!(
             "You are a helpful AI assistant. Your role is to assist the user.\n",
             result
-        )
+        );
     }
 
     #[test]
