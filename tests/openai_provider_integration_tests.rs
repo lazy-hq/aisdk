@@ -957,21 +957,24 @@ async fn test_streaming_on_step_finish_at_end() {
 }
 
 #[tokio::test]
-#[should_panic]
 async fn test_reasoning_effort_with_non_reasoning_model() {
     dotenv().ok();
     if std::env::var("OPENAI_API_KEY").is_err() {
         return;
     }
 
-    let _ = LanguageModelRequest::builder()
-        .model(OpenAI::new("gpt-4"))
-        .prompt("What is 2 + 2? Answer with just the number.")
-        .reasoning_effort(aisdk::core::language_model::ReasoningEffort::Low)
-        .build()
-        .generate_text()
-        .await
-        .unwrap();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| async {
+        LanguageModelRequest::builder()
+            .model(OpenAI::new("gpt-4"))
+            .prompt("What is 2 + 2? Answer with just the number.")
+            .reasoning_effort(aisdk::core::language_model::ReasoningEffort::Low)
+            .build()
+            .generate_text()
+            .await
+    }))
+    .map(|future| tokio::runtime::Handle::current().block_on(future));
+
+    assert!(result.is_err());
 }
 
 // TODO: fix "o1-mini not supported" error
