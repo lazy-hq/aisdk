@@ -56,7 +56,7 @@ impl PromptEnvironment {
                 Ok(path) => {
                     if path.is_file()
                         && let Ok(content) = fs::read_to_string(&path)
-                        && let Ok(relative_path) = path.strip_prefix(prompt_dir_str)
+                        && let Ok(relative_path) = path.strip_prefix(&prompt_dir)
                     {
                         let name = relative_path.to_string_lossy().to_string();
                         self.tera
@@ -92,7 +92,7 @@ impl PromptEnvironment {
                     Ok(path) => {
                         if path.is_file()
                             && let Ok(content) = fs::read_to_string(&path)
-                            && let Ok(relative_path) = path.strip_prefix(dir_str)
+                            && let Ok(relative_path) = path.strip_prefix(&prompt_dir)
                         {
                             let name = relative_path.to_string_lossy().to_string();
                             tera.add_raw_template(&name, &content)
@@ -250,6 +250,7 @@ impl Promptable for Prompt {
 mod tests {
     use super::*;
     use std::fs;
+    use std::path::Path;
     use std::path::PathBuf;
     use tempfile::tempdir;
 
@@ -294,7 +295,7 @@ mod tests {
         let env = PromptEnvironment::from_directories(vec!["examples/prompts"]);
         let prompt = Prompt::new_with_env("system/test", env).with_extension("md");
         let path = prompt.file_path();
-        assert!(path.ends_with("prompts/system/test.md"));
+        assert!(path.ends_with(Path::new("prompts/system/test.md")));
     }
 
     #[test]
