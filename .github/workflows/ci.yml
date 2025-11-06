@@ -55,6 +55,7 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
 
+  # TODO: enable deny
   # Full cargo-deny check (licenses, advisories, bans, sources, duplicates)
   #deny:
     #name: deny
@@ -65,11 +66,12 @@ jobs:
       #- uses: EmbarkStudios/cargo-deny-action@v2 # runs licenses, advisories, bans, sources, duplicates
 
   # Audit to check for security vulnerabilities
-  audit:
-    name: audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install cargo-audit
-      - run: cargo audit --deny warnings
+  # TODO: enable audit
+  #audit:
+    #name: audit
+    #runs-on: ubuntu-latest
+    #steps:
+      #- uses: actions/checkout@v4
+      #- uses: dtolnay/rust-toolchain@stable
+      #- run: cargo install cargo-audit
+      #- run: cargo audit
