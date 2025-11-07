@@ -1,9 +1,9 @@
 # AISDK
 
-[![Build Status](https://github.com/lazy-hq/ai-sdk-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/lazy-hq/ai-sdk-rs/actions/workflows/ci.yml)
+[![Build Status](https://github.com/lazy-hq/aisdk/actions/workflows/ci.yml/badge.svg)](https://github.com/lazy-hq/aisdk/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Issues](https://img.shields.io/github/issues/lazy-hq/ai-sdk-rs)](https://github.com/lazy-hq/ai-sdk-rs/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/lazy-hq/ai-sdk-rs/pulls)
+[![Issues](https://img.shields.io/github/issues/lazy-hq/aisdk)](https://github.com/lazy-hq/aisdk/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/lazy-hq/aisdk/pulls)
 
 An open-source Rust library for building AI-powered applications, inspired by the Vercel AI SDK. It provides a type-safe interface for interacting with Large Language Models (LLMs).
 
@@ -44,8 +44,8 @@ aisdk = { version = "0.1.0", features = ["full"] }
 
 ```rust
 use aisdk::{
-    core::{GenerateTextCallOptions, generate_text},
-    providers::openai::{OpenAI, OpenAIProviderSettings},
+    core::{LanguageModelRequest},
+    providers::openai::OpenAI,
 };
 
 #[tokio::main]
@@ -54,11 +54,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // with default openai provider settings
     let openai = OpenAI::new("gpt-5");
 
-    let options = GenerateTextCallOptions::builder()
-        .prompt("Say hello.")
-        .build()?;
+    let result = LanguageModelRequest::builder()
+        .model(openai)
+        .prompt("hello world")
+        .build()
+        .generate_text()
+        .await;
 
-    let result = generate_text(openai, options).await?;
     println!("{}", result.text);
     Ok(())
 }
@@ -68,8 +70,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```rust
 use aisdk::{
-    core::{GenerateTextCallOptions, generate_stream},
-    providers::openai::{OpenAI, OpenAIProviderSettings},
+    core::{LanguageModelRequest},
+    providers::openai::OpenAI,
 };
 use futures::StreamExt;
 
@@ -82,11 +84,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .model_name("gpt-4o")
         .build()?;
 
-    let options = GenerateTextCallOptions::builder()
+    let mut stream = LanguageModelRequest::builder()
+        .model(openai)
         .prompt("Count from 1 to 10.")
-        .build()?;
+        .build()
+        .stream_text()
+        .await?;
 
-    let mut stream = generate_stream(openai, options).await?;
     while let Some(chunk) = stream.stream.next().await {
         print!("{}", chunk.text);
     }
@@ -94,70 +98,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Anthropic Provider
-
-```rust
-use aisdk::{
-    core::{GenerateTextCallOptions, generate_text},
-    providers::anthropic::Anthropic,
-};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // with default anthropic provider settings
-    let anthropic = Anthropic::new("claude-4-sonnet");
-
-    let options = GenerateTextCallOptions::builder()
-        .prompt("Explain quantum computing in simple terms.")
-        .build()?;
-
-    let result = generate_text(anthropic, options).await?;
-    println!("{}", result.text);
-    Ok(())
-}
-```
-
-### Anthropic Streaming
-
-```rust
-use aisdk::{
-    core::{GenerateTextCallOptions, generate_stream},
-    providers::anthropic::Anthropic,
-};
-use futures::StreamExt;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // with custom anthropic provider settings
-    let anthropic = Anthropic::builder()
-        .api_key("your-api-key")
-        .model_name("claude-4-sonnet")
-        .build()?;
-
-    let options = GenerateTextCallOptions::builder()
-        .system("You are a helpful coding assistant.")
-        .prompt("Write a Rust function to calculate fibonacci numbers.")
-        .build()?;
-
-    let mut stream = generate_stream(anthropic, options).await?;
-    while let Some(chunk) = stream.stream.next().await {
-        if let Ok(data) = chunk {
-            print!("{}", data.text);
-        }
-    }
-    Ok(())
-}
-```
-
 ### Providers
 
-- **Yes**: ✅
-- **NA**: Not Applicable
+#### Supported Options
 
-| Model/Input     | Max Tokens      | Temperature     | Top P           | Top K           | Stop            |
-| --------------- | --------------- | --------------- | --------------- | --------------- | --------------- |
-| OpenAI          | ✅              | ✅              | ✅              | NA              | ✅              |
-| Anthropic       | ✅              | ✅              | ✅              | ✅              | ✅              |
+| Model/Input | Max Tokens  | Temprature  | Top P   | Top K   | Stop    | Seed    | 
+| ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- |
+| OpenAi      | ✅          | ✅          | ✅      | NA      | ✅      | NA[^1]  |
+
+[^1]: Seed is deprecated on the newer response api so it is not supported in open ai.
+
+### Tools
+
+You can define a tool using the use `aisdk::core::tool`;
+```rust
+#[tool]
+/// Returns the username
+fn get_username(id: String) {
+    // Your code here
+}
+```
+A tool has a name, a description, an input and a body. all three can be infered from standard rust function. The name is the function name, `get_username` in the above example. The description is infered from the doc comments of the fucntion, `/// Returns the username` is going to be used to describe the tool. make sure to use a verbose, language model friendly description in the comments. The input is built from the function arguments and converted to a json schema using [schemars](https://docs.rs/schemars/latest/schemars/index.html) so make sure any type you add to the function arguments derive [JsonSchema](https://docs.rs/schemars/latest/schemars/trait.JsonSchema.html). Any think you implement in the function body will be executed on the language model's request and is thread safe.
+
+The first two components can be overridden by using the macro arguments `#[tool(name, description)]` attribute.
+
+```rust
+    #[tool(
+        name = "the-name-for-this-tool",
+        desc = "the-description-for-this-tool"
+    )]
+    fn get_username(id: String) {
+        // Your code here
+    }
+
+```
 
 
 ### Prompts
