@@ -28,3 +28,6 @@ target
 
 # Envirnoment variables
 .env
+
+# Agents
+AGENTS.md

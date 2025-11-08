@@ -35,6 +35,11 @@ pub struct OpenAIProviderSettingsBuilder {
 }
 
 impl OpenAIProviderSettingsBuilder {
+    pub fn base_url(mut self, base_url: impl Into<String>) -> Self {
+        self.base_url = Some(base_url.into());
+        self
+    }
+
     pub fn api_key(mut self, api_key: impl Into<String>) -> Self {
         self.api_key = Some(api_key.into());
         self
