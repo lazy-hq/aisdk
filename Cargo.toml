@@ -16,11 +16,6 @@ openai = ["async-openai"]
 prompt = ["tera", "glob"]
 test-access = []
 
-[[test]]
-name = "openai_provider_integration_tests"
-required-features = ["openai", "test-access"]
-
-
 [dependencies]
 tera = { version = "1", optional = true }
 glob = { version = "0.3", optional = true }
@@ -51,3 +46,8 @@ pre-release-replacements = [
   {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n\n## [Unreleased] - ReleaseDate", exactly=1},
   {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/lazy-hq/aisdk/compare/{{tag_name}}...HEAD", exactly=1},
 ]
+
+[[test]]
+name = "openai_tests"
+path = "tests/provider/openai_tests.rs"
+required-features = ["openai", "test-access"]
