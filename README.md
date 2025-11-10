@@ -11,7 +11,7 @@ An open-source Rust library for building AI-powered applications, inspired by th
 
 ## Key Features
 
-- **OpenAI Provider Support**: Initial support for OpenAI models with text generation and streaming.
+- **Multi-Provider Support**: OpenAI and Anthropic providers with text generation and streaming.
 - **Type-Safe API**: Built with Rust's type system for reliability.
 - **Asynchronous**: Uses Tokio for async operations.
 - **Prompt Templating**: Filesystem-based prompts using Tera templates (coming soon).
@@ -25,10 +25,17 @@ Add `aisdk` to your `Cargo.toml`:
 aisdk = "0.1.0"
 ```
 
-Enable the OpenAI feature:
+Enable specific provider features:
 
 ```toml
+# For OpenAI only
 aisdk = { version = "0.1.0", features = ["openai"] }
+
+# For Anthropic only  
+aisdk = { version = "0.1.0", features = ["anthropic"] }
+
+# For all providers
+aisdk = { version = "0.1.0", features = ["full"] }
 ```
 
 ## Usage
@@ -135,7 +142,8 @@ The file in `./prompts` contains various example prompt files to demonstrate the
 - **Rust**: Core language.
 - **Tokio**: Async runtime.
 - **Tera**: Template engine for prompts.
-- **async-openai**: OpenAI API client.
+- **async-openai**: Official community SDK for OpenAI API.
+- **reqwest**: Direct HTTP client for Anthropic API (no external SDK).
 
 ## Contributing
 

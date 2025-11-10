@@ -11,8 +11,9 @@ keywords = ["ai", "sdk", "aisdk", "ai-sdk-rs", "openai"]
 categories = ["api-bindings", "asynchronous"]
 
 [features]
-full = ["openai", "prompt"]
+full = ["prompt", "openai", "anthropic"]
 openai = ["async-openai"]
+anthropic = ["reqwest"]
 prompt = ["tera", "glob"]
 test-access = []
 
@@ -20,6 +21,10 @@ test-access = []
 name = "openai_provider_integration_tests"
 required-features = ["openai", "test-access"]
 
+
+[[test]]
+name = "anthropic_provider_integration_tests"
+required-features = ["anthropic"]
 
 [dependencies]
 tera = { version = "1", optional = true }
@@ -35,6 +40,7 @@ futures = "0.3"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 aisdk-macros = { path = "macros" }
 async-openai = { version = "0.29.3", optional = true }
+reqwest = { version = "0.12", features = ["json", "stream"], optional = true }
 
 [dev-dependencies]
 cargo-husky = { version = "1", features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy", "run-cargo-fmt"] }
