@@ -161,7 +161,6 @@ impl From<OpenAIUsage> for Usage {
         Self {
             input_tokens: Some(value.input_tokens as usize),
             output_tokens: Some(value.output_tokens as usize),
-            total_tokens: Some(value.total_tokens as usize),
             cached_tokens: Some(value.input_tokens_details.cached_tokens.unwrap_or(0) as usize),
             reasoning_tokens: Some(
                 value.output_tokens_details.reasoning_tokens.unwrap_or(0) as usize
@@ -290,7 +289,6 @@ mod tests {
         let usage: Usage = openai_usage.into();
         assert_eq!(usage.input_tokens, Some(100));
         assert_eq!(usage.output_tokens, Some(50));
-        assert_eq!(usage.total_tokens, Some(150));
         // These will be 0 because the details are default (None)
         assert_eq!(usage.cached_tokens, Some(0));
         assert_eq!(usage.reasoning_tokens, Some(0));
