@@ -14,6 +14,9 @@ pub struct ProviderConfig {
     /// Model for non-reasoning validation tests (optional)
     pub non_reasoning_model: Option<&'static str>,
 
+    /// Model for stractured output tests (optional)
+    pub structured_output_model: Option<&'static str>,
+
     /// Model name to use for error handling tests
     pub error_model: &'static str,
 }
@@ -46,7 +49,7 @@ impl ProviderConfig {
 
     /// Get the appropriate model for structured output tests
     pub fn structured_output_model(&self) -> &str {
-        self.default_model
+        self.structured_output_model.unwrap_or(self.default_model)
     }
 
     /// Get the model for error handling tests

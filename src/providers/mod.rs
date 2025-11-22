@@ -3,3 +3,6 @@
 
 #[cfg(feature = "openai")]
 pub mod openai;
+
+#[cfg(feature = "groq")]
+pub mod groq;
