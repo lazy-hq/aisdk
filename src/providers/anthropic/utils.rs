@@ -1,7 +1,9 @@
-pub fn default_anthropic_response_role() -> String {
-    "assistant".to_string()
-}
+pub mod default_antropic_value {
+    pub fn assistant() -> String {
+        "assistant".to_string()
+    }
 
-pub fn default_anthropic_response_type() -> String {
-    "text".to_string()
+    pub fn text() -> String {
+        "text".to_string()
+    }
 }

@@ -1,16 +1,14 @@
 //! This module provides the Anthropic client, an HTTP client for interacting with the Anthropic API.
 //! It is a thin wrapper around the `reqwest` crate.
 //! HTTP requests have this parts:
-
-use super::utils::{default_anthropic_response_role, default_anthropic_response_type};
+use super::utils::default_antropic_value;
 use crate::error::{Error, Result};
 use derive_builder::Builder;
 use reqwest::{self, header::CONTENT_TYPE};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-// const ANTHROPIC_BASE_URL: &str = "https://api.anthropic.com/v1";
-const ANTHROPIC_API_VERSION: &str = "2023-06-01";
+const ANTHROPIC_API_VERSION: &str = "2023-06-01"; // TODO: move this to settings
 
 // ---------------------------------- Antropic API types ----------------------------------
 
@@ -19,11 +17,11 @@ pub struct AntropicMessageResponse {
     pub id: String,
     pub content: Vec<AntropicContentBlock>,
     pub model: String,
-    #[serde(default = "default_anthropic_response_role")]
+    #[serde(default = "default_antropic_value::assistant")]
     role: String, // always "assistant"
     pub stop_reason: Option<String>,
     pub stop_sequences: Option<Vec<String>>,
-    #[serde(rename = "type", default = "default_anthropic_response_type")]
+    #[serde(rename = "type", default = "default_antropic_value::text")]
     type_: String,
     pub usage: AntropicUsage,
 }
@@ -51,10 +49,13 @@ pub struct AntropicServerToolUsage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
+#[serde(tag = "type")]
 pub enum AntropicContentBlock {
     #[serde(rename = "text")]
-    Text { citations: Vec<AntropicCitation> },
+    Text {
+        text: String,
+        citations: Vec<AntropicCitation>,
+    },
     #[serde(rename = "thinking")]
     Thinking { signature: String, thinking: String },
     #[serde(rename = "redacted_thinking")]
