@@ -1,5 +1,10 @@
 use crate::core::{Message, language_model::LanguageModelOptions, messages::TaggedMessage};
 
+/// Returns true if the number of steps is equal to the provided step.
+pub fn step_count_is(step: usize) -> impl Fn(&LanguageModelOptions) -> bool {
+    move |options| options.steps().len() > step
+}
+
 /// Resolves the message to be used for text generation.
 ///
 /// This function takes a prompt and a list of messages and returns a vector of
@@ -35,7 +40,8 @@ pub(crate) fn resolve_message(
     (system, messages)
 }
 
-pub fn sum_options(a: Option<usize>, b: Option<usize>) -> Option<usize> {
+/// Sums two options, returning the sum if both are Some, otherwise returns the first option.
+pub(crate) fn sum_options(a: Option<usize>, b: Option<usize>) -> Option<usize> {
     match (a, b) {
         (Some(x), Some(y)) => Some(x + y),
         _ => a.or(b),
