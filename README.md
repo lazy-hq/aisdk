@@ -51,31 +51,42 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Agents / Tools
 
+### Defining a Tool
+
+Use the `#[tool]` macro to expose a Rust function as a callable too
+
+```rust
+use schemars::JsonSchema; // used to convert tool function to json schema
+
+#[tool]
+/// Get the weather information given a location
+pub fn get_weather(location: String) {
+    let weather = match location.as_str() {
+        "New York" => 75,
+        "Tokyo" => 80,
+        _ => 70,
+    };
+    Ok(weather.to_string())
+}
+```
+
+### Using Tools in an Agent
+
+Register tools with an agent so the model can call them during its reasoning loop.
+
 ```rust
 use aisdk::{
     core::{LanguageModelRequest},
     utils::step_count_is,
     providers::openai::OpenAI,
 };
-use schemars::JsonSchema; // used to convert tool function to json schema
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    #[tool]
-    /// Get the weather information given a location
-    pub fn get_weather(location: String) {
-        let weather = match location.as_str() {
-            "New York" => 75,
-            "Tokyo" => 80,
-            _ => 70,
-        };
-        Ok(weather.to_string())
-    }
-
     let result = LanguageModelRequest::builder()
         .model(OpenAI::new("gpt-4o"))
-        .system("You are a helpful assistant with access to tools. Use them to answer questions accurately.")
+        .system("You are a helpful assistant with access to tools.")
         .prompt("What is the weather in New York?")
         .with_tool(get_weather())
         .stop_when(step_count_is(3)) // Limit agent loop to 3 steps
