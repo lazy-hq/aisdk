@@ -16,6 +16,8 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+- Groq provider
 
 <!-- next-url -->
 [Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.1.0...HEAD
