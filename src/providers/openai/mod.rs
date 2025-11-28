@@ -134,6 +134,9 @@ impl LanguageModel for OpenAI {
                 };
 
                 futures::future::ready(match evt_res {
+                    // TODO: handle Start event
+                    // TODO: handle Reasoning event
+                    // TODO: handle Reasoning delta event
                     Ok(ResponseEvent::ResponseCompleted(d)) => {
                         state.completed = true;
 
