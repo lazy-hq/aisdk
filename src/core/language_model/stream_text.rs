@@ -58,6 +58,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                 match chunk {
                     Ok(chunk) => {
                         for output in chunk {
+                            // TODO: handle Reasoning delta event (streaming reasoning)
                             match output {
                                 LanguageModelStreamChunk::Done(final_msg) => {
                                     match final_msg.content {

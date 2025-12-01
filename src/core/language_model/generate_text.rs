@@ -266,7 +266,6 @@ mod tests {
                         usage: Some(Usage {
                             input_tokens: Some(10),
                             output_tokens: Some(5),
-                            total_tokens: Some(15),
                             reasoning_tokens: Some(2),
                             cached_tokens: Some(1),
                         }),
@@ -279,7 +278,6 @@ mod tests {
                         usage: Some(Usage {
                             input_tokens: Some(5),
                             output_tokens: Some(3),
-                            total_tokens: Some(8),
                             reasoning_tokens: Some(1),
                             cached_tokens: Some(0),
                         }),
@@ -293,7 +291,6 @@ mod tests {
         let total_usage = response.usage();
         assert_eq!(total_usage.input_tokens, Some(15));
         assert_eq!(total_usage.output_tokens, Some(8));
-        assert_eq!(total_usage.total_tokens, Some(23));
         assert_eq!(total_usage.reasoning_tokens, Some(3));
         assert_eq!(total_usage.cached_tokens, Some(1));
     }

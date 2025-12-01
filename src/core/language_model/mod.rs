@@ -395,7 +395,6 @@ impl LanguageModelResponseContentType {
 pub struct Usage {
     pub input_tokens: Option<usize>,
     pub output_tokens: Option<usize>,
-    pub total_tokens: Option<usize>,
     pub reasoning_tokens: Option<usize>,
     pub cached_tokens: Option<usize>,
 }
@@ -407,7 +406,6 @@ impl Add for &Usage {
         Usage {
             input_tokens: utils::sum_options(self.input_tokens, rhs.input_tokens),
             output_tokens: utils::sum_options(self.output_tokens, rhs.output_tokens),
-            total_tokens: utils::sum_options(self.total_tokens, rhs.total_tokens),
             reasoning_tokens: utils::sum_options(self.reasoning_tokens, rhs.reasoning_tokens),
             cached_tokens: utils::sum_options(self.cached_tokens, rhs.cached_tokens),
         }
@@ -524,21 +522,18 @@ mod tests {
         let u1 = Usage {
             input_tokens: Some(10),
             output_tokens: Some(20),
-            total_tokens: Some(30),
             reasoning_tokens: Some(5),
             cached_tokens: Some(2),
         };
         let u2 = Usage {
             input_tokens: Some(15),
             output_tokens: Some(25),
-            total_tokens: Some(40),
             reasoning_tokens: Some(10),
             cached_tokens: Some(3),
         };
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, Some(25));
         assert_eq!(result.output_tokens, Some(45));
-        assert_eq!(result.total_tokens, Some(70));
         assert_eq!(result.reasoning_tokens, Some(15));
         assert_eq!(result.cached_tokens, Some(5));
     }
@@ -548,21 +543,18 @@ mod tests {
         let u1 = Usage {
             input_tokens: Some(10),
             output_tokens: Some(20),
-            total_tokens: Some(30),
             reasoning_tokens: Some(5),
             cached_tokens: Some(2),
         };
         let u2 = Usage {
             input_tokens: None,
             output_tokens: None,
-            total_tokens: None,
             reasoning_tokens: None,
             cached_tokens: None,
         };
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, Some(10));
         assert_eq!(result.output_tokens, Some(20));
-        assert_eq!(result.total_tokens, Some(30));
         assert_eq!(result.reasoning_tokens, Some(5));
         assert_eq!(result.cached_tokens, Some(2));
     }
@@ -572,21 +564,18 @@ mod tests {
         let u1 = Usage {
             input_tokens: None,
             output_tokens: None,
-            total_tokens: None,
             reasoning_tokens: None,
             cached_tokens: None,
         };
         let u2 = Usage {
             input_tokens: Some(15),
             output_tokens: Some(25),
-            total_tokens: Some(40),
             reasoning_tokens: Some(10),
             cached_tokens: Some(3),
         };
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, Some(15));
         assert_eq!(result.output_tokens, Some(25));
-        assert_eq!(result.total_tokens, Some(40));
         assert_eq!(result.reasoning_tokens, Some(10));
         assert_eq!(result.cached_tokens, Some(3));
     }
@@ -598,7 +587,6 @@ mod tests {
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, None);
         assert_eq!(result.output_tokens, None);
-        assert_eq!(result.total_tokens, None);
         assert_eq!(result.reasoning_tokens, None);
         assert_eq!(result.cached_tokens, None);
     }
@@ -608,21 +596,18 @@ mod tests {
         let u1 = Usage {
             input_tokens: Some(10),
             output_tokens: None,
-            total_tokens: Some(30),
             reasoning_tokens: None,
             cached_tokens: Some(2),
         };
         let u2 = Usage {
             input_tokens: None,
             output_tokens: Some(25),
-            total_tokens: Some(40),
             reasoning_tokens: Some(10),
             cached_tokens: None,
         };
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, Some(10));
         assert_eq!(result.output_tokens, Some(25));
-        assert_eq!(result.total_tokens, Some(70));
         assert_eq!(result.reasoning_tokens, Some(10));
         assert_eq!(result.cached_tokens, Some(2));
     }
@@ -632,21 +617,18 @@ mod tests {
         let u1 = Usage {
             input_tokens: Some(0),
             output_tokens: Some(0),
-            total_tokens: Some(0),
             reasoning_tokens: Some(0),
             cached_tokens: Some(0),
         };
         let u2 = Usage {
             input_tokens: Some(0),
             output_tokens: Some(0),
-            total_tokens: Some(0),
             reasoning_tokens: Some(0),
             cached_tokens: Some(0),
         };
         let result = &u1 + &u2;
         assert_eq!(result.input_tokens, Some(0));
         assert_eq!(result.output_tokens, Some(0));
-        assert_eq!(result.total_tokens, Some(0));
         assert_eq!(result.reasoning_tokens, Some(0));
         assert_eq!(result.cached_tokens, Some(0));
     }
@@ -659,7 +641,6 @@ mod tests {
                 usage: Some(Usage {
                     input_tokens: Some(10),
                     output_tokens: Some(5),
-                    total_tokens: Some(15),
                     reasoning_tokens: Some(2),
                     cached_tokens: Some(1),
                 }),
@@ -670,7 +651,6 @@ mod tests {
                 usage: Some(Usage {
                     input_tokens: Some(5),
                     output_tokens: Some(3),
-                    total_tokens: Some(8),
                     reasoning_tokens: Some(1),
                     cached_tokens: Some(0),
                 }),
@@ -680,7 +660,6 @@ mod tests {
         let usage = step.usage();
         assert_eq!(usage.input_tokens, Some(15));
         assert_eq!(usage.output_tokens, Some(8));
-        assert_eq!(usage.total_tokens, Some(23));
         assert_eq!(usage.reasoning_tokens, Some(3));
         assert_eq!(usage.cached_tokens, Some(1));
     }
