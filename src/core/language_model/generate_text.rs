@@ -32,7 +32,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             stop_sequences: self.options.stop_sequences.to_owned(),
             tools: self.options.tools.to_owned(),
             stop_when: self.options.stop_when.clone(),
-            prepare_step: self.options.prepare_step.clone(),
+            on_step_start: self.options.on_step_start.clone(),
             on_step_finish: self.options.on_step_finish.clone(),
             stop_reason: None,
             ..self.options
@@ -43,7 +43,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             options.current_step_id += 1;
 
             // Prepare the next step
-            if let Some(hook) = options.prepare_step.clone() {
+            if let Some(hook) = options.on_step_start.clone() {
                 hook(&mut options);
             }
 

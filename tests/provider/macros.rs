@@ -536,7 +536,7 @@ macro_rules! generate_language_model_schema_tests {
 macro_rules! generate_language_model_hook_tests {
     ($provider_type:ty, $config:expr) => {
         #[tokio::test]
-        async fn test_prepare_step_executes_before_each_step() {
+        async fn test_on_step_start_executes_before_each_step() {
             skip_if_no_api_key!();
 
             let counter = Arc::new(Mutex::new(0));
@@ -553,7 +553,7 @@ macro_rules! generate_language_model_hook_tests {
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighborhood())
-                .prepare_step(move |_| {
+                .on_step_start(move |_| {
                     let mut c = counter_clone.lock().unwrap();
                     *c += 1;
                 })
@@ -615,7 +615,7 @@ macro_rules! generate_language_model_hook_tests {
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighbourhood())
-                .prepare_step(move |_| {
+                .on_step_start(move |_| {
                     log_prepare.lock().unwrap().push("prepare");
                 })
                 .on_step_finish(move |_| {
@@ -795,13 +795,13 @@ macro_rules! generate_language_model_hook_tests {
         }
 
         #[tokio::test]
-        async fn test_prepare_step_mutates_options() {
+        async fn test_on_step_start_mutates_options() {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
                 .model(<$provider_type>::new($config.basic_model()))
                 .prompt("Say hello")
-                .prepare_step(|opts| {
+                .on_step_start(|opts| {
                     opts.temperature = Some(0); // Mutate
                 })
                 .build()
@@ -888,7 +888,7 @@ macro_rules! generate_language_model_hook_tests {
         }
 
         #[tokio::test]
-        async fn test_streaming_prepare_step_before_start() {
+        async fn test_streaming_on_step_start_before_start() {
             skip_if_no_api_key!();
 
             let called = Arc::new(Mutex::new(false));
@@ -897,7 +897,7 @@ macro_rules! generate_language_model_hook_tests {
             let _ = LanguageModelRequest::builder()
                 .model(<$provider_type>::new($config.streaming_model()))
                 .prompt("Say hello")
-                .prepare_step(move |_| {
+                .on_step_start(move |_| {
                     *called_clone.lock().unwrap() = true;
                 })
                 .build()

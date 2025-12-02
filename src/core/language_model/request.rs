@@ -226,11 +226,11 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
-    pub fn prepare_step<F>(mut self, hook: F) -> Self
+    pub fn on_step_start<F>(mut self, hook: F) -> Self
     where
         F: Fn(&mut LanguageModelOptions) + Send + Sync + 'static,
     {
-        self.prepare_step = Some(Arc::new(hook));
+        self.on_step_start = Some(Arc::new(hook));
         self
     }
 

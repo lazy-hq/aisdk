@@ -22,7 +22,7 @@ REMOTE=${REMOTE:-origin}
 echo "=== ${PKG}  ${OLD_V}  ->  ${NEW_V}  (branch ${BRANCH})"
 
 git fetch --tags "$REMOTE"
-git switch -c "$BRANCH"
+git switch -C "$BRANCH"
 
 ## bump + changelog + commit  (no publish/push)
 cargo release --no-publish --no-push --no-confirm --execute "$LEVEL"

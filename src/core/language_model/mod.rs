@@ -72,7 +72,7 @@ pub trait LanguageModel: Send + Sync + std::fmt::Debug {
 // ============================================================================
 
 pub type StopWhenHook = Arc<dyn Fn(&LanguageModelOptions) -> bool + Send + Sync>;
-pub type PrepareStepHook = Arc<dyn Fn(&mut LanguageModelOptions) + Send + Sync>;
+pub type OnStepStartHook = Arc<dyn Fn(&mut LanguageModelOptions) + Send + Sync>;
 pub type OnStepFinishHook = Arc<dyn Fn(&LanguageModelOptions) + Send + Sync>;
 
 // ============================================================================
@@ -186,7 +186,7 @@ pub struct LanguageModelOptions {
     pub stop_when: Option<StopWhenHook>,
 
     /// Hook called before each step (language model request)
-    pub prepare_step: Option<PrepareStepHook>,
+    pub on_step_start: Option<OnStepStartHook>,
 
     /// Hook called after each step finishes
     pub on_step_finish: Option<OnStepFinishHook>,
@@ -226,7 +226,7 @@ impl Debug for LanguageModelOptions {
             .field("tools", &self.tools)
             .field("current_step_id", &self.current_step_id)
             .field("stop_when", &self.stop_when.is_some())
-            .field("prepare_step", &self.prepare_step.is_some())
+            .field("on_step_start", &self.on_step_start.is_some())
             .field("on_step_finish", &self.on_step_finish.is_some())
             .finish()
     }

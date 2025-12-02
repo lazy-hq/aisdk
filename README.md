@@ -7,8 +7,6 @@
 
 An open-source Rust library for building AI-powered applications, inspired by the Vercel AI SDK. It provides a type-safe interface for interacting with Large Language Models (LLMs).
 
-> **⚠️ Early Stage Warning**: This project is in very early development and not ready for production use. APIs may change significantly, and features are limited. Use at your own risk.
-
 ## Installation
 
 ```bash
@@ -49,11 +47,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Agents / Tools
+## Agents / Tools
 
 ### Defining a Tool
 
-Use the `#[tool]` macro to expose a Rust function as a callable too
+Use the `#[tool]` macro to expose a Rust function as a callable tool.
 
 ```rust
 use schemars::JsonSchema; // used to convert tool function to json schema
