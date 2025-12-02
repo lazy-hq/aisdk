@@ -2,8 +2,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse::Parser;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, Expr, ExprLit, FnArg, ItemFn, Lit, Meta,
-    MetaNameValue, Pat, Token,
+    Expr, ExprLit, FnArg, ItemFn, Lit, Meta, MetaNameValue, Pat, Token, parse_macro_input,
+    punctuated::Punctuated,
 };
 
 #[proc_macro_attribute]

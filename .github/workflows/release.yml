@@ -23,6 +23,7 @@ jobs:
       - run: cargo semver-checks check-release # ensure correct version format
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
+      - run: cargo publish -p aisdk-macros --token ${{ steps.auth.outputs.token }}
       - run: cargo publish --token ${{ steps.auth.outputs.token }}
       - uses: softprops/action-gh-release@v1
         with:
