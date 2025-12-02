@@ -27,13 +27,11 @@ git switch -C "$BRANCH"
 ## bump + changelog + commit  (no publish/push)
 cargo release --no-publish --no-push --no-confirm --execute "$LEVEL"
 
-## create tag on this commit
-git tag -a "v${NEW_V}" -m "v${NEW_V}"
-
 ## push both branch and tag
-git push -u "$REMOTE" "$BRANCH" "v${NEW_V}"
+git push -u "$REMOTE" "$BRANCH"
 
 REPO_URL=$(git remote get-url "$REMOTE" | sed 's/\.git$//' | sed 's/git@/https:\/\//' | sed 's/:/\//')
 echo
 echo "✅  branch ${BRANCH}  and  tag v${NEW_V}  pushed"
 echo "   open PR:  ${REPO_URL}/compare/${BRANCH}"
+echo "   after PR merged: run git tag v${NEW_V} && git push origin v${NEW_V}"
