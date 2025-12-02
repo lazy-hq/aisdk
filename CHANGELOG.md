@@ -17,7 +17,15 @@ Changelog entries are grouped by type, with the following types:
 ## [Unreleased] - ReleaseDate
 
 ### Added
+- Tooll Call Support
+- Hooks (StopWhen, OnStepStart, OnStepFinish) for Language Model Requests
+- Reasoning message and configuration options
+- Anthropic provider
 - Groq provider
+
+### Changed
+- Changed standalone (generate_text,stream_text) functions to methods on LanguageModelRequest struct
+- Rebranded to aisdk
 
 <!-- next-url -->
 [Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.1.0...HEAD
