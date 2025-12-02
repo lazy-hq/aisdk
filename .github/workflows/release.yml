@@ -24,8 +24,22 @@ jobs:
           command: semver-checks check-release
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
-      - run: cargo publish --manifest-path macros/Cargo.toml --token ${{ steps.auth.outputs.token }}
-      - run: cargo publish --token ${{ steps.auth.outputs.token }}
+      - run: |
+          LATEST=$(curl -s https://crates.io/api/v1/crates/aisdk-macros | jq -r '.crate.max_version')
+          CURRENT=$(cargo metadata --manifest-path macros/Cargo.toml --format-version 1 | jq -r '.packages[0].version')
+          if [ "$(printf '%s\n' "$LATEST" "$CURRENT" | sort -V | head -n1)" != "$CURRENT" ]; then
+            cargo publish --manifest-path macros/Cargo.toml --token ${{ steps.auth.outputs.token }}
+          else
+            echo "aisdk-macros $CURRENT is not newer than $LATEST, skipping publish."
+          fi
+      - run: |
+          LATEST=$(curl -s https://crates.io/api/v1/crates/aisdk | jq -r '.crate.max_version')
+          CURRENT=$(cargo metadata --format-version 1 | jq -r '.packages[0].version')
+          if [ "$(printf '%s\n' "$LATEST" "$CURRENT" | sort -V | head -n1)" != "$CURRENT" ]; then
+            cargo publish --token ${{ steps.auth.outputs.token }}
+          else
+            echo "aisdk $CURRENT is not newer than $LATEST, skipping publish."
+          fi
       - uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true

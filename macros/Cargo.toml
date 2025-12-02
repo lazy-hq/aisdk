@@ -2,6 +2,11 @@
 name = "aisdk-macros"
 version = "0.2.0"
 edition = "2024"
+license = "MIT"
+description = "Procedural macros for the aisdk library"
+homepage = "https://github.com/lazy-hq/aisdk"
+repository = "https://github.com/lazy-hq/aisdk"
+readme = "README.md"
 
 [lib]
 proc-macro = true
