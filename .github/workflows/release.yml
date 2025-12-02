@@ -26,14 +26,14 @@ jobs:
         id: auth
       - run: |
          CURRENT=$(cargo metadata --manifest-path macros/Cargo.toml --format-version 1 | jq -r '.packages[] | select(.name == "aisdk-macros") | .version')
-         if curl -s https://crates.io/api/v1/crates/aisdk-macros/${CURRENT} | jq -e '.version' > /dev/null 2>&1; then
+         if curl -s -f https://crates.io/api/v1/crates/aisdk-macros/${CURRENT} > /dev/null 2>&1; then
            echo "aisdk-macros ${CURRENT} already published, skipping."
          else
            cargo publish --manifest-path macros/Cargo.toml --token ${{ steps.auth.outputs.token }}
          fi
       - run: |
          CURRENT=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == "aisdk") | .version')
-         if curl -s https://crates.io/api/v1/crates/aisdk/${CURRENT} | jq -e '.version' > /dev/null 2>&1; then
+         if curl -s -f https://crates.io/api/v1/crates/aisdk/${CURRENT} > /dev/null 2>&1; then
            echo "aisdk ${CURRENT} already published, skipping."
          else
            cargo publish --token ${{ steps.auth.outputs.token }}
