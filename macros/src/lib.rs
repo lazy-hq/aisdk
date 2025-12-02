@@ -15,18 +15,22 @@ use syn::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,no_run
+/// use aisdk_macros::tool;
+/// use aisdk::core::tools::{Tool, ToolExecute};
+///
 /// #[tool]
 /// /// Returns the username
-/// fn get_username(id: String) {
+/// fn get_username(id: String) -> Result<String, String> {
 ///     // Your code here
+///     Ok(format!("user_{}", id))
 /// }
 /// ```
 ///
 /// - `get_username` becomes the name of the tool
 /// - `Returns the username` becomes the description of the tool
 /// - `id: String` becomes the input of the tool. converted to `{"id": "string"}`
-/// as json schema
+///   as json schema
 ///
 /// In the event that the model refuses to send an argument, the default implementation
 /// will be used. this works perfectly for arguments that are `Option`s. Make sure to
@@ -36,13 +40,17 @@ use syn::{
 /// You can override name and description using the macro arguments `name` and `desc`.
 ///
 /// # Example with overrides
-/// ```rust
+/// ```rust,no_run
+/// use aisdk_macros::tool;
+/// use aisdk::core::tools::{Tool, ToolExecute};
+///
 ///     #[tool(
 ///         name = "the-name-for-this-tool",
 ///         desc = "the-description-for-this-tool"
 ///     )]
-///     fn get_username(id: String) {
+///     fn get_username(id: String) -> Result<String, String> {
 ///         // Your code here
+///         Ok(format!("user_{}", id))
 ///     }
 /// ```
 pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -60,18 +68,16 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
         let mut description: Option<String> = None;
 
         for arg in args {
-            if arg.path.is_ident("desc") {
-                if let Expr::Lit(lit) = &arg.value {
-                    if let Lit::Str(str_lit) = &lit.lit {
-                        description = Some(str_lit.value());
-                    }
-                }
-            } else if arg.path.is_ident("name") {
-                if let Expr::Lit(lit) = &arg.value {
-                    if let Lit::Str(str_lit) = &lit.lit {
-                        name = Some(str_lit.value());
-                    }
-                }
+            if arg.path.is_ident("desc")
+                && let Expr::Lit(lit) = &arg.value
+                && let Lit::Str(str_lit) = &lit.lit
+            {
+                description = Some(str_lit.value());
+            } else if arg.path.is_ident("name")
+                && let Expr::Lit(lit) = &arg.value
+                && let Lit::Str(str_lit) = &lit.lit
+            {
+                name = Some(str_lit.value());
             }
         }
 
