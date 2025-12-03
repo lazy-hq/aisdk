@@ -16,6 +16,13 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+- Updated tool macro to require a return type of `Tool`
+- User does not need to import `aisdk::core::tools::ToolExecute` anymore to work with the tool macro
+
+### Removed
+- Removed the tool macro re-export from `src/core/mod.rs`. User should use `aisdk_macros::tool` directly
+
 ## [0.2.1] - 2025-12-02
 
 ### Added
