@@ -132,6 +132,9 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
 #[derive(Debug, Clone)]
 pub struct GenerateTextResponse {
     /// The options that generated this response
+    #[cfg(feature = "test-access")]
+    pub options: LanguageModelOptions,
+    #[cfg(not(feature = "test-access"))]
     options: LanguageModelOptions,
 }
 

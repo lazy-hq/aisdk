@@ -105,9 +105,9 @@ macro_rules! generate_language_model_tests {
         use aisdk::core::{
             LanguageModelRequest, LanguageModelStreamChunkType, Message,
             language_model::{LanguageModelResponseContentType, StopReason},
-            tool,
             tools::{Tool, ToolExecute},
         };
+        use aisdk_macros::tool;
         use dotenv::dotenv;
         use futures::StreamExt;
         use schemars::JsonSchema;
@@ -802,7 +802,7 @@ macro_rules! generate_language_model_hook_tests {
                 .model(<$provider_type>::new($config.basic_model()))
                 .prompt("Say hello")
                 .on_step_start(|opts| {
-                    opts.temperature = Some(0); // Mutate
+                    opts.system = Some("Updated system message!!!".to_string());
                 })
                 .build()
                 .generate_text()
@@ -811,6 +811,7 @@ macro_rules! generate_language_model_hook_tests {
 
             // Hard to verify mutation directly, but ensure no panic and response ok
             assert!(result.text().is_some());
+            assert_eq!(result.options.system.unwrap(), "Updated system message!!!");
         }
 
         #[tokio::test]
