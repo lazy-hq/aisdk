@@ -1,3 +1,6 @@
+#![deny(missing_docs)]
+//! Macros for the `aisdk` library.
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse::Parser;
