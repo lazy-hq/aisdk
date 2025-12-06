@@ -7,6 +7,7 @@
 //! Key types like `GenerateTextCallOptions` and `GenerateTextResponse` are also
 //! re-exported for convenient access.
 
+pub mod client;
 pub mod language_model;
 pub mod messages;
 pub mod provider;

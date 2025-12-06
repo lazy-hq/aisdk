@@ -17,7 +17,7 @@ categories = ["api-bindings", "asynchronous"]
 [features]
 full = ["prompt", "openai", "anthropic", "groq"]
 openai = ["async-openai"]
-anthropic = ["reqwest"]
+anthropic = []
 groq = ["openai"]
 prompt = ["tera", "glob"]
 test-access = []
@@ -35,7 +35,7 @@ derive_builder = "0.20.2"
 futures = "0.3"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 async-openai = { version = "0.29.3", optional = true }
-reqwest = { version = "0.12", features = ["json", "stream"], optional = true }
+reqwest = { version = "0.12", features = ["json", "stream"] }
 
 [dev-dependencies]
 cargo-husky = { version = "1", features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy", "run-cargo-fmt"] }
