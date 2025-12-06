@@ -3,14 +3,14 @@ use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponseContentType, ReasoningEffort, Usage,
 };
 use crate::providers::anthropic::client::{
-    AnthropicAssistantMessageParamContent, AnthropicClient, AnthropicMessageDeltaUsage,
-    AntropicMessageParam, AntropicThinking, AntropicTool, AntropicUsage,
+    AnthropicAssistantMessageParamContent, AnthropicMessageDeltaUsage, AnthropicMessageParam,
+    AnthropicParams, AnthropicThinking, AnthropicTool, AnthropicUsage,
 };
 
-impl From<LanguageModelOptions> for AnthropicClient {
+impl From<LanguageModelOptions> for AnthropicParams {
     fn from(options: LanguageModelOptions) -> Self {
         let mut messages = Vec::new();
-        let mut request = AnthropicClient::builder();
+        let mut request = AnthropicParams::builder();
         // TODO: anthropic max_tokens is required. handle compile
         // time checks if not set in core
         let max_tokens = options.max_output_tokens.unwrap_or(10000);
@@ -26,16 +26,16 @@ impl From<LanguageModelOptions> for AnthropicClient {
                     request.system(Some(s.content));
                 }
                 Message::User(u) => {
-                    messages.push(AntropicMessageParam::User { content: u.content });
+                    messages.push(AnthropicMessageParam::User { content: u.content });
                 }
                 Message::Assistant(a) => match a.content {
                     LanguageModelResponseContentType::Text(text) => {
-                        messages.push(AntropicMessageParam::Assistant {
+                        messages.push(AnthropicMessageParam::Assistant {
                             content: AnthropicAssistantMessageParamContent::Text { text },
                         });
                     }
                     LanguageModelResponseContentType::ToolCall(tool) => {
-                        messages.push(AntropicMessageParam::Assistant {
+                        messages.push(AnthropicMessageParam::Assistant {
                             content: AnthropicAssistantMessageParamContent::ToolUse {
                                 id: tool.tool.id,
                                 input: tool.input,
@@ -44,7 +44,7 @@ impl From<LanguageModelOptions> for AnthropicClient {
                         });
                     }
                     LanguageModelResponseContentType::Reasoning(reasoning) => {
-                        messages.push(AntropicMessageParam::Assistant {
+                        messages.push(AnthropicMessageParam::Assistant {
                             content: AnthropicAssistantMessageParamContent::Thinking {
                                 thinking: reasoning.clone(),
                                 signature: reasoning, // TODO: handle antropic thinking
@@ -54,11 +54,11 @@ impl From<LanguageModelOptions> for AnthropicClient {
                     }
                     LanguageModelResponseContentType::NotSupported(_) => {}
                 },
-                Message::Tool(tool) => messages.push(AntropicMessageParam::User {
+                Message::Tool(tool) => messages.push(AnthropicMessageParam::User {
                     content: format!("{:?}", tool),
                 }),
                 Message::Developer(dev) => {
-                    messages.push(AntropicMessageParam::User {
+                    messages.push(AnthropicMessageParam::User {
                         content: format!("<developer>\n{}\n</developer>", dev),
                     });
                 }
@@ -75,7 +75,7 @@ impl From<LanguageModelOptions> for AnthropicClient {
                     .iter()
                     .map(|t| {
                         let tool = t.clone();
-                        AntropicTool {
+                        AnthropicTool {
                             name: tool.name,
                             description: tool.description,
                             input_schema: tool.input_schema.to_value(),
@@ -88,15 +88,15 @@ impl From<LanguageModelOptions> for AnthropicClient {
         // convert reasoning to antropic thinking
         request.thinking(options.reasoning_effort.map(|effort| match effort {
             // Low is 25% of the max_tokens
-            ReasoningEffort::Low => AntropicThinking::Enable {
+            ReasoningEffort::Low => AnthropicThinking::Enable {
                 budget_tokens: (max_tokens / 4) as usize,
             },
             // Medium is 50% of the max_tokens
-            ReasoningEffort::Medium => AntropicThinking::Enable {
+            ReasoningEffort::Medium => AnthropicThinking::Enable {
                 budget_tokens: (max_tokens / 2) as usize,
             },
             // High is 75% of the max_tokens
-            ReasoningEffort::High => AntropicThinking::Enable {
+            ReasoningEffort::High => AnthropicThinking::Enable {
                 budget_tokens: (max_tokens - (max_tokens / 4)) as usize,
             },
         }));
@@ -105,8 +105,8 @@ impl From<LanguageModelOptions> for AnthropicClient {
     }
 }
 
-impl From<AntropicUsage> for Usage {
-    fn from(usage: AntropicUsage) -> Self {
+impl From<AnthropicUsage> for Usage {
+    fn from(usage: AnthropicUsage) -> Self {
         Self {
             input_tokens: Some(usage.input_tokens),
             output_tokens: Some(usage.output_tokens),

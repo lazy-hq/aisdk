@@ -1,16 +1,4 @@
-//! This module provides the Anthropic client, an HTTP client for interacting with the Anthropic API.
-//! It is a thin wrapper around the `reqwest` crate.
-//! HTTP requests have this parts:
-use super::utils::default_antropic_value;
-use crate::core::client::Request;
-use crate::error::Error;
-use derive_builder::Builder;
-use reqwest::{self, header::CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
-
-const ANTHROPIC_API_VERSION: &str = "2023-06-01"; // TODO: move this to settings
-
-// ---------------------------------- Antropic API types ----------------------------------
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub enum AnthropicErrorType {
@@ -24,21 +12,6 @@ pub enum AnthropicErrorType {
     RateLimitError,
     ApiError,
     OverloadedError,
-}
-
-impl std::fmt::Display for AnthropicErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AnthropicErrorType::InvalidRequestError => write!(f, "invalid_request_error"),
-            AnthropicErrorType::AuthenticationError => write!(f, "authentication_error"),
-            AnthropicErrorType::PermissionError => write!(f, "permission_error"),
-            AnthropicErrorType::NotFoundError => write!(f, "not_found_error"),
-            AnthropicErrorType::RequestTooLarge => write!(f, "request_too_large"),
-            AnthropicErrorType::RateLimitError => write!(f, "rate_limit_error"),
-            AnthropicErrorType::ApiError => write!(f, "api_error"),
-            AnthropicErrorType::OverloadedError => write!(f, "overloaded_error"),
-        }
-    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -66,48 +39,48 @@ pub enum AnthropicStopReason {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AntropicMessageResponse {
+pub struct AnthropicMessageResponse {
     pub id: String,
-    pub content: Vec<AntropicContentBlock>,
+    pub content: Vec<AnthropicContentBlock>,
     pub model: String,
-    #[serde(default = "default_antropic_value::assistant")]
+    #[serde(default = "assistant")]
     role: String, // always "assistant"
     pub stop_reason: Option<String>,
     pub stop_sequences: Option<Vec<String>>,
-    #[serde(rename = "type", default = "default_antropic_value::text")]
+    #[serde(rename = "type", default = "text")]
     type_: String,
-    pub usage: AntropicUsage,
+    pub usage: AnthropicUsage,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AntropicUsage {
-    pub cache_creation: AntropicCacheCreation,
+pub struct AnthropicUsage {
+    pub cache_creation: AnthropicCacheCreation,
     pub cache_creation_input_tokens: usize,
     pub cache_read_input_tokens: usize,
     pub input_tokens: usize,
     pub output_tokens: usize,
-    pub server_tool_use: AntropicServerToolUsage,
+    pub server_tool_use: AnthropicServerToolUsage,
     pub service_tier: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AntropicCacheCreation {
+pub struct AnthropicCacheCreation {
     pub ephemeral_1h_input_tokens: usize,
     pub ephemeral_5m_input_tokens: usize,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AntropicServerToolUsage {
+pub struct AnthropicServerToolUsage {
     pub web_search_requests: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AntropicContentBlock {
+pub enum AnthropicContentBlock {
     #[serde(rename = "text")]
     Text {
         text: String,
-        citations: Vec<AntropicCitation>,
+        citations: Vec<AnthropicCitation>,
     },
     #[serde(rename = "thinking")]
     Thinking { signature: String, thinking: String },
@@ -123,7 +96,7 @@ pub enum AntropicContentBlock {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AntropicCitation {
+pub enum AnthropicCitation {
     CitationCharLocation {
         cited_text: String,
         document_index: usize,
@@ -165,7 +138,7 @@ pub enum AntropicCitation {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "role")]
-pub enum AntropicMessageParam {
+pub enum AnthropicMessageParam {
     #[serde(rename = "user")]
     User { content: String },
     #[serde(rename = "assistant")]
@@ -190,7 +163,7 @@ pub enum AnthropicAssistantMessageParamContent {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AntropicTool {
+pub struct AnthropicTool {
     pub name: String,
     pub description: String,
     pub input_schema: serde_json::Value,
@@ -198,7 +171,7 @@ pub struct AntropicTool {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AntropicThinking {
+pub enum AnthropicThinking {
     #[default]
     #[serde(rename = "disable")]
     Disable,
@@ -212,11 +185,11 @@ pub enum AntropicThinking {
 #[serde(tag = "type")]
 pub enum AnthropicStreamEvent {
     #[serde(rename = "message_start")]
-    MessageStart { message: AntropicMessageResponse },
+    MessageStart { message: AnthropicMessageResponse },
     #[serde(rename = "content_block_start")]
     ContentBlockStart {
         index: usize,
-        content_block: AntropicContentBlock,
+        content_block: AnthropicContentBlock,
     },
     #[serde(rename = "content_block_delta")]
     ContentBlockDelta { index: usize, delta: AnthropicDelta },
@@ -243,7 +216,7 @@ pub enum AnthropicDelta {
     #[serde(rename = "input_json_delta")]
     ToolUseDelta { partial_json: String },
     #[serde(rename = "citation_delta")]
-    CitationDelta { citation: AntropicCitation },
+    CitationDelta { citation: AnthropicCitation },
     #[serde(rename = "signature_delta")]
     SignatureDelta { signature: String },
 }
@@ -254,7 +227,7 @@ pub struct AnthropicMessageDeltaUsage {
     pub cache_read_input_tokens: Option<usize>,
     pub input_tokens: Option<usize>,
     pub output_tokens: usize,
-    pub server_tool_use: Option<AntropicServerToolUsage>,
+    pub server_tool_use: Option<AnthropicServerToolUsage>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -263,69 +236,28 @@ pub struct AnthropicMessageDelta {
     pub stop_sequence: Option<String>,
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
-#[builder(setter(into), build_fn(error = "Error"))]
-pub struct AnthropicClient {
-    pub model: String,
-    pub messages: Vec<AntropicMessageParam>,
-    pub max_tokens: u32,
-    pub stop_sequences: Option<Vec<String>>,
-    pub stream: Option<bool>,
-    pub system: Option<String>,
-    pub temperature: Option<f32>,
-    pub thinking: Option<AntropicThinking>,
-    pub tools: Option<Vec<AntropicTool>>,
-    pub top_k: Option<u32>,
-    pub top_p: Option<f32>,
-}
+// ---------------------------------- Trait implementations ----------------------------------
 
-impl AnthropicClient {
-    pub fn builder() -> AnthropicClientBuilder {
-        AnthropicClientBuilder::default()
+impl std::fmt::Display for AnthropicErrorType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AnthropicErrorType::InvalidRequestError => write!(f, "invalid_request_error"),
+            AnthropicErrorType::AuthenticationError => write!(f, "authentication_error"),
+            AnthropicErrorType::PermissionError => write!(f, "permission_error"),
+            AnthropicErrorType::NotFoundError => write!(f, "not_found_error"),
+            AnthropicErrorType::RequestTooLarge => write!(f, "request_too_large"),
+            AnthropicErrorType::RateLimitError => write!(f, "rate_limit_error"),
+            AnthropicErrorType::ApiError => write!(f, "api_error"),
+            AnthropicErrorType::OverloadedError => write!(f, "overloaded_error"),
+        }
     }
 }
 
-impl Request for AnthropicClient {
-    type Response = AntropicMessageResponse;
-    type StreamEvent = AnthropicStreamEvent;
+// ---------------------------------- Helper functions ----------------------------------
+fn assistant() -> String {
+    "assistant".to_string()
+}
 
-    fn path(&self) -> &str {
-        "/messages"
-    }
-
-    fn method(&self) -> reqwest::Method {
-        reqwest::Method::POST
-    }
-
-    fn headers(&self) -> reqwest::header::HeaderMap {
-        // Default headers
-        let mut default_headers = reqwest::header::HeaderMap::new();
-        default_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
-        // x-api-key
-        default_headers.insert(
-            "x-api-key",
-            std::env::var("ANTHROPIC_API_KEY")
-                .expect("Please set the ANTHROPIC_API_KEY environment variable.")
-                .parse()
-                .unwrap(),
-        );
-        default_headers.insert("anthropic-version", ANTHROPIC_API_VERSION.parse().unwrap());
-
-        default_headers
-    }
-
-    fn query_params(&self) -> Vec<(&str, &str)> {
-        Vec::new()
-    }
-
-    fn body(&self) -> reqwest::Body {
-        let body = serde_json::to_string(self).unwrap();
-        reqwest::Body::from(body)
-    }
-
-    fn streaming_body(&self) -> reqwest::Body {
-        let mut clone = self.clone();
-        clone.stream = Some(true);
-        reqwest::Body::from(serde_json::to_string(&clone).unwrap())
-    }
+fn text() -> String {
+    "text".to_string()
 }

@@ -4,7 +4,6 @@
 pub mod client;
 pub mod conversions;
 pub mod settings;
-pub mod utils;
 
 use crate::core::client::Request;
 use crate::core::language_model::{
@@ -16,8 +15,8 @@ use crate::core::tools::ToolDetails;
 use crate::core::{LanguageModelStreamChunkType, ToolCallInfo};
 use crate::error::ProviderError;
 use crate::providers::anthropic::client::{
-    AnthropicClient, AnthropicDelta, AnthropicError, AnthropicMessageDeltaUsage,
-    AnthropicStreamEvent, AntropicContentBlock,
+    AnthropicContentBlock, AnthropicDelta, AnthropicError, AnthropicMessageDeltaUsage,
+    AnthropicParams, AnthropicStreamEvent,
 };
 use crate::providers::anthropic::settings::{
     AnthropicProviderSettings, AnthropicProviderSettingsBuilder,
@@ -78,7 +77,7 @@ impl LanguageModel for Anthropic {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut request: AnthropicClient = options.into();
+        let mut request: AnthropicParams = options.into();
         request.model = self.settings.model_name.clone();
         let response = request.send().await?;
 
@@ -86,20 +85,20 @@ impl LanguageModel for Anthropic {
 
         for out in response.content {
             match out {
-                AntropicContentBlock::Text { text, .. } => {
+                AnthropicContentBlock::Text { text, .. } => {
                     collected.push(LanguageModelResponseContentType::new(text));
                 }
-                AntropicContentBlock::Thinking {
+                AnthropicContentBlock::Thinking {
                     signature,
                     thinking,
                 } => {
                     collected.push(LanguageModelResponseContentType::Reasoning(signature));
                     collected.push(LanguageModelResponseContentType::Reasoning(thinking));
                 }
-                AntropicContentBlock::RedactedThinking { data } => {
+                AnthropicContentBlock::RedactedThinking { data } => {
                     collected.push(LanguageModelResponseContentType::Reasoning(data));
                 }
-                AntropicContentBlock::ToolUse { id, input, name } => {
+                AnthropicContentBlock::ToolUse { id, input, name } => {
                     collected.push(LanguageModelResponseContentType::ToolCall(ToolCallInfo {
                         input,
                         tool: ToolDetails {
@@ -118,7 +117,7 @@ impl LanguageModel for Anthropic {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut request: AnthropicClient = options.into();
+        let mut request: AnthropicParams = options.into();
         request.model = self.settings.model_name.clone();
         let response = request.send_and_stream().await?;
 
@@ -160,19 +159,19 @@ impl LanguageModel for Anthropic {
                             index,
                             content_block,
                         } => match content_block {
-                            AntropicContentBlock::Text { .. } => {
+                            AnthropicContentBlock::Text { .. } => {
                                 state
                                     .content_blocks
                                     .insert(index, AccumulatedBlock::Text(String::new()));
                                 None
                             }
-                            AntropicContentBlock::Thinking { .. } => {
+                            AnthropicContentBlock::Thinking { .. } => {
                                 state
                                     .content_blocks
                                     .insert(index, AccumulatedBlock::Thinking(String::new()));
                                 None
                             }
-                            AntropicContentBlock::RedactedThinking { data } => {
+                            AnthropicContentBlock::RedactedThinking { data } => {
                                 state.content_blocks.insert(
                                     index,
                                     AccumulatedBlock::RedactedThinking(data.clone()),
@@ -182,7 +181,7 @@ impl LanguageModel for Anthropic {
                                     usage: None,
                                 })]))
                             }
-                            AntropicContentBlock::ToolUse { id, name, .. } => {
+                            AnthropicContentBlock::ToolUse { id, name, .. } => {
                                 state.content_blocks.insert(
                                     index,
                                     AccumulatedBlock::ToolUse {
