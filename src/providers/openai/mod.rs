@@ -63,7 +63,7 @@ impl LanguageModel for OpenAI {
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
-        for out in response.output.unwrap_or_default() {
+        for out in response.output {
             match out {
                 types::MessageItem::OutputMessage { content, .. } => {
                     for c in content {
@@ -82,6 +82,20 @@ impl LanguageModel for OpenAI {
                     tool_info.id(call_id);
                     tool_info.input(arguments);
                     collected.push(LanguageModelResponseContentType::ToolCall(tool_info));
+                }
+                types::MessageItem::Reasoning { summary, .. } => {
+                    if !summary.is_empty() {
+                        collected.push(LanguageModelResponseContentType::Reasoning(
+                            summary
+                                .into_iter()
+                                .map(|c| {
+                                    let mut reasoning_text = c.text;
+                                    reasoning_text.push_str("\n\n");
+                                    reasoning_text
+                                })
+                                .collect(),
+                        ))
+                    }
                 }
                 _ => (),
             }
@@ -116,40 +130,36 @@ impl LanguageModel for OpenAI {
                 };
 
                 futures::future::ready(match evt_res {
-                    Ok(client::OpenAiStreamEvent::ResponseOutputTextDelta { delta, .. }) => {
+                    Ok(types::OpenAiStreamEvent::ResponseOutputTextDelta { delta, .. }) => {
                         Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
                             LanguageModelStreamChunkType::Text(delta),
                         )])))
                     }
-                    Ok(client::OpenAiStreamEvent::ResponseOutputTextDone { text, .. }) => {
-                        state.completed = true;
+                    Ok(client::OpenAiStreamEvent::ResponseOutputTextDone { text, .. }) => Some(Ok(
+                        Vec::from([LanguageModelStreamChunk::Done(AssistantMessage {
+                            content: LanguageModelResponseContentType::new(text),
+                            usage: None,
+                        })]),
+                    )),
+                    Ok(types::OpenAiStreamEvent::ResponseReasoningTextDelta { delta, .. }) => {
+                        Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
+                            LanguageModelStreamChunkType::Text(delta),
+                        )])))
+                    }
+                    Ok(types::OpenAiStreamEvent::ResponseReasoningTextDone { text, .. }) => {
                         Some(Ok(Vec::from([LanguageModelStreamChunk::Done(
                             AssistantMessage {
-                                content: LanguageModelResponseContentType::new(text),
+                                content: LanguageModelResponseContentType::Reasoning(text),
                                 usage: None,
                             },
                         )])))
                     }
-                    Ok(client::OpenAiStreamEvent::ResponseFunctionCallArgumentsDelta {
-                        delta,
-                        ..
-                    }) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                        LanguageModelStreamChunkType::ToolCall(delta),
-                    )]))),
-                    Ok(client::OpenAiStreamEvent::ResponseFunctionCallArgumentsDone {
-                        name,
-                        ..
-                    }) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                        LanguageModelStreamChunkType::NotSupported(format!(
-                            "FunctionCall: {name:?}"
-                        )),
-                    )]))),
                     Ok(client::OpenAiStreamEvent::ResponseCompleted { response, .. }) => {
                         state.completed = true;
 
                         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
-                        for out in response.output.unwrap_or_default() {
+                        for out in response.output {
                             if let types::MessageItem::FunctionCall {
                                 call_id,
                                 arguments,

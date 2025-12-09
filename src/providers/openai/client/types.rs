@@ -3,16 +3,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OpenAiResponse {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub conversation: Option<ConversationParam>,
-    pub created_at: Option<f64>,
+    pub id: String,
+    pub created_at: u64,
+    pub output: Vec<MessageItem>,
     pub error: Option<OpenAIErrorByCode>,
-    pub id: Option<String>,
     pub incomplete_details: Option<IncompleteDetails>,
     pub max_output_tokens: Option<u32>,
     pub max_tool_calls: Option<u32>,
     pub model: Option<String>,
-    pub output: Option<Vec<MessageItem>>,
     pub parallel_tool_calls: Option<bool>,
     pub previous_response_id: Option<String>,
     pub reasoning: Option<ReasoningConfig>,
@@ -71,6 +69,25 @@ pub enum OpenAiStreamEvent {
         item_id: String,
         output_index: u32,
         arguments: String,
+    },
+    /// Emitted when a reasoning summary text delta is received.
+    #[serde(rename = "response.reasoning_summary_text.delta")]
+    ResponseReasoningTextDelta {
+        delta: String,
+        item_id: String,
+        output_index: u32,
+        sequence_number: u64,
+        summary_index: u32,
+        type_: String,
+    },
+    /// Emitted when a reasoning summary text is finalized.
+    #[serde(rename = "response.reasoning_summary_text.done")]
+    ResponseReasoningTextDone {
+        item_id: String,
+        output_index: u32,
+        sequence_number: u64,
+        summary_index: u32,
+        text: String,
     },
     /// Emitted when an error occurs.
     #[serde(rename = "error")]
@@ -249,7 +266,6 @@ pub enum MessageItem {
         #[serde(rename = "type")]
         type_: String, // always "message"
     },
-    #[serde(rename = "output")]
     OutputMessage {
         content: Vec<OutputContent>,
         id: Option<String>,
@@ -284,6 +300,7 @@ pub enum MessageItem {
         summary: Vec<ReasoningSummary>,
         #[serde(rename = "type")]
         type_: String, // always "reasoning"
+        #[serde(skip_serializing_if = "Option::is_none")]
         content: Option<Vec<ReasoningTextContent>>,
         encrypted_content: Option<String>,
         status: Option<String>,

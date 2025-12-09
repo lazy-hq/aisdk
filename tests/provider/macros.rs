@@ -164,6 +164,7 @@ macro_rules! generate_basic_tests {
                 .generate_text()
                 .await;
 
+            dbg!(&result);
             assert!(result.is_ok());
 
             let text = result

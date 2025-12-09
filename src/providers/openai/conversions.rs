@@ -138,7 +138,7 @@ impl From<Message> for Option<types::InputItem> {
                             text: reason.clone(),
                         }],
                         type_: "reasoning".to_string(),
-                        content: None,
+                        content: Some(vec![]),
                         encrypted_content: None,
                         status: None,
                     }))
