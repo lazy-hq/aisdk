@@ -4,13 +4,13 @@ use crate::core::language_model::{
 };
 use crate::providers::anthropic::client::{
     AnthropicAssistantMessageParamContent, AnthropicMessageDeltaUsage, AnthropicMessageParam,
-    AnthropicParams, AnthropicThinking, AnthropicTool, AnthropicUsage,
+    AnthropicOptions, AnthropicThinking, AnthropicTool, AnthropicUsage,
 };
 
-impl From<LanguageModelOptions> for AnthropicParams {
+impl From<LanguageModelOptions> for AnthropicOptions {
     fn from(options: LanguageModelOptions) -> Self {
         let mut messages = Vec::new();
-        let mut request = AnthropicParams::builder();
+        let mut request = AnthropicOptions::builder();
         // TODO: anthropic max_tokens is required. handle compile
         // time checks if not set in core
         let max_tokens = options.max_output_tokens.unwrap_or(10000);

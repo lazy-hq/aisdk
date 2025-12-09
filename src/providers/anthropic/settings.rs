@@ -1,9 +1,12 @@
 //! Defines the settings for the Anthropic provider.
 
-use reqwest::{Client, IntoUrl, Url};
+use reqwest::{IntoUrl, Url};
 use serde::{Deserialize, Serialize};
 
-use crate::{error::Error, providers::anthropic::Anthropic};
+use crate::{
+    error::Error,
+    providers::anthropic::{Anthropic, AnthropicOptions},
+};
 
 /// Settings for the Anthropic provider.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,9 +71,10 @@ impl AnthropicProviderSettingsBuilder {
                 .unwrap_or_else(|| "claude-4-sonnet".to_string()),
         };
 
-        let client = Client::new();
-
-        Ok(Anthropic { settings, client })
+        Ok(Anthropic {
+            settings,
+            options: AnthropicOptions::builder().build().unwrap(),
+        })
     }
 }
 

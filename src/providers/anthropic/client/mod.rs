@@ -1,46 +1,42 @@
-//! This module provides the Anthropic client, an HTTP client for interacting with the Anthropic API.
-//! It is a thin wrapper around the `reqwest` crate.
-//! HTTP requests have this parts:
-
 pub mod types;
 
 pub use types::*;
 
-use crate::core::client::Request;
-use crate::error::Error;
+use crate::Error;
 use derive_builder::Builder;
-use reqwest::{self, header::CONTENT_TYPE};
+use reqwest::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
 
-const ANTHROPIC_API_VERSION: &str = "2023-06-01"; // TODO: move this to settings
-
-// ---------------------------------- Antropic API types ----------------------------------
+use crate::{
+    core::client::Client,
+    providers::anthropic::{ANTHROPIC_API_VERSION, Anthropic},
+};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
 #[builder(setter(into), build_fn(error = "Error"))]
-pub struct AnthropicParams {
+pub struct AnthropicOptions {
     pub model: String,
-    pub messages: Vec<types::AnthropicMessageParam>,
+    pub messages: Vec<AnthropicMessageParam>,
     pub max_tokens: u32,
     pub stop_sequences: Option<Vec<String>>,
     pub stream: Option<bool>,
     pub system: Option<String>,
     pub temperature: Option<f32>,
-    pub thinking: Option<types::AnthropicThinking>,
-    pub tools: Option<Vec<types::AnthropicTool>>,
+    pub thinking: Option<AnthropicThinking>,
+    pub tools: Option<Vec<AnthropicTool>>,
     pub top_k: Option<u32>,
     pub top_p: Option<f32>,
 }
 
-impl AnthropicParams {
-    pub fn builder() -> AnthropicParamsBuilder {
-        AnthropicParamsBuilder::default()
+impl AnthropicOptions {
+    pub fn builder() -> AnthropicOptionsBuilder {
+        AnthropicOptionsBuilder::default()
     }
 }
 
-impl Request for AnthropicParams {
-    type Response = types::AnthropicMessageResponse;
-    type StreamEvent = types::AnthropicStreamEvent;
+impl Client for Anthropic {
+    type Response = AnthropicMessageResponse;
+    type StreamEvent = AnthropicStreamEvent;
 
     fn path(&self) -> &str {
         "/messages"
@@ -54,14 +50,7 @@ impl Request for AnthropicParams {
         // Default headers
         let mut default_headers = reqwest::header::HeaderMap::new();
         default_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
-        // x-api-key
-        default_headers.insert(
-            "x-api-key",
-            std::env::var("ANTHROPIC_API_KEY")
-                .expect("Please set the ANTHROPIC_API_KEY environment variable.")
-                .parse()
-                .unwrap(),
-        );
+        default_headers.insert("x-api-key", self.settings.api_key.parse().unwrap());
         default_headers.insert("anthropic-version", ANTHROPIC_API_VERSION.parse().unwrap());
 
         default_headers
@@ -77,7 +66,7 @@ impl Request for AnthropicParams {
     }
 
     fn streaming_body(&self) -> reqwest::Body {
-        let mut clone = self.clone();
+        let mut clone = self.options.clone();
         clone.stream = Some(true);
         reqwest::Body::from(serde_json::to_string(&clone).unwrap())
     }

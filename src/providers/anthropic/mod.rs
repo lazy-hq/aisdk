@@ -5,7 +5,7 @@ pub mod client;
 pub mod conversions;
 pub mod settings;
 
-use crate::core::client::Request;
+use crate::core::client::Client;
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, ProviderStream,
@@ -14,7 +14,7 @@ use crate::core::messages::AssistantMessage;
 use crate::core::tools::ToolDetails;
 use crate::core::{LanguageModelStreamChunkType, ToolCallInfo};
 use crate::providers::anthropic::client::{
-    AnthropicContentBlock, AnthropicDelta, AnthropicMessageDeltaUsage, AnthropicParams,
+    AnthropicContentBlock, AnthropicDelta, AnthropicMessageDeltaUsage, AnthropicOptions,
     AnthropicStreamEvent,
 };
 use crate::providers::anthropic::settings::{
@@ -29,16 +29,14 @@ use futures::StreamExt;
 use serde::Serialize;
 use std::collections::HashMap;
 
+pub const ANTHROPIC_API_VERSION: &str = "2023-06-01";
+
 /// The Anthropic provider.
 #[derive(Debug, Serialize)]
 pub struct Anthropic {
-    #[serde(skip)]
-    pub client: reqwest::Client,
     pub settings: AnthropicProviderSettings,
+    options: AnthropicOptions,
 }
-
-// #[derive(Debug, Clone)]
-// pub struct AnthropicError;
 
 impl Anthropic {
     /// Creates a new `Anthropic` provider with the given settings.
@@ -67,10 +65,12 @@ impl LanguageModel for Anthropic {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut request: AnthropicParams = options.into();
-        request.model = self.settings.model_name.clone();
+        let mut options: AnthropicOptions = options.into();
+        options.model = self.settings.model_name.clone();
 
-        let response = request.send(self.settings.base_url.clone()).await?;
+        self.options = options;
+
+        let response = self.send(self.settings.base_url.clone()).await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -108,11 +108,12 @@ impl LanguageModel for Anthropic {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut request: AnthropicParams = options.into();
-        request.model = self.settings.model_name.clone();
-        let response = request
-            .send_and_stream(self.settings.base_url.clone())
-            .await?;
+        let mut options: AnthropicOptions = options.into();
+        options.model = self.settings.model_name.clone();
+
+        self.options = options;
+
+        let response = self.send_and_stream(self.settings.base_url.clone()).await?;
 
         #[derive(Default)]
         struct StreamState {
