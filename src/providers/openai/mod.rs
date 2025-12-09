@@ -1,34 +1,28 @@
 //! This module provides the OpenAI provider, which implements the `LanguageModel`
 //! and `Provider` traits for interacting with the OpenAI API.
 
+pub mod client;
 pub mod conversions;
 pub mod settings;
-use std::sync::Arc;
 
-use async_openai::error::OpenAIError;
-use async_openai::types::responses::{
-    Content, CreateResponse, OutputContent, OutputItem, Response, ResponseEvent, ResponseStream,
-};
-use async_openai::{Client, config::OpenAIConfig};
-use futures::{StreamExt, stream::once};
-
+use crate::core::client::Request;
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream,
 };
 use crate::core::messages::AssistantMessage;
-use crate::error::ProviderError;
+use crate::providers::openai::client::types;
 use crate::providers::openai::settings::{OpenAIProviderSettings, OpenAIProviderSettingsBuilder};
 use crate::{
     core::{language_model::LanguageModel, provider::Provider, tools::ToolCallInfo},
-    error::{Error, Result},
+    error::Result,
 };
 use async_trait::async_trait;
+use futures::StreamExt;
 
 /// The OpenAI provider.
 #[derive(Debug, Clone)]
 pub struct OpenAI {
-    client: Client<OpenAIConfig>,
     settings: OpenAIProviderSettings,
 }
 
@@ -49,8 +43,6 @@ impl OpenAI {
 
 impl Provider for OpenAI {}
 
-impl ProviderError for OpenAIError {}
-
 #[async_trait]
 impl LanguageModel for OpenAI {
     fn name(&self) -> String {
@@ -61,36 +53,38 @@ impl LanguageModel for OpenAI {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut request: CreateResponse = options.clone().into();
+        let mut request: client::OpenAiParams = options.clone().into();
 
         request.model = self.settings.model_name.to_string();
 
-        let response: Response = self
-            .client
-            .responses()
-            .create(request)
-            .await
-            .map_err(|e| Error::ProviderError(Arc::new(e)))?;
+        let response: client::OpenAiResponse = request.send(self.settings.base_url.clone()).await?;
+
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
-        for out in response.output {
+        for out in response.output.unwrap_or_default() {
             match out {
-                OutputContent::Message(msg) => {
-                    for c in msg.content {
-                        if let Content::OutputText(t) = c {
-                            collected.push(LanguageModelResponseContentType::new(t.text));
-                        }
+                types::MessageItem::OutputMessage { content, .. } => {
+                    for c in content {
+                        match c {
+                            types::OutputContent::OutputText { text, .. } => {
+                                collected.push(LanguageModelResponseContentType::new(text))
+                            }
+                            _ => (),
+                        };
                     }
                 }
-                OutputContent::FunctionCall(f) => {
-                    let mut tool_info = ToolCallInfo::new(f.name);
-                    tool_info.id(f.call_id);
-                    tool_info.input(serde_json::from_str(&f.arguments).unwrap());
+                types::MessageItem::FunctionCall {
+                    arguments,
+                    name,
+                    call_id,
+                    ..
+                } => {
+                    let mut tool_info = ToolCallInfo::new(name);
+                    tool_info.id(call_id);
+                    tool_info.input(arguments);
                     collected.push(LanguageModelResponseContentType::ToolCall(tool_info));
                 }
-                other => collected.push(LanguageModelResponseContentType::NotSupported(format!(
-                    "{other:?}"
-                ))),
+                _ => (),
             }
         }
 
@@ -101,24 +95,13 @@ impl LanguageModel for OpenAI {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut request: CreateResponse = options.into();
+        let mut request: client::OpenAiParams = options.into();
         request.model = self.settings.model_name.to_string();
         request.stream = Some(true);
 
-        let openai_stream: ResponseStream = self
-            .client
-            .responses()
-            .create_stream(request)
-            .await
-            .map_err(|e| Error::ProviderError(Arc::new(e)))?;
-
-        let (first, rest) = openai_stream.into_future().await;
-
-        let openai_stream = if let Some(first) = first {
-            Box::pin(once(async move { first }).chain(rest))
-        } else {
-            rest
-        };
+        let openai_stream = request
+            .send_and_stream(self.settings.base_url.clone())
+            .await?;
 
         #[derive(Default)]
         struct StreamState {
@@ -134,30 +117,55 @@ impl LanguageModel for OpenAI {
                 };
 
                 futures::future::ready(match evt_res {
-                    // TODO: handle Start event
-                    // TODO: handle Reasoning event
-                    // TODO: handle Reasoning delta event
-                    Ok(ResponseEvent::ResponseCompleted(d)) => {
+                    Ok(client::OpenAiStreamEvent::ResponseOutputTextDelta { delta, .. }) => {
+                        Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
+                            LanguageModelStreamChunkType::Text(delta),
+                        )])))
+                    }
+                    Ok(client::OpenAiStreamEvent::ResponseOutputTextDone { text, .. }) => {
+                        state.completed = true;
+                        Some(Ok(Vec::from([LanguageModelStreamChunk::Done(
+                            AssistantMessage {
+                                content: LanguageModelResponseContentType::new(text),
+                                usage: None,
+                            },
+                        )])))
+                    }
+                    Ok(client::OpenAiStreamEvent::ResponseFunctionCallArgumentsDelta {
+                        delta,
+                        ..
+                    }) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
+                        LanguageModelStreamChunkType::ToolCall(delta),
+                    )]))),
+                    Ok(client::OpenAiStreamEvent::ResponseFunctionCallArgumentsDone {
+                        name,
+                        ..
+                    }) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
+                        LanguageModelStreamChunkType::NotSupported(format!(
+                            "FunctionCall: {name:?}"
+                        )),
+                    )]))),
+                    Ok(client::OpenAiStreamEvent::ResponseCompleted { response, .. }) => {
                         state.completed = true;
 
                         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
-                        for out in d.response.output.unwrap_or_default() {
+                        for out in response.output.unwrap_or_default() {
                             match out {
-                                // TODO: handle in `ResponseEvent::ResponseFunctionCallArgumentsDone` instead
-                                OutputItem::FunctionCall(f) => {
-                                    let mut tool_info = ToolCallInfo::new(f.name);
-                                    tool_info.id(f.call_id);
-                                    tool_info.input(serde_json::from_str(&f.arguments).unwrap());
+                                types::MessageItem::FunctionCall {
+                                    call_id,
+                                    arguments,
+                                    name,
+                                    ..
+                                } => {
+                                    let mut tool_info = ToolCallInfo::new(name);
+                                    tool_info.id(call_id);
+                                    tool_info.input(arguments);
                                     collected.push(LanguageModelResponseContentType::ToolCall(
                                         tool_info,
                                     ));
                                 }
-                                other => {
-                                    collected.push(LanguageModelResponseContentType::NotSupported(
-                                        format!("{other:?}"),
-                                    ))
-                                }
+                                _ => {}
                             }
                         }
 
@@ -166,64 +174,38 @@ impl LanguageModel for OpenAI {
                             .map(|ref c| {
                                 LanguageModelStreamChunk::Done(AssistantMessage {
                                     content: c.clone(),
-                                    usage: d.response.usage.clone().map(|usage| usage.into()),
+                                    usage: response
+                                        .usage
+                                        .as_ref()
+                                        .map(|usage| usage.clone().into()),
                                 })
                             })
                             .collect()))
                     }
-                    Ok(ResponseEvent::ResponseOutputTextDelta(d)) => {
+                    Ok(client::OpenAiStreamEvent::ResponseIncomplete { response, .. }) => {
                         Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                            LanguageModelStreamChunkType::Text(d.delta),
+                            LanguageModelStreamChunkType::Incomplete(
+                                response
+                                    .incomplete_details
+                                    .map(|details| details.reason)
+                                    .unwrap_or("Incomplete with unknown reason".to_string()),
+                            ),
                         )])))
                     }
-                    Ok(ResponseEvent::ResponseOutputTextDone(d)) => {
-                        state.completed = true;
-                        Some(Ok(Vec::from([LanguageModelStreamChunk::Done(
-                            AssistantMessage {
-                                content: LanguageModelResponseContentType::new(d.text),
-                                usage: None, // TODO: try to update usage in `ResponseCompleted`
-                            },
-                        )])))
-                    }
-                    Ok(ResponseEvent::ResponseFunctionCallArgumentsDelta(d)) => {
-                        Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                            LanguageModelStreamChunkType::ToolCall(d.delta),
-                        )])))
-                    }
-                    Ok(ResponseEvent::ResponseFunctionCallArgumentsDone(d)) => {
-                        // TODO: Function calls should be returned here but `d.name`
-                        // is not supported by async-openai. currently it is being
-                        // handled by the `ResponseEvent::ResponseCompleted` event but
-                        // this is not guaranteed leaving function calls to be supressed.
-                        Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                            LanguageModelStreamChunkType::NotSupported(format!("{d:?}")),
-                        )])))
-                    }
-                    Ok(ResponseEvent::ResponseIncomplete(d)) => {
-                        Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                            LanguageModelStreamChunkType::Incomplete({
-                                if let Some(reason) = d.response.incomplete_details {
-                                    reason.reason
-                                } else {
-                                    "unknown reason".to_string()
-                                }
-                            }),
-                        )])))
-                    }
-                    Ok(ResponseEvent::ResponseError(e)) => {
+                    Ok(client::OpenAiStreamEvent::ResponseError { code, message, .. }) => {
                         state.completed = true;
                         let reason =
-                            format!("{}: {}", e.code.unwrap_or(" - ".to_string()), e.message);
+                            format!("{}: {}", code.unwrap_or("unknown".to_string()), message);
                         Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
                             LanguageModelStreamChunkType::Failed(reason),
                         )])))
                     }
-                    Ok(resp) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
-                        LanguageModelStreamChunkType::NotSupported(format!("{resp:?}")),
+                    Ok(evt) => Some(Ok(Vec::from([LanguageModelStreamChunk::Delta(
+                        LanguageModelStreamChunkType::NotSupported(format!("{evt:?}")),
                     )]))),
                     Err(e) => {
                         state.completed = true;
-                        Some(Err(Error::ProviderError(Arc::new(e))))
+                        Some(Err(e))
                     }
                 })
             },
