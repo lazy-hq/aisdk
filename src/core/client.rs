@@ -10,7 +10,7 @@ use serde::de::DeserializeOwned;
 use std::pin::Pin;
 
 #[allow(dead_code)]
-pub(crate) trait Request {
+pub(crate) trait Client {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
     type StreamEvent: DeserializeOwned;
 
