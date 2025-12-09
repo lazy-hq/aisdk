@@ -524,8 +524,6 @@ macro_rules! generate_language_model_schema_tests {
                 }
             }
 
-            println!("buf: {}", buf);
-
             let user: User = serde_json::from_str(&buf).unwrap();
 
             assert_eq!(user.name, "John Doe");
@@ -657,7 +655,8 @@ macro_rules! generate_language_model_hook_tests {
                 .await
                 .unwrap();
 
-            let step_ids = result.step_ids();
+            dbg!(&result.options);
+            let step_ids = dbg!(result.step_ids());
             // Should stop after tool call, no final text step
             assert!(step_ids.len() < 5); // Less than full flow
             assert!(matches!(result.stop_reason().unwrap(), StopReason::Hook));

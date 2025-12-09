@@ -35,18 +35,10 @@ pub(crate) trait Client {
             .and_then(|response| response.error_for_status())
             .map_err(|e| Error::ApiError(e.to_string()));
 
-        // log resp.text first
-        let text = resp?
-            .text()
+        resp?
+            .json::<Self::Response>()
             .await
-            .unwrap_or_else(|_| "Failed to read response".to_string());
-        println!("OpenAi Response Body: \n---\n{}\n---", text);
-
-        serde_json::from_str(text.as_str()).map_err(|e| Error::ApiError(e.to_string()))
-        // resp?
-        //     .json::<Self::Response>()
-        //     .await
-        //     .map_err(|e| Error::ApiError(e.to_string()))
+            .map_err(|e| Error::ApiError(e.to_string()))
     }
 
     async fn send_and_stream(
