@@ -68,7 +68,7 @@ impl From<LanguageModelOptions> for client::OpenAIOptions {
 
         client::OpenAIOptions {
             model: "".to_string(), // will be set in mod.rs
-            input: types::Input::InputItemList(items),
+            input: Some(types::Input::InputItemList(items)),
             text: Some(types::TextConfig {
                 verbosity: None,
                 format: Some(

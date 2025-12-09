@@ -16,20 +16,28 @@ use serde::{Deserialize, Serialize};
 #[builder(setter(into), build_fn(error = "Error"))]
 pub struct OpenAIOptions {
     pub model: String,
-    pub input: Input,
+    #[builder(default)]
+    pub input: Option<Input>, // open ai requires input to be set
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub text: Option<types::TextConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub reasoning: Option<types::ReasoningConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub max_output_tokens: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub stream: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub top_p: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
     pub tools: Option<Vec<ToolParams>>,
 }
 
