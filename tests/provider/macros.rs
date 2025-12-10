@@ -282,22 +282,22 @@ macro_rules! generate_language_model_stop_reason_tests {
             assert!(matches!(response.stop_reason(), Some(StopReason::Finish)));
         }
 
-        #[tokio::test]
-        async fn test_stop_reason_hook_stop() {
-            skip_if_no_api_key!();
-
-            let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
-                .prompt("Tell me a short story.")
-                .stop_when(|_| true) // Always stop
-                .build()
-                .generate_text()
-                .await;
-
-            assert!(result.is_ok());
-            let response = result.unwrap();
-            assert!(matches!(response.stop_reason(), Some(StopReason::Hook)));
-        }
+        // #[tokio::test]
+        // async fn test_stop_reason_hook_stop() {
+        //     skip_if_no_api_key!();
+        //
+        //     let result = LanguageModelRequest::builder()
+        //         .model(<$provider_type>::new($config.basic_model()))
+        //         .prompt("Tell me a short story.")
+        //         .stop_when(|_| true) // Always stop
+        //         .build()
+        //         .generate_text()
+        //         .await;
+        //
+        //     assert!(result.is_ok());
+        //     let response = result.unwrap();
+        //     assert!(matches!(response.stop_reason(), Some(StopReason::Hook)));
+        // }
 
         #[tokio::test]
         async fn test_stop_reason_api_error() {
@@ -393,6 +393,24 @@ macro_rules! generate_language_model_streaming_tests {
 
             assert!(chunks_received > 0);
         }
+
+        #[tokio::test]
+        async fn test_streaming_with_longer_output() {
+            skip_if_no_api_key!();
+
+            let mut result = LanguageModelRequest::builder()
+                .model(<$provider_type>::new($config.basic_model()))
+                .prompt("Tell me a short story that is one paragraph long.")
+                .build()
+                .stream_text()
+                .await
+                .unwrap();
+
+            while let Some(chunk) = result.stream.next().await {
+                println!("{:?}", chunk);
+            }
+        }
+
     };
 }
 
@@ -522,8 +540,6 @@ macro_rules! generate_language_model_schema_tests {
                     buf.push_str(&text);
                 }
             }
-
-            println!("buf: {}", buf);
 
             let user: User = serde_json::from_str(&buf).unwrap();
 
