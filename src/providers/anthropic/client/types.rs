@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::error::ProviderError;
+use crate::{core::client::NotSupportedEvent, error::ProviderError};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub enum AnthropicErrorType {
@@ -187,16 +187,23 @@ pub enum AnthropicThinking {
 #[serde(tag = "type")]
 pub enum AnthropicStreamEvent {
     #[serde(rename = "message_start")]
-    MessageStart { message: AnthropicMessageResponse },
+    MessageStart {
+        message: AnthropicMessageResponse,
+    },
     #[serde(rename = "content_block_start")]
     ContentBlockStart {
         index: usize,
         content_block: AnthropicContentBlock,
     },
     #[serde(rename = "content_block_delta")]
-    ContentBlockDelta { index: usize, delta: AnthropicDelta },
+    ContentBlockDelta {
+        index: usize,
+        delta: AnthropicDelta,
+    },
     #[serde(rename = "content_block_stop")]
-    ContentBlockStop { index: usize },
+    ContentBlockStop {
+        index: usize,
+    },
     #[serde(rename = "message_delta")]
     MessageDelta {
         delta: AnthropicMessageDelta,
@@ -205,7 +212,16 @@ pub enum AnthropicStreamEvent {
     #[serde(rename = "message_stop")]
     MessageStop,
     #[serde(rename = "error")]
-    Error { error: AnthropicError },
+    Error {
+        error: AnthropicError,
+    },
+    NotSupported(String),
+}
+
+impl From<NotSupportedEvent> for AnthropicStreamEvent {
+    fn from(event: NotSupportedEvent) -> Self {
+        AnthropicStreamEvent::NotSupported(event.json)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,4 +1,4 @@
-use crate::error::ProviderError;
+use crate::{core::client::NotSupportedEvent, error::ProviderError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -82,6 +82,12 @@ pub enum OpenAiStreamEvent {
         param: Option<String>,
     },
     NotSupported(String),
+}
+
+impl From<NotSupportedEvent> for OpenAiStreamEvent {
+    fn from(event: NotSupportedEvent) -> Self {
+        OpenAiStreamEvent::NotSupported(event.json)
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]

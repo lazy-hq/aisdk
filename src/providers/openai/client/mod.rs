@@ -87,29 +87,4 @@ impl Client for OpenAI {
         let body = serde_json::to_string(&self.options).unwrap();
         reqwest::Body::from(body)
     }
-
-    fn parse_sse_stream(text: &str) -> Option<Result<Self::StreamEvent, Error>> {
-        let text = text.trim();
-
-        if !text.starts_with("data: ") {
-            return None; // Not an SSE data event
-        }
-
-        let json_str = &text[6..]; // Extract JSON after "data: "
-
-        // Parse JSON into Value
-        let value: serde_json::Value = match serde_json::from_str(json_str) {
-            Ok(v) => v,
-            Err(e) => return Some(Err(Error::ApiError(e.to_string()))), // Invalid JSON
-        };
-
-        // Directly attempt deserialization using the enum's serde tag and renames
-        match serde_json::from_value::<OpenAiStreamEvent>(value) {
-            Ok(event) => Some(Ok(event)), // Known type with valid data
-            Err(_) => {
-                // Unknown type or invalid data: Use NotSupported with just the JSON string
-                Some(Ok(OpenAiStreamEvent::NotSupported(json_str.to_string())))
-            }
-        }
-    }
 }

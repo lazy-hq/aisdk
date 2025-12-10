@@ -35,6 +35,7 @@ derive_builder = "0.20.2"
 futures = "0.3"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest-eventsource = "0.6.0"
 
 [dev-dependencies]
 cargo-husky = { version = "1", features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy", "run-cargo-fmt"] }

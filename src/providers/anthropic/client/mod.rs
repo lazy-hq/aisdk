@@ -38,10 +38,6 @@ impl Client for Anthropic {
     type Response = AnthropicMessageResponse;
     type StreamEvent = AnthropicStreamEvent;
 
-    fn parse_sse_stream(_text: &str) -> Option<Result<Self::StreamEvent, crate::error::Error>> {
-        None // TODO: implement
-    }
-
     fn path(&self) -> &str {
         "/messages"
     }
