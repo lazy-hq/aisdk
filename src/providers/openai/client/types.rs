@@ -22,6 +22,7 @@ pub struct OpenAiResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
+#[serde(tag = "type")]
 pub enum OpenAiStreamEvent {
     /// Emitted when the model response is complete.
     #[serde(rename = "response.completed")]

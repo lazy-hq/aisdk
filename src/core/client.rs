@@ -44,7 +44,10 @@ pub(crate) trait Client {
     async fn send_and_stream(
         &self,
         base_url: Url,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>> {
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
+    where
+        Self::StreamEvent: Send + 'static,
+    {
         let client = reqwest::Client::new();
         let base_url = base_url.join(self.path()).expect("Invalid base URL");
         let resp = client
@@ -57,34 +60,45 @@ pub(crate) trait Client {
             .and_then(|response| response.error_for_status())
             .map_err(|e| Error::ApiError(e.to_string()))?;
 
-        let stream = resp.bytes_stream().map(|result| {
-            result
-                .map_err(|e| Error::ApiError(e.to_string()))
-                .and_then(|bytes| {
-                    let text = String::from_utf8(bytes.to_vec())
-                        .map_err(|e| Error::ApiError(format!("UTF-8 error: {}", e)))?;
-                    let mut events = vec![];
-                    for message in text.split("\n\n") {
-                        if let Some(data_line) =
-                            message.lines().find(|line| line.starts_with("data: "))
-                        {
-                            let json_str = &data_line[6..];
-                            if json_str.trim().is_empty() || json_str.trim() == "[DONE]" {
-                                continue;
-                            }
-                            let event: Self::StreamEvent = serde_json::from_str(json_str)
-                                .map_err(|e| Error::ApiError(format!("JSON parse error: {}", e)))?;
+        let stream = resp
+            .bytes_stream()
+            .scan(String::new(), |buffer, result| {
+                let chunk = match result {
+                    Ok(bytes) => String::from_utf8_lossy(&bytes).to_string(),
+                    Err(e) => {
+                        return futures::future::ready(Some(vec![Err(Error::ApiError(
+                            e.to_string(),
+                        ))]));
+                    }
+                };
+
+                buffer.push_str(&chunk);
+
+                let mut events = Vec::new();
+
+                while let Some(pos) = buffer.find("\n\n") {
+                    let message = buffer[..pos].to_string();
+                    *buffer = buffer[pos + 2..].to_string();
+
+                    for line in message.lines() {
+                        let line = line.trim();
+                        if let Some(event) = Self::parse_sse_stream(line) {
                             events.push(event);
                         }
                     }
-                    if events.is_empty() {
-                        Err(Error::ApiError("No events parsed".to_string()))
-                    } else {
-                        Ok(events.into_iter().next().unwrap())
-                    }
+                }
+
+                futures::future::ready(if events.is_empty() {
+                    None
+                } else {
+                    Some(events)
                 })
-        });
+            })
+            .map(futures::stream::iter)
+            .flatten();
 
         Ok(Box::pin(stream))
     }
+
+    fn parse_sse_stream(text: &str) -> Option<Result<Self::StreamEvent>>;
 }
