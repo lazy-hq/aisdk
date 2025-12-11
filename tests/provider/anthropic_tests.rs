@@ -8,6 +8,7 @@ include!("macros.rs");
 // Configuration for OpenAI provider tests
 const ANTHROPIC_CONFIG: ProviderConfig = ProviderConfig {
     default_model: "claude-3-5-haiku-20241022",
+    tool_model: None,
     reasoning_model: Some("claude-3-5-haiku-20241022"),
     non_reasoning_model: Some("claude-3-5-haiku-20241022"),
     structured_output_model: Some("claude-3-5-haiku-20241022"),

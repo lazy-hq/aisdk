@@ -7,6 +7,7 @@ include!("macros.rs");
 // Configuration for OpenAI provider tests
 const GROQ_CONFIG: ProviderConfig = ProviderConfig {
     default_model: "qwen/qwen3-32b",
+    tool_model: None,
     reasoning_model: Some("openai/gpt-oss-120b"),
     non_reasoning_model: Some("llama-3.1-8b-instant"),
     structured_output_model: Some("openai/gpt-oss-120b"),
