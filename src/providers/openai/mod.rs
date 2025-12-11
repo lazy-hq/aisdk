@@ -94,6 +94,7 @@ impl LanguageModel for OpenAI {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
+        println!("provider: streaming text");
         let mut options: OpenAIOptions = options.into();
         options.model = self.options.model.to_string();
         options.stream = Some(true);
@@ -110,7 +111,9 @@ impl LanguageModel for OpenAI {
 
         let state = std::sync::Arc::new(std::sync::Mutex::new(StreamState::default()));
 
+        println!("provider: starting stream mapping");
         let stream = openai_stream.flat_map(move |evt_res| {
+            println!("provider: mapping stream: {evt_res:?}");
             let state = std::sync::Arc::clone(&state);
             let mut state = state.lock().unwrap();
             if state.completed {
@@ -225,6 +228,7 @@ impl LanguageModel for OpenAI {
                 }
             }
         });
+        println!("provider: returning stream");
 
         Ok(Box::pin(stream))
     }

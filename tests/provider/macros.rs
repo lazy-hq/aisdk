@@ -406,8 +406,9 @@ macro_rules! generate_language_model_streaming_tests {
                 .await
                 .unwrap();
 
+
             while let Some(chunk) = result.stream.next().await {
-                println!("{:?}", chunk);
+                println!("Chunk: {:?}", chunk);
             }
         }
 

@@ -32,7 +32,7 @@ use std::collections::HashMap;
 pub const ANTHROPIC_API_VERSION: &str = "2023-06-01";
 
 /// The Anthropic provider.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Anthropic {
     pub settings: AnthropicProviderSettings,
     options: AnthropicOptions,

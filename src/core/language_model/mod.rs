@@ -43,7 +43,7 @@ pub const DEFAULT_TOOL_STEP_COUNT: usize = 3;
 /// be extensible to support various functionalities, such as single-shot
 /// generation and streaming responses.
 #[async_trait]
-pub trait LanguageModel: Send + Sync + std::fmt::Debug {
+pub trait LanguageModel: Send + Sync + std::fmt::Debug + Clone {
     fn name(&self) -> String;
     /// Performs a single, non-streaming text generation request.
     ///
