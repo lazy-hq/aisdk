@@ -439,6 +439,8 @@ pub enum LanguageModelStreamChunkType {
     Start,
     /// Text chunk
     Text(String),
+    /// Reasoning summary text chunk
+    Reasoning(String),
     /// Tool call argument chunk
     ToolCall(String),
     /// The model has stopped generating text successfully.

@@ -224,6 +224,24 @@ impl From<NotSupportedEvent> for AnthropicStreamEvent {
     }
 }
 
+impl crate::core::client::StreamEventExt for AnthropicStreamEvent {
+    fn not_supported(json: String) -> Self {
+        AnthropicStreamEvent::NotSupported(json)
+    }
+
+    fn as_not_supported(&self) -> Option<&str> {
+        if let Self::NotSupported(json) = self {
+            Some(json)
+        } else {
+            None
+        }
+    }
+
+    fn is_end(&self) -> bool {
+        matches!(self, Self::MessageStop) || self.as_not_supported().is_some_and(|j| j == "[END]")
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum AnthropicDelta {

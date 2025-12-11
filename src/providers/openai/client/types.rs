@@ -46,32 +46,14 @@ pub enum OpenAiStreamEvent {
         delta: String,
         logprobs: Option<Vec<LogProbs>>,
     },
-    /// Emitted when text content is finalized.
-    #[serde(rename = "response.output_text.done")]
-    ResponseOutputTextDone {
+    /// Emitted when a delta is added to a reasoning summary text.
+    #[serde(rename = "response.reasoning_summary_text.delta")]
+    ResponseReasoningSummaryTextDelta {
         sequence_number: u64,
         item_id: String,
         output_index: u32,
-        content_index: u32,
-        text: String,
-        logprobs: Option<Vec<LogProbs>>,
-    },
-    /// Emitted when there is a partial function-call arguments delta.
-    #[serde(rename = "response.function_call_arguments.delta")]
-    ResponseFunctionCallArgumentsDelta {
-        sequence_number: u64,
-        item_id: String,
-        output_index: u32,
+        summary_index: u32,
         delta: String,
-    },
-    /// Emitted when function-call arguments are finalized.
-    #[serde(rename = "response.function_call_arguments.done")]
-    ResponseFunctionCallArgumentsDone {
-        name: Option<String>,
-        sequence_number: u64,
-        item_id: String,
-        output_index: u32,
-        arguments: String,
     },
     /// Emitted when an error occurs.
     #[serde(rename = "error")]
@@ -87,6 +69,25 @@ pub enum OpenAiStreamEvent {
 impl From<NotSupportedEvent> for OpenAiStreamEvent {
     fn from(event: NotSupportedEvent) -> Self {
         OpenAiStreamEvent::NotSupported(event.json)
+    }
+}
+
+impl crate::core::client::StreamEventExt for OpenAiStreamEvent {
+    fn not_supported(json: String) -> Self {
+        OpenAiStreamEvent::NotSupported(json)
+    }
+
+    fn as_not_supported(&self) -> Option<&str> {
+        if let Self::NotSupported(json) = self {
+            Some(json)
+        } else {
+            None
+        }
+    }
+
+    fn is_end(&self) -> bool {
+        matches!(self, Self::ResponseCompleted { .. })
+            || self.as_not_supported().is_some_and(|j| j == "[END]")
     }
 }
 

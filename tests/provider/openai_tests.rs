@@ -8,6 +8,7 @@ include!("macros.rs");
 // Configuration for OpenAI provider tests
 const OPENAI_CONFIG: ProviderConfig = ProviderConfig {
     default_model: "gpt-5-nano-2025-08-07",
+    tool_model: Some("gpt-5-nano-2025-08-07"),
     structured_output_model: Some("gpt-5-nano-2025-08-07"),
     reasoning_model: Some("gpt-5-nano-2025-08-07"),
     non_reasoning_model: Some("gpt-5-nano-2025-08-07"),

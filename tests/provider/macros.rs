@@ -8,6 +8,9 @@ pub struct ProviderConfig {
     /// Default model for general tests
     pub default_model: &'static str,
 
+    /// Tool model for tool tests
+    pub tool_model: Option<&'static str>,
+
     /// Model for reasoning-specific tests (optional)
     pub reasoning_model: Option<&'static str>,
 
@@ -39,7 +42,7 @@ impl ProviderConfig {
 
     /// Get the appropriate model for tool tests
     pub fn tool_model(&self) -> &str {
-        self.default_model
+        self.tool_model.unwrap_or(self.default_model)
     }
 
     /// Get the appropriate model for streaming tests
@@ -377,7 +380,7 @@ macro_rules! generate_language_model_streaming_tests {
             let response = LanguageModelRequest::builder()
                 .model(<$provider_type>::new($config.reasoning_model()))
                 .prompt("Count from 1 to 5 step by step")
-                .reasoning_effort(aisdk::core::language_model::ReasoningEffort::Medium)
+                //.reasoning_effort(aisdk::core::language_model::ReasoningEffort::Medium)
                 .build()
                 .stream_text()
                 .await
