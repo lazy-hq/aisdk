@@ -116,7 +116,6 @@ impl LanguageModel for Anthropic {
 
         #[derive(Default)]
         struct StreamState {
-            completed: bool,
             content_blocks: HashMap<usize, AccumulatedBlock>,
             usage: Option<AnthropicMessageDeltaUsage>,
         }
@@ -136,11 +135,6 @@ impl LanguageModel for Anthropic {
         let stream = response.scan::<_, Result<Vec<LanguageModelStreamChunk>>, _, _>(
             StreamState::default(),
             |state, evt_res| {
-                // If already completed, don't emit anything more
-                if state.completed {
-                    return futures::future::ready(None);
-                };
-
                 futures::future::ready(match evt_res {
                     Ok(event) => match event {
                         AnthropicStreamEvent::MessageStart { .. } => {
@@ -222,7 +216,6 @@ impl LanguageModel for Anthropic {
                             None
                         }
                         AnthropicStreamEvent::MessageStop => {
-                            state.completed = true;
                             let mut collected = vec![];
                             for block in state.content_blocks.values() {
                                 match block {
@@ -277,8 +270,6 @@ impl LanguageModel for Anthropic {
                                 .collect()))
                         }
                         AnthropicStreamEvent::Error { error } => {
-                            state.completed = true;
-
                             let reason = format!("{}: {}", error.type_, error.message);
 
                             Some(Ok(vec![LanguageModelStreamChunk::Delta(
@@ -287,10 +278,7 @@ impl LanguageModel for Anthropic {
                         }
                         _ => None,
                     },
-                    Err(e) => {
-                        state.completed = true;
-                        Some(Err(e))
-                    }
+                    Err(e) => Some(Err(e))
                 })
             },
         );

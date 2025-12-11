@@ -46,6 +46,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                 hook(&mut options);
             }
 
+            println!("stream_text is called");
             let mut response = self
                 .model
                 .stream_text(options.clone())

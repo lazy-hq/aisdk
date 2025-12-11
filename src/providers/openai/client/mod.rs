@@ -80,10 +80,10 @@ impl Client for OpenAI {
 
     fn body(&self) -> reqwest::Body {
         // prettified json
-        //println!(
-        //"OpenAi Request Body: \n---\n{}\n---",
-        //serde_json::to_string_pretty(&self.options).unwrap()
-        //);
+        println!(
+        "OpenAi Request Body: \n---\n{}\n---",
+        serde_json::to_string_pretty(&self.options).unwrap()
+        );
         let body = serde_json::to_string(&self.options).unwrap();
         reqwest::Body::from(body)
     }

@@ -13,7 +13,7 @@ use std::pin::Pin;
 #[allow(dead_code)]
 pub(crate) trait Client {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
-    type StreamEvent: DeserializeOwned + From<NotSupportedEvent>;
+    type StreamEvent: DeserializeOwned + From<NotSupportedEvent> + StreamEventExt;
 
     fn path(&self) -> &str;
     fn method(&self) -> reqwest::Method;
@@ -61,19 +61,45 @@ pub(crate) trait Client {
             .map_err(|e| Error::ApiError(format!("SSE stream error: {}", e)))?;
 
         // Map events to deserialized StreamEvent with generic fallback
-        let stream = events_stream.map(|event_result| match event_result {
+        let mapped_stream = events_stream.map(|event_result| match event_result {
             Ok(event) => match event {
                 Event::Open => Ok(Self::StreamEvent::not_supported("{}".to_string())),
                 Event::Message(msg) => {
+                    println!("msg: {:?}", msg);
+                    // Fallback: check for end-of-stream messages
+                    if msg.data.trim() == "[DONE]" || msg.data.is_empty() {
+                        return Ok(Self::StreamEvent::not_supported("[END]".to_string()));
+                    }
                     // Parse msg.data as JSON Value
                     let value: serde_json::Value = serde_json::from_str(&msg.data)
                         .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
 
-                    Ok(serde_json::from_value::<Self::StreamEvent>(value)
-                        .unwrap_or_else(|_| Self::StreamEvent::not_supported(msg.data)))
+                    Ok(
+                        serde_json::from_value::<Self::StreamEvent>(value).unwrap_or_else(|_| {
+                            //println!("Failed to deserialize event data: {}", msg.data);
+                            Self::StreamEvent::not_supported(msg.data)
+                        }),
+                    )
                 }
             },
             Err(e) => Err(Error::ApiError(format!("SSE event error: {}", e))),
+        });
+
+        // Use scan to stop after emitting an end event
+        let ended = std::sync::Arc::new(std::sync::Mutex::new(false));
+
+        let stream = mapped_stream.scan(ended, |ended, res| {
+            let mut ended = ended.lock().unwrap();
+
+            if *ended {
+                return futures::future::ready(None); // Stop the stream after end event
+            }
+
+            if let Ok(evt) = &res {
+                *ended = evt.is_end(); // Mark as ended if this is an end event
+            }
+
+            futures::future::ready(Some(res)) // Emit the event
         });
 
         Ok(Box::pin(stream))
@@ -83,20 +109,16 @@ pub(crate) trait Client {
 /// A common trait for stream events
 pub trait StreamEventExt {
     fn not_supported(json: String) -> Self;
+
+    /// Returns the JSON string if this is a NotSupported event.
+    fn as_not_supported(&self) -> Option<&str>;
+
+    /// Returns true if this event indicates the end of the stream.
+    fn is_end(&self) -> bool;
 }
 
 /// Common fallback for unknown stream events.
 #[derive(Debug, Clone)]
 pub struct NotSupportedEvent {
     pub json: String,
-}
-
-// Blanket implementation for types that can be created from NotSupportedEvent.
-impl<T> StreamEventExt for T
-where
-    T: From<NotSupportedEvent>,
-{
-    fn not_supported(json: String) -> Self {
-        NotSupportedEvent { json }.into()
-    }
 }
