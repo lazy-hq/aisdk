@@ -86,7 +86,8 @@ impl crate::core::client::StreamEventExt for OpenAiStreamEvent {
     }
 
     fn is_end(&self) -> bool {
-        matches!(self, Self::ResponseCompleted { .. }) || self.as_not_supported().is_some_and(|j| j == "[END]")
+        matches!(self, Self::ResponseCompleted { .. })
+            || self.as_not_supported().is_some_and(|j| j == "[END]")
     }
 }
 

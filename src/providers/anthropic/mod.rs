@@ -278,7 +278,7 @@ impl LanguageModel for Anthropic {
                         }
                         _ => None,
                     },
-                    Err(e) => Some(Err(e))
+                    Err(e) => Some(Err(e)),
                 })
             },
         );

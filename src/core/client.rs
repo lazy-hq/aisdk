@@ -66,8 +66,8 @@ pub(crate) trait Client {
                 Event::Open => Ok(Self::StreamEvent::not_supported("{}".to_string())),
                 Event::Message(msg) => {
                     //println!(
-                        //"stream event: \n---\n{}\n---",
-                        //serde_json::to_string_pretty(&msg.data).unwrap()
+                    //"stream event: \n---\n{}\n---",
+                    //serde_json::to_string_pretty(&msg.data).unwrap()
                     //);
                     // Fallback: check for end-of-stream messages
                     if msg.data.trim() == "[DONE]" || msg.data.is_empty() {
@@ -79,7 +79,7 @@ pub(crate) trait Client {
 
                     Ok(
                         serde_json::from_value::<Self::StreamEvent>(value).unwrap_or_else(|_| {
-                           //println!("Failed to deserialize event data: {}, error: {}", msg.data, e);
+                            //println!("Failed to deserialize event data: {}, error: {}", msg.data, e);
                             Self::StreamEvent::not_supported(msg.data)
                         }),
                     )

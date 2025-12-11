@@ -136,7 +136,9 @@ impl LanguageModel for OpenAI {
                     Some(types::MessageItem::Reasoning { summary, .. }) => {
                         if let Some(types::ReasoningSummary { text, .. }) = summary.first() {
                             result.push(LanguageModelStreamChunk::Done(AssistantMessage {
-                                content: LanguageModelResponseContentType::Reasoning(text.to_owned()),
+                                content: LanguageModelResponseContentType::Reasoning(
+                                    text.to_owned(),
+                                ),
                                 usage: Some(usage.clone()),
                             }));
                         }
