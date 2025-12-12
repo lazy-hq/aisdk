@@ -1,6 +1,42 @@
+//! Utility functions for the `aisdk` library.
+
 use crate::core::{Message, language_model::LanguageModelOptions, messages::TaggedMessage};
 
-/// Returns true if the number of steps is equal to the provided step.
+/// Creates a hook that returns `true` if the number of conversation steps exceeds the given count.
+///
+/// This function is useful for stopping generation after a certain number of tool-calling
+/// iterations or conversation turns. The returned closure can be used with the `stop_when`
+/// option in `LanguageModelOptions`.
+///
+/// # Parameters
+///
+/// * `step` - The step count threshold. Returns `true` when the actual step count is greater than this value.
+///
+/// # Returns
+///
+/// A closure that takes `&LanguageModelOptions` and returns `bool`.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use aisdk::core::{LanguageModelRequest, utils::step_count_is};
+/// use aisdk::providers::openai::OpenAI;
+///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let result = LanguageModelRequest::builder()
+///         .model(OpenAI::new("gpt-4o"))
+///         .system("You are a helpful assistant with access to tools.")
+///         .prompt("What is the weather in New York?")
+///         .stop_when(step_count_is(3)) // Limit agent loop to 3 steps
+///         .build()
+///         .generate_text()
+///         .await?;
+///
+///     println!("{}", result.text().unwrap());
+///     Ok(())
+/// }
+/// ```
 pub fn step_count_is(step: usize) -> impl Fn(&LanguageModelOptions) -> bool {
     move |options| options.steps().len() > step
 }

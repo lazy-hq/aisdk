@@ -1,3 +1,5 @@
+//! Text Streaming impl for the `LanguageModelRequest` trait.
+
 use crate::core::{
     AssistantMessage, LanguageModelStreamChunkType, Message,
     language_model::{
@@ -12,12 +14,48 @@ use futures::StreamExt;
 use std::ops::Deref;
 
 impl<M: LanguageModel> LanguageModelRequest<M> {
-    /// Generates Streaming text using a specified language model.
+    /// Streams text generation and tool execution using the language model.
     ///
-    /// Generate a text and call tools for a given prompt using a language model.
-    /// This function streams the output. If you do not want to stream the output, use `GenerateText` instead.
+    /// This method performs streaming text generation, providing real-time access to response chunks
+    /// as they are produced. It supports tool calling and execution in multiple steps, streaming
+    /// intermediate results and handling tool interactions dynamically.
     ///
-    /// Returns an `Error` if the underlying model fails to generate a response.
+    /// For non-streaming responses, use [`generate_text`](Self::generate_text) instead.
+    ///
+    /// # Returns
+    ///
+    /// A [`StreamTextResponse`] containing the stream of chunks and final conversation state.
+    ///
+    /// # Errors
+    ///
+    /// Returns an `Error` if the underlying language model fails to generate a response
+    /// or if tool execution encounters an error.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use aisdk::core::LanguageModelRequest;
+    /// # use aisdk::core::language_model::LanguageModelStreamChunkType;
+    /// # use aisdk::providers::openai::OpenAI;
+    /// # use futures::StreamExt;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let mut request = LanguageModelRequest::builder()
+    ///     .model(OpenAI::new("gpt-4"))
+    ///     .prompt("Tell me a story")
+    ///     .build();
+    ///
+    /// let response = request.stream_text().await?;
+    /// while let Some(chunk) = response.stream.next().await {
+    ///     match chunk {
+    ///         LanguageModelStreamChunkType::Text(text) => {
+    ///             print!("{}", text);
+    ///         }
+    ///         _ => {}
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn stream_text(&mut self) -> Result<StreamTextResponse> {
         let (system_prompt, messages) = resolve_message(&self.options, &self.prompt);
 
@@ -161,15 +199,21 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
 // Section: response types
 // ============================================================================
 
-// Response from a stream call on `StreamText`.
+/// Response from a streaming text generation call.
+///
+/// This struct contains the streaming response from a language model,
+/// including the stream of chunks and the final options state.
 pub struct StreamTextResponse {
-    /// A stream of responses from the language model.
+    /// The stream of response chunks from the language model.
     pub stream: LanguageModelStream,
-    /// The reason the model stopped generating text.
+    /// The final options state after streaming completes.
     options: LanguageModelOptions,
 }
 
 impl StreamTextResponse {
+    /// Returns the step IDs of all messages in the conversation.
+    ///
+    /// This is primarily used for testing and debugging purposes.
     #[cfg(any(test, feature = "test-access"))]
     pub fn step_ids(&self) -> Vec<usize> {
         self.options.messages.iter().map(|t| t.step_id).collect()

@@ -50,7 +50,8 @@
 //! ```
 //!
 //! # Example with struct
-//! ```
+//!
+//! ```rust
 //! use aisdk::core::{Tool, ToolExecute};
 //! use serde_json::Value;
 //!
@@ -81,6 +82,7 @@
 //!             let b = params["b"].as_u64().unwrap();
 //!             Ok(format!("{}", a + b))
 //!         })),
+//! };
 //! ```
 //!
 

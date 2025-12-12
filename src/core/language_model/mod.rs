@@ -32,6 +32,8 @@ use std::task::{Context, Poll};
 // ============================================================================
 // Section: constants
 // ============================================================================
+
+/// Default maximum number of tool calling steps allowed in a single request.
 pub const DEFAULT_TOOL_STEP_COUNT: usize = 3;
 
 // ============================================================================
@@ -47,6 +49,7 @@ pub const DEFAULT_TOOL_STEP_COUNT: usize = 3;
 /// generation and streaming responses.
 #[async_trait]
 pub trait LanguageModel: Send + Sync + std::fmt::Debug {
+    /// Returns a human-readable name for the language model.
     fn name(&self) -> String;
     /// Performs a single, non-streaming text generation request.
     ///
@@ -74,29 +77,44 @@ pub trait LanguageModel: Send + Sync + std::fmt::Debug {
 // Section: hook types
 // ============================================================================
 
+/// Type alias for a hook function that determines when to stop generation.
+///
+/// Returns `true` if generation should stop.
 pub type StopWhenHook = Arc<dyn Fn(&LanguageModelOptions) -> bool + Send + Sync>;
+
+/// Type alias for a hook function called before each generation step.
 pub type OnStepStartHook = Arc<dyn Fn(&mut LanguageModelOptions) + Send + Sync>;
+
+/// Type alias for a hook function called after each generation step.
 pub type OnStepFinishHook = Arc<dyn Fn(&LanguageModelOptions) + Send + Sync>;
 
 // ============================================================================
 // Section: structs and impls
 // ============================================================================
 
-/// A "step" represents a single cycle of model interaction.
+/// Represents a single step in the language model interaction process.
+///
+/// A step contains all messages exchanged during one cycle of model interaction,
+/// including user input, assistant responses, and tool calls/results.
 pub struct Step {
+    /// The unique identifier for this step.
     pub step_id: usize,
+    /// The messages that occurred during this step.
     pub messages: Vec<Message>,
 }
 
 impl Step {
+    /// Creates a new `Step` with the given ID and messages.
     pub fn new(step_id: usize, messages: Vec<Message>) -> Self {
         Self { step_id, messages }
     }
 
+    /// Returns a reference to the messages in this step.
     pub fn messages(&self) -> &[Message] {
         &self.messages
     }
 
+    /// Calculates the total token usage for this step.
     pub fn usage(&self) -> Usage {
         self.messages()
             .iter()
@@ -107,6 +125,7 @@ impl Step {
             .fold(Usage::default(), |acc, u| &acc + u)
     }
 
+    /// Returns a vector of all tool calls in the conversation.
     pub fn tool_calls(&self) -> Option<Vec<ToolCallInfo>> {
         let calls: Vec<ToolCallInfo> = self
             .messages()
@@ -123,6 +142,7 @@ impl Step {
         if calls.is_empty() { None } else { Some(calls) }
     }
 
+    /// Returns a vector of all tool results in the conversation.
     pub fn tool_results(&self) -> Option<Vec<ToolResultInfo>> {
         let results: Vec<ToolResultInfo> = self
             .messages()
@@ -144,7 +164,10 @@ impl Step {
 // Section: options
 // ============================================================================
 
-/// Options for a language model request.
+/// Configuration options for language model requests.
+///
+/// This struct contains all the parameters that can be used to customize
+/// text generation, including sampling parameters, tools, and hooks.
 #[derive(Clone, Default, Builder)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "Error"))]
 pub struct LanguageModelOptions {
@@ -158,19 +181,19 @@ pub struct LanguageModelOptions {
     /// by the model, calls will generate deterministic results.
     pub seed: Option<u32>,
 
-    /// Randomness.
+    /// Controls randomness in generation (0-100, scaled to 0.0-1.0).
     pub temperature: Option<u32>,
 
-    /// Nucleus sampling.
+    /// Nucleus sampling parameter (0-100, scaled to 0.0-1.0).
     pub top_p: Option<u32>,
 
-    /// Top-k sampling.
+    /// Top-k sampling parameter.
     pub top_k: Option<u32>,
 
-    /// Maximum number of retries.
+    /// Maximum number of retries for failed requests.
     pub max_retries: Option<u32>,
 
-    /// Maxoutput tokens.
+    /// Maximum number of output tokens to generate.
     pub max_output_tokens: Option<u32>,
 
     /// Stop sequences.
@@ -185,29 +208,28 @@ pub struct LanguageModelOptions {
     /// to repeatedly use the same words or phrases.
     pub frequency_penalty: Option<f32>,
 
-    /// Hook to stop tool calling if returns true
+    /// Hook to conditionally stop generation.
     pub stop_when: Option<StopWhenHook>,
 
-    /// Hook called before each step (language model request)
+    /// Hook called before each generation step.
     pub on_step_start: Option<OnStepStartHook>,
 
-    /// Hook called after each step finishes
+    /// Hook called after each generation step.
     pub on_step_finish: Option<OnStepFinishHook>,
 
-    /// Reasoning effort
+    /// Level of reasoning effort for the model.
     pub reasoning_effort: Option<ReasoningEffort>,
 
     /// List of tools to use.
     pub(crate) tools: Option<ToolList>,
 
-    /// Used to track message steps
+    /// Current step ID for tracking multi-step interactions.
     pub(crate) current_step_id: usize,
 
-    /// The messages to generate text from.
-    /// At least User Message is required.
+    /// The conversation messages for the request.
     pub(crate) messages: Vec<TaggedMessage>,
 
-    // The stop reasons. should be updated after each step.
+    /// The reason why generation stopped.
     pub(crate) stop_reason: Option<StopReason>,
 }
 
@@ -236,17 +258,17 @@ impl Debug for LanguageModelOptions {
 }
 
 impl LanguageModelOptions {
+    /// Creates a new builder for `LanguageModelOptions`.
     pub fn builder() -> LanguageModelOptionsBuilder {
         LanguageModelOptionsBuilder::default()
     }
 
+    /// Returns a vector of all messages in the conversation.
     pub fn messages(&self) -> Vec<Message> {
         self.messages.iter().map(|m| m.message.clone()).collect()
     }
 
-    /// Calls the requested tools, adds tool ouput message to messages,
-    /// and decrements the step count. uses the previous step id for tagging
-    /// the created messages.
+    /// Executes a tool call and adds the result to the message history.
     pub(crate) async fn handle_tool_call(&mut self, input: &ToolCallInfo) -> &mut Self {
         if let Some(tools) = &self.tools {
             let tool_result_task = tools.execute(input.clone()).await;
@@ -278,6 +300,7 @@ impl LanguageModelOptions {
         }
     }
 
+    /// Returns the step with the given index, if it exists.
     pub fn step(&self, index: usize) -> Option<Step> {
         let messages: Vec<Message> = self
             .messages
@@ -292,11 +315,13 @@ impl LanguageModelOptions {
         }
     }
 
+    /// Returns the most recent step, if any.
     pub fn last_step(&self) -> Option<Step> {
         let max_step = self.messages.iter().map(|t| t.step_id).max()?;
         self.step(max_step)
     }
 
+    /// Returns all steps in chronological order.
     pub fn steps(&self) -> Vec<Step> {
         let mut step_map: HashMap<usize, Vec<Message>> = HashMap::new();
         for tagged in &self.messages {
@@ -313,6 +338,7 @@ impl LanguageModelOptions {
         steps
     }
 
+    /// Calculates the total token usage across all steps.
     pub fn usage(&self) -> Usage {
         self.steps()
             .iter()
@@ -320,6 +346,7 @@ impl LanguageModelOptions {
             .fold(Usage::default(), |acc, u| &acc + &u)
     }
 
+    /// Returns the content of the last assistant message, excluding reasoning.
     pub fn content(&self) -> Option<&LanguageModelResponseContentType> {
         if let Some(msg) = self.messages.last() {
             match msg.message {
@@ -337,6 +364,7 @@ impl LanguageModelOptions {
         }
     }
 
+    /// Returns the text content of the last assistant message.
     pub fn text(&self) -> Option<String> {
         if let Some(msg) = self.messages.last() {
             match msg.message {
@@ -351,14 +379,17 @@ impl LanguageModelOptions {
         }
     }
 
+    /// Extracts all tool results from the conversation.
     pub fn tool_results(&self) -> Option<Vec<ToolResultInfo>> {
         self.messages.as_slice().extract_tool_results()
     }
 
+    /// Extracts all tool calls from the conversation.
     pub fn tool_calls(&self) -> Option<Vec<ToolCallInfo>> {
         self.messages.as_slice().extract_tool_calls()
     }
 
+    /// Returns the reason why generation stopped.
     pub fn stop_reason(&self) -> Option<StopReason> {
         self.stop_reason.clone()
     }
@@ -368,11 +399,16 @@ impl LanguageModelOptions {
 // Section: response types
 // ============================================================================
 
+/// The different types of content that can be generated by a language model.
 #[derive(Debug, Clone)]
 pub enum LanguageModelResponseContentType {
+    /// Plain text response.
     Text(String),
+    /// A tool call request.
     ToolCall(ToolCallInfo),
+    /// Reasoning or thinking content.
     Reasoning(String),
+    /// Feature not supported by the provider.
     NotSupported(String),
 }
 
@@ -389,16 +425,22 @@ impl From<String> for LanguageModelResponseContentType {
 }
 
 impl LanguageModelResponseContentType {
+    /// Creates a new text content type.
     pub fn new(text: impl Into<String>) -> Self {
         Self::Text(text.into())
     }
 }
 
+/// Token usage statistics for a language model operation.
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct Usage {
+    /// Number of input tokens processed.
     pub input_tokens: Option<usize>,
+    /// Number of output tokens generated.
     pub output_tokens: Option<usize>,
+    /// Number of tokens used for reasoning.
     pub reasoning_tokens: Option<usize>,
+    /// Number of cached tokens reused.
     pub cached_tokens: Option<usize>,
 }
 
@@ -426,7 +468,7 @@ pub struct LanguageModelResponse {
 }
 
 impl LanguageModelResponse {
-    /// Creates a new response with the generated text.
+    /// Creates a new response with the given text content.
     pub fn new(text: impl Into<String>) -> Self {
         Self {
             contents: vec![LanguageModelResponseContentType::new(text.into())],
@@ -435,29 +477,32 @@ impl LanguageModelResponse {
     }
 }
 
+/// Types of chunks that can be emitted during streaming text generation.
 #[derive(Default, Debug, Clone)]
 pub enum LanguageModelStreamChunkType {
-    /// The model has started generating text.
+    /// Indicates the start of generation.
     #[default]
     Start,
-    /// Text chunk
+    /// A chunk of generated text.
     Text(String),
-    /// Tool call argument chunk
+    /// A chunk of tool call data.
     ToolCall(String),
-    /// The model has stopped generating text successfully.
+    /// Successful completion of generation.
     End(AssistantMessage),
-    /// The model has failed to generate text. error specified by
-    /// the language model
+    /// Generation failed with an error message.
     Failed(String),
-    /// The model finsished generating text with incomplete response.
+    /// Generation ended with an incomplete response.
     Incomplete(String),
-    /// Return this for unimplemented features for a specific model.
+    /// Feature not supported by the provider.
     NotSupported(String),
 }
 
+/// A chunk of data from a streaming language model response.
 #[derive(Debug, Clone)]
 pub enum LanguageModelStreamChunk {
+    /// An incremental update during streaming.
     Delta(LanguageModelStreamChunkType),
+    /// The final result when streaming is complete.
     Done(AssistantMessage),
 }
 
@@ -465,13 +510,13 @@ pub enum LanguageModelStreamChunk {
 pub(crate) type ProviderStream =
     Pin<Box<dyn Stream<Item = Result<Vec<LanguageModelStreamChunk>>> + Send>>;
 
-// A mapping of `ProviderStream` to a channel like stream.
+/// A stream wrapper that provides a channel-based interface for language model streaming.
 pub struct LanguageModelStream {
     receiver: Receiver<LanguageModelStreamChunkType>,
 }
 
 impl LanguageModelStream {
-    // Creates a new MpmcStream with an associated Sender
+    /// Creates a new stream with an associated sender for pushing chunks.
     pub fn new() -> (Sender<LanguageModelStreamChunkType>, LanguageModelStream) {
         let (tx, rx) = mpsc::channel();
         (tx, LanguageModelStream { receiver: rx })
@@ -490,29 +535,31 @@ impl Stream for LanguageModelStream {
     }
 }
 
+/// Reasons why text generation might stop.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum StopReason {
+    /// Generation completed successfully.
     #[default]
-    // The model has finished generating text
     Finish,
-    // Provider specific reasons like timeout, rate limit etc
+    /// Provider-specific stop reason (e.g., timeout, rate limit).
     Provider(String),
-    // The user has explicitly provided a hook causing to stop
+    /// The user has explicitly provided a hook causing to stop
     Hook,
-    // Problematic errors. Providers specific errors can be accessed
-    // through `Error::ProviderError`
+    /// Stopped due to an error.
     Error(Error),
-    // Anything that is not supported by the above reasons
+    /// Other unspecified reason.
     Other(String),
 }
 
-// will be converted to the appropriate level of reasoning
-// for a language model
+/// Levels of reasoning effort for language models that support it.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum ReasoningEffort {
+    /// Low reasoning effort.
     #[default]
     Low,
+    /// Medium reasoning effort.
     Medium,
+    /// High reasoning effort.
     High,
 }
 
