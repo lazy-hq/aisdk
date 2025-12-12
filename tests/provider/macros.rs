@@ -285,22 +285,22 @@ macro_rules! generate_language_model_stop_reason_tests {
             assert!(matches!(response.stop_reason(), Some(StopReason::Finish)));
         }
 
-        // #[tokio::test]
-        // async fn test_stop_reason_hook_stop() {
-        //     skip_if_no_api_key!();
-        //
-        //     let result = LanguageModelRequest::builder()
-        //         .model(<$provider_type>::new($config.basic_model()))
-        //         .prompt("Tell me a short story.")
-        //         .stop_when(|_| true) // Always stop
-        //         .build()
-        //         .generate_text()
-        //         .await;
-        //
-        //     assert!(result.is_ok());
-        //     let response = result.unwrap();
-        //     assert!(matches!(response.stop_reason(), Some(StopReason::Hook)));
-        // }
+        #[tokio::test]
+        async fn test_stop_reason_hook_stop() {
+            skip_if_no_api_key!();
+
+            let result = LanguageModelRequest::builder()
+             .model(<$provider_type>::new($config.basic_model()))
+             .prompt("just response with 'HI' nothing less nothing more")
+             .stop_when(|_| true) // Always stop
+             .build()
+             .generate_text()
+             .await;
+
+            assert!(result.is_ok());
+            let response = result.unwrap();
+            assert!(matches!(response.stop_reason(), Some(StopReason::Hook)));
+         }
 
         #[tokio::test]
         async fn test_stop_reason_api_error() {
