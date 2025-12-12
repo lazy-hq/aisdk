@@ -81,7 +81,7 @@ impl Client for Anthropic {
                         .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
 
                     Ok(serde_json::from_value::<AnthropicStreamEvent>(value)
-                        .unwrap_or_else(|_| AnthropicStreamEvent::NotSupported(msg.data)))
+                        .unwrap_or(AnthropicStreamEvent::NotSupported(msg.data)))
                 }
             },
             Err(e) => Err(Error::ApiError(format!("SSE error: {}", e))),

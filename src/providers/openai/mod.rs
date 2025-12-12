@@ -185,7 +185,7 @@ impl LanguageModel for OpenAI {
             Ok(evt) => Ok(vec![LanguageModelStreamChunk::Delta(
                 LanguageModelStreamChunkType::NotSupported(format!("{evt:?}")),
             )]),
-            Err(e) => Err(e.into()),
+            Err(e) => Err(e),
         });
 
         Ok(Box::pin(stream))

@@ -99,7 +99,7 @@ impl Client for OpenAI {
                         .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
 
                     Ok(serde_json::from_value::<types::OpenAiStreamEvent>(value)
-                        .unwrap_or_else(|_| types::OpenAiStreamEvent::NotSupported(msg.data)))
+                        .unwrap_or(types::OpenAiStreamEvent::NotSupported(msg.data)))
                 }
             },
             Err(e) => Err(Error::ApiError(e.to_string())),
