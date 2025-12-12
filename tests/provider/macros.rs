@@ -389,9 +389,9 @@ macro_rules! generate_language_model_streaming_tests {
             let mut stream = response.stream;
             let mut chunks_received = 0;
             while let Some(chunk) = stream.next().await {
-                chunks_received += 1;
-                // Just verify we get chunks
-                let _ = chunk;
+                if let LanguageModelStreamChunkType::Text(_) = chunk {
+                    chunks_received += 1;
+                }
             }
 
             assert!(chunks_received > 0);
