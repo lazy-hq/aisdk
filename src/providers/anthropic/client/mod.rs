@@ -5,6 +5,7 @@ pub use types::*;
 use crate::Error;
 use derive_builder::Builder;
 use reqwest::header::CONTENT_TYPE;
+use reqwest_eventsource::Event;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -63,5 +64,32 @@ impl Client for Anthropic {
     fn body(&self) -> reqwest::Body {
         let body = serde_json::to_string(&self.options).unwrap();
         reqwest::Body::from(body)
+    }
+
+    fn parse_stream_sse(
+        event: std::result::Result<Event, reqwest_eventsource::Error>,
+    ) -> crate::error::Result<Self::StreamEvent> {
+        match event {
+            Ok(event) => match event {
+                Event::Open => Ok(AnthropicStreamEvent::NotSupported("{}".to_string())),
+                Event::Message(msg) => {
+                    if msg.data.trim() == "[DONE]" || msg.data.is_empty() {
+                        return Ok(AnthropicStreamEvent::NotSupported("[END]".to_string()));
+                    }
+
+                    let value: serde_json::Value = serde_json::from_str(&msg.data)
+                        .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
+
+                    Ok(serde_json::from_value::<AnthropicStreamEvent>(value)
+                        .unwrap_or(AnthropicStreamEvent::NotSupported(msg.data)))
+                }
+            },
+            Err(e) => Err(Error::ApiError(format!("SSE error: {}", e))),
+        }
+    }
+
+    fn end_stream(event: &Self::StreamEvent) -> bool {
+        matches!(event, AnthropicStreamEvent::MessageStop)
+            || matches!(event, AnthropicStreamEvent::NotSupported(json) if json == "[END]")
     }
 }

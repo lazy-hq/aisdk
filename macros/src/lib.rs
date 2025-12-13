@@ -166,13 +166,13 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
     });
 
     let expanded = quote! {
-        #[allow(unused_variables)]
         #vis fn #fn_name() #return_type  {
             use schemars::{schema_for, JsonSchema, Schema};
             use std::collections::HashMap;
             use aisdk::core::tools::ToolExecute;
 
             #[derive(JsonSchema, Debug)]
+            #[allow(dead_code)]
             //#[schemars(deny_unknown_fields)]
             struct Function {
                 // Please add struct fields here

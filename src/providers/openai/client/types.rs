@@ -1,4 +1,4 @@
-use crate::{core::client::NotSupportedEvent, error::ProviderError};
+use crate::error::ProviderError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -64,31 +64,6 @@ pub enum OpenAiStreamEvent {
         param: Option<String>,
     },
     NotSupported(String),
-}
-
-impl From<NotSupportedEvent> for OpenAiStreamEvent {
-    fn from(event: NotSupportedEvent) -> Self {
-        OpenAiStreamEvent::NotSupported(event.json)
-    }
-}
-
-impl crate::core::client::StreamEventExt for OpenAiStreamEvent {
-    fn not_supported(json: String) -> Self {
-        OpenAiStreamEvent::NotSupported(json)
-    }
-
-    fn as_not_supported(&self) -> Option<&str> {
-        if let Self::NotSupported(json) = self {
-            Some(json)
-        } else {
-            None
-        }
-    }
-
-    fn is_end(&self) -> bool {
-        matches!(self, Self::ResponseCompleted { .. })
-            || self.as_not_supported().is_some_and(|j| j == "[END]")
-    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -267,7 +242,7 @@ pub enum MessageItem {
         type_: String, // always "message"
     },
     FunctionCall {
-        arguments: serde_json::Value,
+        arguments: String,
         call_id: String,
         name: String,
         #[serde(rename = "type")]

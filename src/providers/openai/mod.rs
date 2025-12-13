@@ -80,7 +80,7 @@ impl LanguageModel for OpenAI {
                 } => {
                     let mut tool_info = ToolCallInfo::new(name);
                     tool_info.id(call_id);
-                    tool_info.input(arguments);
+                    tool_info.input(serde_json::from_str(&arguments).unwrap_or_default());
                     collected.push(LanguageModelResponseContentType::ToolCall(tool_info));
                 }
                 _ => (),
@@ -154,7 +154,7 @@ impl LanguageModel for OpenAI {
                     }) => {
                         let mut tool_info = ToolCallInfo::new(name.clone());
                         tool_info.id(call_id.clone());
-                        tool_info.input(arguments.clone());
+                        tool_info.input(serde_json::from_str(arguments).unwrap_or_default());
 
                         result.push(LanguageModelStreamChunk::Done(AssistantMessage {
                             content: LanguageModelResponseContentType::ToolCall(tool_info),
@@ -186,12 +186,7 @@ impl LanguageModel for OpenAI {
             Ok(evt) => Ok(vec![LanguageModelStreamChunk::Delta(
                 LanguageModelStreamChunkType::NotSupported(format!("{evt:?}")),
             )]),
-            Err(e) => {
-                let reason = format!("Stream error: {}", e);
-                Ok(vec![LanguageModelStreamChunk::Delta(
-                    LanguageModelStreamChunkType::Failed(reason),
-                )])
-            }
+            Err(e) => Err(e),
         });
         println!("provider: returning stream");
 

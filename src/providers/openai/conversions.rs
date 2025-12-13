@@ -124,7 +124,7 @@ impl From<Message> for Option<types::InputItem> {
                     Some(types::InputItem::Item(types::MessageItem::FunctionCall {
                         id: None,
                         status: None,
-                        arguments: tool_info.input.clone(),
+                        arguments: tool_info.input.to_string(),
                         call_id: tool_info.tool.id.clone(),
                         name: tool_info.tool.name.clone(),
                         type_: "function_call".to_string(),

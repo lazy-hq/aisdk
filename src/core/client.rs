@@ -13,14 +13,12 @@ use std::pin::Pin;
 #[allow(dead_code)]
 pub(crate) trait Client {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
-    type StreamEvent: DeserializeOwned + From<NotSupportedEvent> + StreamEventExt;
+    type StreamEvent: DeserializeOwned + std::fmt::Debug + Clone;
 
     fn path(&self) -> &str;
     fn method(&self) -> reqwest::Method;
     fn query_params(&self) -> Vec<(&str, &str)>;
     fn body(&self) -> reqwest::Body;
-
-    /// Sets the default headers for the request
     fn headers(&self) -> reqwest::header::HeaderMap;
 
     async fn send(&self, base_url: Url) -> Result<Self::Response> {
@@ -42,12 +40,21 @@ pub(crate) trait Client {
             .map_err(|e| Error::ApiError(e.to_string()))
     }
 
+    /// Parses an SSE event into a StreamEvent ( ProviderStreamEvent )
+    fn parse_stream_sse(
+        event: std::result::Result<Event, reqwest_eventsource::Error>,
+    ) -> Result<Self::StreamEvent>;
+
+    /// Returns true to mark the stream as ended
+    fn end_stream(event: &Self::StreamEvent) -> bool;
+
     async fn send_and_stream(
         &self,
         base_url: Url,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
+        Self: Sync,
     {
         let client = reqwest::Client::new();
         let base_url = base_url.join(self.path()).expect("Invalid base URL");
@@ -60,37 +67,13 @@ pub(crate) trait Client {
             .eventsource()
             .map_err(|e| Error::ApiError(format!("SSE stream error: {}", e)))?;
 
-        // Map events to deserialized StreamEvent with generic fallback
-        let mapped_stream = events_stream.map(|event_result| match event_result {
-            Ok(event) => match event {
-                Event::Open => Ok(Self::StreamEvent::not_supported("{}".to_string())),
-                Event::Message(msg) => {
-                    //println!(
-                    //"stream event: \n---\n{}\n---",
-                    //serde_json::to_string_pretty(&msg.data).unwrap()
-                    //);
-                    // Fallback: check for end-of-stream messages
-                    if msg.data.trim() == "[DONE]" || msg.data.is_empty() {
-                        return Ok(Self::StreamEvent::not_supported("[END]".to_string()));
-                    }
-                    // Parse msg.data as JSON Value
-                    let value: serde_json::Value = serde_json::from_str(&msg.data)
-                        .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
+        // Map events to deserialized StreamEvent ( ProviderStreamEvent )
+        let mapped_stream = events_stream.map(|event_result| Self::parse_stream_sse(event_result));
 
-                    Ok(
-                        serde_json::from_value::<Self::StreamEvent>(value).unwrap_or_else(|_| {
-                            //println!("Failed to deserialize event data: {}, error: {}", msg.data, e);
-                            Self::StreamEvent::not_supported(msg.data)
-                        }),
-                    )
-                }
-            },
-            Err(e) => Err(Error::ApiError(format!("SSE event error: {}", e))),
-        });
-
-        // Use scan to stop after emitting an end event
+        // State that indicates if the stream has ended
         let ended = std::sync::Arc::new(std::sync::Mutex::new(false));
 
+        // Scan to end or mark the stream as ended
         let stream = mapped_stream.scan(ended, |ended, res| {
             let mut ended = ended.lock().unwrap();
 
@@ -98,30 +81,11 @@ pub(crate) trait Client {
                 return futures::future::ready(None); // Stop the stream after end event
             }
 
-            if let Ok(evt) = &res {
-                *ended = evt.is_end(); // Mark as ended if this is an end event
-            }
+            *ended = res.as_ref().map_or(true, |evt| Self::end_stream(evt)); // Mark the stream as ended on api error or end event
 
             futures::future::ready(Some(res)) // Emit the event
         });
 
         Ok(Box::pin(stream))
     }
-}
-
-/// A common trait for stream events
-pub trait StreamEventExt {
-    fn not_supported(json: String) -> Self;
-
-    /// Returns the JSON string if this is a NotSupported event.
-    fn as_not_supported(&self) -> Option<&str>;
-
-    /// Returns true if this event indicates the end of the stream.
-    fn is_end(&self) -> bool;
-}
-
-/// Common fallback for unknown stream events.
-#[derive(Debug, Clone)]
-pub struct NotSupportedEvent {
-    pub json: String,
 }

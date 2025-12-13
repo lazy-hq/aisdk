@@ -9,7 +9,8 @@ pub use types::*;
 use crate::error::Error;
 use crate::{core::client::Client, providers::openai::OpenAI};
 use derive_builder::Builder;
-use reqwest::{self, header::CONTENT_TYPE};
+use reqwest::header::CONTENT_TYPE;
+use reqwest_eventsource::Event;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
@@ -79,12 +80,35 @@ impl Client for OpenAI {
     }
 
     fn body(&self) -> reqwest::Body {
-        // prettified json
-        println!(
-            "OpenAi Request Body: \n---\n{}\n---",
-            serde_json::to_string_pretty(&self.options).unwrap()
-        );
         let body = serde_json::to_string(&self.options).unwrap();
         reqwest::Body::from(body)
+    }
+
+    fn parse_stream_sse(
+        event: std::result::Result<Event, reqwest_eventsource::Error>,
+    ) -> crate::error::Result<Self::StreamEvent> {
+        match event {
+            Ok(event) => match event {
+                Event::Open => Ok(types::OpenAiStreamEvent::NotSupported("{}".to_string())),
+                Event::Message(msg) => {
+                    if msg.data.trim() == "[DONE]" || msg.data.is_empty() {
+                        return Ok(types::OpenAiStreamEvent::NotSupported("[END]".to_string()));
+                    }
+
+                    let value: serde_json::Value = serde_json::from_str(&msg.data)
+                        .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
+
+                    Ok(serde_json::from_value::<types::OpenAiStreamEvent>(value)
+                        .unwrap_or(types::OpenAiStreamEvent::NotSupported(msg.data)))
+                }
+            },
+            Err(e) => Err(Error::ApiError(e.to_string())),
+        }
+    }
+
+    fn end_stream(event: &Self::StreamEvent) -> bool {
+        matches!(event, types::OpenAiStreamEvent::ResponseCompleted { .. })
+            || matches!(event, types::OpenAiStreamEvent::NotSupported(json) if json == "[END]")
+            || matches!(event, types::OpenAiStreamEvent::ResponseError { .. })
     }
 }

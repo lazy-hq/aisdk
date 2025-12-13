@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{core::client::NotSupportedEvent, error::ProviderError};
+use crate::error::ProviderError;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub enum AnthropicErrorType {
@@ -216,30 +216,6 @@ pub enum AnthropicStreamEvent {
         error: AnthropicError,
     },
     NotSupported(String),
-}
-
-impl From<NotSupportedEvent> for AnthropicStreamEvent {
-    fn from(event: NotSupportedEvent) -> Self {
-        AnthropicStreamEvent::NotSupported(event.json)
-    }
-}
-
-impl crate::core::client::StreamEventExt for AnthropicStreamEvent {
-    fn not_supported(json: String) -> Self {
-        AnthropicStreamEvent::NotSupported(json)
-    }
-
-    fn as_not_supported(&self) -> Option<&str> {
-        if let Self::NotSupported(json) = self {
-            Some(json)
-        } else {
-            None
-        }
-    }
-
-    fn is_end(&self) -> bool {
-        matches!(self, Self::MessageStop) || self.as_not_supported().is_some_and(|j| j == "[END]")
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
