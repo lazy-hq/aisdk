@@ -45,6 +45,8 @@ pub enum Error {
     #[error("Invalid input: {0}")]
     InvalidInput(String),
 
+    /// An error related to tool execution. This includes errors caused by the
+    /// tool itself as well by the SDK when interacting with the tool.
     #[error("Tool error: {0}")]
     ToolCallError(String),
 
