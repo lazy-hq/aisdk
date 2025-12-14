@@ -1,15 +1,16 @@
 use crate::core::{
-    AssistantMessage, LanguageModelStreamChunkType, Message,
+    AssistantMessage, LanguageModelStreamChunkType, Message, ToolCallInfo, ToolResultInfo,
     language_model::{
         LanguageModel, LanguageModelOptions, LanguageModelResponseContentType, LanguageModelStream,
-        LanguageModelStreamChunk, StopReason, request::LanguageModelRequest,
+        LanguageModelStreamChunk, Step, StopReason, Usage, request::LanguageModelRequest,
     },
     messages::TaggedMessage,
     utils::resolve_message,
 };
 use crate::error::Result;
 use futures::StreamExt;
-use std::ops::Deref;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 impl<M: LanguageModel> LanguageModelRequest<M> {
     /// Generates Streaming text using a specified language model.
@@ -21,7 +22,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     pub async fn stream_text(&mut self) -> Result<StreamTextResponse> {
         let (system_prompt, messages) = resolve_message(&self.options, &self.prompt);
 
-        let mut options = LanguageModelOptions {
+        let options = Arc::new(Mutex::new(LanguageModelOptions {
             system: Some(system_prompt),
             messages,
             schema: self.options.schema.to_owned(),
@@ -32,17 +33,20 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             on_step_finish: self.options.on_step_finish.clone(),
             stop_reason: None,
             ..self.options
-        };
+        }));
 
         let (tx, stream) = LanguageModelStream::new();
         let _ = tx.send(LanguageModelStreamChunkType::Start).await;
 
         let mut model = self.model.clone();
 
+        let thread_options = options.clone();
         tokio::spawn(async move {
             loop {
+                let mut options = thread_options.lock().await;
                 // Update the current step
                 options.current_step_id += 1;
+                let current_step_id = options.current_step_id;
 
                 // Prepare the next step
                 if let Some(hook) = options.on_step_start.clone() {
@@ -65,6 +69,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                 };
 
                 while let Some(ref chunk) = response.next().await {
+                    println!("chunk: {:?}", chunk);
                     match chunk {
                         Ok(chunk) => {
                             for output in chunk {
@@ -78,7 +83,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                         usage: final_msg.usage.clone(),
                                                     });
                                                 options.messages.push(TaggedMessage::new(
-                                                    options.current_step_id,
+                                                    current_step_id,
                                                     assistant_msg,
                                                 ));
                                                 options.stop_reason = Some(StopReason::Finish);
@@ -87,7 +92,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                 ref reason,
                                             ) => {
                                                 options.messages.push(TaggedMessage::new(
-                                                options.current_step_id,
+                                                current_step_id,
                                                 Message::Assistant(AssistantMessage {
                                                     content:
                                                         LanguageModelResponseContentType::Reasoning(
@@ -104,7 +109,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                 // add tool message
                                                 let usage = final_msg.usage.clone();
                                                 let _ = &options.messages.push(TaggedMessage::new(
-                                                    options.current_step_id.to_owned(),
+                                                    current_step_id.to_owned(),
                                                     Message::Assistant(AssistantMessage::new(
                                                         LanguageModelResponseContentType::ToolCall(
                                                             tool_info.clone(),
@@ -173,7 +178,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             Ok(())
         });
 
-        let result = StreamTextResponse { stream };
+        let result = StreamTextResponse { stream, options };
 
         Ok(result)
     }
@@ -188,22 +193,59 @@ pub struct StreamTextResponse {
     /// A stream of responses from the language model.
     pub stream: LanguageModelStream,
     // The reason the model stopped generating text.
-    // options: LanguageModelOptions, // TODO: fix this
+    options: Arc<Mutex<LanguageModelOptions>>,
 }
 
 impl StreamTextResponse {
     #[cfg(any(test, feature = "test-access"))]
-    pub fn step_ids(&self) -> Vec<usize> {
-        // self.options.messages.iter().map(|t| t.step_id).collect()
-        todo!()
+    pub async fn step_ids(&self) -> Vec<usize> {
+        self.options
+            .lock()
+            .await
+            .messages
+            .iter()
+            .map(|t| t.step_id)
+            .collect()
     }
 }
 
-impl Deref for StreamTextResponse {
-    type Target = LanguageModelOptions;
+impl StreamTextResponse {
+    pub async fn messages(&self) -> Vec<Message> {
+        self.options.lock().await.messages()
+    }
 
-    fn deref(&self) -> &Self::Target {
-        // &self.options
-        todo!()
+    pub async fn step(&self, index: usize) -> Option<Step> {
+        self.options.lock().await.step(index)
+    }
+
+    pub async fn last_step(&self) -> Option<Step> {
+        self.options.lock().await.last_step()
+    }
+
+    pub async fn steps(&self) -> Vec<Step> {
+        self.options.lock().await.steps()
+    }
+
+    pub async fn usage(&self) -> Usage {
+        self.options.lock().await.usage()
+    }
+
+    pub async fn content(&self) -> Option<LanguageModelResponseContentType> {
+        self.options.lock().await.content().cloned()
+    }
+
+    pub async fn text(&self) -> Option<String> {
+        self.options.lock().await.text()
+    }
+
+    pub async fn tool_results(&self) -> Option<Vec<ToolResultInfo>> {
+        self.options.lock().await.tool_results()
+    }
+
+    pub async fn tool_calls(&self) -> Option<Vec<ToolCallInfo>> {
+        self.options.lock().await.tool_calls()
+    }
+    pub async fn stop_reason(&self) -> Option<StopReason> {
+        self.options.lock().await.stop_reason()
     }
 }

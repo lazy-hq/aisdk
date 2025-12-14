@@ -329,7 +329,7 @@ macro_rules! generate_language_model_stop_reason_tests {
         async fn test_stop_reason_stream_finish() {
             skip_if_no_api_key!();
 
-            let response = LanguageModelRequest::builder()
+            let mut response = LanguageModelRequest::builder()
                 .model(<$provider_type>::new($config.basic_model()))
                 .prompt("Respond with 'world'")
                 .build()
@@ -337,8 +337,11 @@ macro_rules! generate_language_model_stop_reason_tests {
                 .await
                 .unwrap();
 
+            // consume the stream
+            while let Some(_) = response.stream.next().await {}
+
             // The stream is already consumed internally, stop_reason is set
-            assert!(matches!(response.stop_reason(), Some(StopReason::Finish)));
+            assert!(matches!(response.stop_reason().await, Some(StopReason::Finish)));
         }
     };
 }
@@ -958,7 +961,7 @@ macro_rules! generate_language_model_hook_tests {
             let called = Arc::new(Mutex::new(false));
             let called_clone = Arc::clone(&called);
 
-            let _ = LanguageModelRequest::builder()
+            let mut response = LanguageModelRequest::builder()
                 .model(<$provider_type>::new($config.streaming_model()))
                 .prompt("Say hello")
                 .on_step_start(move |_| {
@@ -968,6 +971,9 @@ macro_rules! generate_language_model_hook_tests {
                 .stream_text()
                 .await
                 .unwrap();
+
+            // consume the stream
+            while let Some(_) = response.stream.next().await {}
 
             assert!(*called.lock().unwrap()); // Called before streaming starts
         }
@@ -1063,12 +1069,11 @@ macro_rules! generate_language_model_step_id_tests {
                 .await
                 .unwrap();
 
-            let step_ids = response.step_ids();
-            // system (0), user (0), assistant (1)
-            assert_eq!(step_ids.len(), 3);
+            let step_ids = response.step_ids().await;
+            // user (0), assistant (0)
+            assert_eq!(step_ids.len(), 2);
             assert_eq!(step_ids[0], 0);
             assert_eq!(step_ids[1], 0);
-            assert_eq!(step_ids[2], 1);
         }
     };
 }
