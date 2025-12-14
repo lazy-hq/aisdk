@@ -55,6 +55,8 @@ macro_rules! model_capabilities {
             $(
                 $model:ident {
                     model_name: $model_name:literal,
+                    constructor_name: $constructor_name:ident,
+                    display_name: $display_name:literal,
                     capabilities: [$($capability:ident),* $(,)?]
                 }
             ),* $(,)?
@@ -62,15 +64,51 @@ macro_rules! model_capabilities {
     ) => {
         $(
             #[derive(Debug, Clone)]
+            #[doc = concat!(
+                "Represents the **",
+                $display_name,
+                "** model.\n\n",
+                "- **Model identifier:** `",
+                $model_name,
+                "`"
+            )]
             pub struct $model;
 
+            #[doc = concat!(
+                "Associates the **",
+                $display_name,
+                "** model with its canonical API model identifier."
+            )]
             impl ModelName for $model {
+                /// The underlying API model name.
                 const MODEL_NAME: &'static str = $model_name;
             }
 
             $(
+                #[doc = concat!(
+                    "Enables the [`",
+                    stringify!($capability),
+                    "`] capability for [`",
+                    stringify!($provider),
+                    "<",
+                    stringify!($model),
+                    ">`]."
+                )]
                 impl $capability for $provider<$model> {}
             )*
+
+            impl $provider<$model> {
+                #[doc = concat!(
+                    "Creates a new [`",
+                    stringify!($provider),
+                    "`] Provider configured to use the **",
+                    $display_name,
+                    "** model with default settings."
+                )]
+                pub fn $constructor_name() -> Self {
+                    Self::default()
+                }
+            }
         )*
     };
 }

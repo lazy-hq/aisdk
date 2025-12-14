@@ -1,5 +1,6 @@
 //! This module provides the Groq provider, wrapping OpenAI for Groq branding.
 
+pub mod capabilities;
 pub mod settings;
 
 use crate::core::capabilities::ModelName;

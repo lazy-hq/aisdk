@@ -203,5 +203,5 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
     }
 }
 
-// Re-exports for convenience
+// Re-exports Models for convenience
 pub use capabilities::*;
