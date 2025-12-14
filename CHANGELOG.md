@@ -18,6 +18,7 @@ Changelog entries are grouped by type, with the following types:
 
 ### Added
 - Async accessor methods to `StreamTextResponse` for thread-safe data retrieval (`messages()`, `steps()`, `usage()`, etc.)
+- Added `builder()` method for `Tool` for easier construction
 
 ### Changed
 - Updated tool macro to require a return type of `Tool`
