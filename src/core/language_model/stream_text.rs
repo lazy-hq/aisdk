@@ -36,7 +36,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
         }));
 
         let (tx, stream) = LanguageModelStream::new();
-        let _ = tx.send(LanguageModelStreamChunkType::Start).await;
+        let _ = tx.send(LanguageModelStreamChunkType::Start);
 
         let mut model = self.model.clone();
 
@@ -58,12 +58,10 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                     Ok(r) => r,
                     Err(e) => {
                         options.stop_reason = Some(StopReason::Error(e.clone()));
-                        let _ = tx
-                            .send(LanguageModelStreamChunkType::Failed(format!(
-                                "Model streaming failed: {}",
-                                e
-                            )))
-                            .await;
+                        let _ = tx.send(LanguageModelStreamChunkType::Failed(format!(
+                            "Model streaming failed: {}",
+                            e
+                        )));
                         return Err(e);
                     }
                 };
@@ -131,31 +129,26 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                         if let Some(hook) = &options.stop_when.clone()
                                             && hook(&options)
                                         {
-                                            let _ = tx
-                                                .send(LanguageModelStreamChunkType::Incomplete(
+                                            let _ =
+                                                tx.send(LanguageModelStreamChunkType::Incomplete(
                                                     "Stopped by hook".to_string(),
-                                                ))
-                                                .await;
+                                                ));
                                             options.stop_reason = Some(StopReason::Hook);
                                             break;
                                         }
 
-                                        let _ = tx
-                                            .send(LanguageModelStreamChunkType::End(
-                                                final_msg.clone(),
-                                            ))
-                                            .await;
+                                        let _ = tx.send(LanguageModelStreamChunkType::End(
+                                            final_msg.clone(),
+                                        ));
                                     }
                                     LanguageModelStreamChunk::Delta(other) => {
-                                        let _ = tx.send(other.clone()).await; // propagate chunks
+                                        let _ = tx.send(other.clone()); // propagate chunks
                                     }
                                 }
                             }
                         }
                         Err(e) => {
-                            let _ = tx
-                                .send(LanguageModelStreamChunkType::Failed(e.to_string()))
-                                .await;
+                            let _ = tx.send(LanguageModelStreamChunkType::Failed(e.to_string()));
                             options.stop_reason = Some(StopReason::Error(e.clone()));
                             break;
                         }

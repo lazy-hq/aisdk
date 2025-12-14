@@ -24,7 +24,7 @@ use std::ops::Add;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
-use tokio::sync::mpsc::{self, Receiver, Sender};
+use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
 // ============================================================================
 // Section: constants
@@ -466,13 +466,16 @@ pub(crate) type ProviderStream =
 
 // A mapping of `ProviderStream` to a channel like stream.
 pub struct LanguageModelStream {
-    receiver: Receiver<LanguageModelStreamChunkType>,
+    receiver: UnboundedReceiver<LanguageModelStreamChunkType>,
 }
 
 impl LanguageModelStream {
     // Creates a new MpmcStream with an associated Sender
-    pub fn new() -> (Sender<LanguageModelStreamChunkType>, LanguageModelStream) {
-        let (tx, rx) = mpsc::channel(100);
+    pub fn new() -> (
+        UnboundedSender<LanguageModelStreamChunkType>,
+        LanguageModelStream,
+    ) {
+        let (tx, rx) = mpsc::unbounded_channel();
         (tx, LanguageModelStream { receiver: rx })
     }
 }
