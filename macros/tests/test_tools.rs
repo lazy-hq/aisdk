@@ -59,7 +59,7 @@ mod tests {
     }
 
     #[tool(name = "the-name-for-this-tool")]
-    pub fn my_example_tool_with_name(name: String, a: u8, b: Option<u8>) -> Tool {
+    pub fn my_example_tool_with_name(_name: String, a: u8, b: Option<u8>) -> Tool {
         Ok(format!("{}{}", a, b.unwrap_or(0)))
     }
 
@@ -72,7 +72,7 @@ mod tests {
 
     #[tool(desc = "the-description-for-this-tool")]
     /// This is The Description of an example tool.
-    pub fn my_example_tool_with_description(name: String, a: u8, b: Option<u8>) -> Tool {
+    pub fn my_example_tool_with_description(_name: String, a: u8, b: Option<u8>) -> Tool {
         Ok(format!("{}{}", a, b.unwrap_or(0)))
     }
 
@@ -89,7 +89,7 @@ mod tests {
         desc = "the-description-for-this-tool"
     )]
     /// This is The Description of an example tool.
-    pub fn my_example_tool_with_name_and_description(name: String, a: u8, b: Option<u8>) -> Tool {
+    pub fn my_example_tool_with_name_and_description(_name: String, a: u8, b: Option<u8>) -> Tool {
         Ok(format!("{}{}", a, b.unwrap_or(0)))
     }
 
@@ -107,7 +107,7 @@ mod tests {
         name = "the-name-for-this-tool"
     )]
     /// This is The Description of an example tool.
-    pub fn my_example_tool_with_description_and_name(name: String, a: u8, b: Option<u8>) -> Tool {
+    pub fn my_example_tool_with_description_and_name(_name: String, a: u8, b: Option<u8>) -> Tool {
         Ok(format!("{}{}", a, b.unwrap_or(0)))
     }
 

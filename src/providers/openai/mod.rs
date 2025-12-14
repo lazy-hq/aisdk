@@ -118,50 +118,52 @@ impl LanguageModel for OpenAI {
 
                 let usage: Usage = response.usage.unwrap_or_default().into();
                 let output = response.output.unwrap_or_default();
-                let last_message: Option<types::MessageItem> = output.last().cloned();
 
-                match &last_message {
-                    // ---- Final OutputMessage ----
-                    Some(types::MessageItem::OutputMessage { content, .. }) => {
-                        if let Some(types::OutputContent::OutputText { text, .. }) = content.first()
-                        {
+                for msg in output {
+                    match &msg {
+                        // ---- Final OutputMessage ----
+                        types::MessageItem::OutputMessage { content, .. } => {
+                            if let Some(types::OutputContent::OutputText { text, .. }) =
+                                content.first()
+                            {
+                                result.push(LanguageModelStreamChunk::Done(AssistantMessage {
+                                    content: LanguageModelResponseContentType::new(text.clone()),
+                                    usage: Some(usage.clone()),
+                                }));
+                            }
+                        }
+
+                        // ---- Reasoning ----
+                        types::MessageItem::Reasoning { summary, .. } => {
+                            if let Some(types::ReasoningSummary { text, .. }) = summary.first() {
+                                result.push(LanguageModelStreamChunk::Done(AssistantMessage {
+                                    content: LanguageModelResponseContentType::Reasoning(
+                                        text.to_owned(),
+                                    ),
+                                    usage: Some(usage.clone()),
+                                }));
+                            }
+                        }
+
+                        // ---- FunctionCall ----
+                        types::MessageItem::FunctionCall {
+                            call_id,
+                            name,
+                            arguments,
+                            ..
+                        } => {
+                            let mut tool_info = ToolCallInfo::new(name.clone());
+                            tool_info.id(call_id.clone());
+                            tool_info.input(serde_json::from_str(arguments).unwrap_or_default());
+
                             result.push(LanguageModelStreamChunk::Done(AssistantMessage {
-                                content: LanguageModelResponseContentType::new(text.clone()),
+                                content: LanguageModelResponseContentType::ToolCall(tool_info),
                                 usage: Some(usage.clone()),
                             }));
                         }
+
+                        _ => {}
                     }
-
-                    // ---- Reasoning ----
-                    Some(types::MessageItem::Reasoning { summary, .. }) => {
-                        if let Some(types::ReasoningSummary { text, .. }) = summary.first() {
-                            result.push(LanguageModelStreamChunk::Done(AssistantMessage {
-                                content: LanguageModelResponseContentType::Reasoning(
-                                    text.to_owned(),
-                                ),
-                                usage: Some(usage.clone()),
-                            }));
-                        }
-                    }
-
-                    // ---- FunctionCall ----
-                    Some(types::MessageItem::FunctionCall {
-                        call_id,
-                        name,
-                        arguments,
-                        ..
-                    }) => {
-                        let mut tool_info = ToolCallInfo::new(name.clone());
-                        tool_info.id(call_id.clone());
-                        tool_info.input(serde_json::from_str(arguments).unwrap_or_default());
-
-                        result.push(LanguageModelStreamChunk::Done(AssistantMessage {
-                            content: LanguageModelResponseContentType::ToolCall(tool_info),
-                            usage: Some(usage.clone()),
-                        }));
-                    }
-
-                    _ => {}
                 }
 
                 Ok(result)

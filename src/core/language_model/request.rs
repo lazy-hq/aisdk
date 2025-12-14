@@ -14,7 +14,7 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 /// Options for text generation requests such as `generate_text` and `stream_text`.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LanguageModelRequest<M: LanguageModel> {
     /// The Language Model to use.
     pub model: M,
