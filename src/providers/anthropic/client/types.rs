@@ -45,11 +45,11 @@ pub struct AnthropicMessageResponse {
     pub id: String,
     pub content: Vec<AnthropicContentBlock>,
     pub model: String,
-    #[serde(default = "assistant")]
+    #[serde(default = "assistant_as_str")]
     role: String, // always "assistant"
     pub stop_reason: Option<String>,
     pub stop_sequences: Option<Vec<String>>,
-    #[serde(rename = "type", default = "text")]
+    #[serde(rename = "type", default = "message_as_str")]
     type_: String,
     pub usage: AnthropicUsage,
 }
@@ -61,6 +61,7 @@ pub struct AnthropicUsage {
     pub cache_read_input_tokens: usize,
     pub input_tokens: usize,
     pub output_tokens: usize,
+    #[serde(default = "AnthropicServerToolUsage::default")]
     pub server_tool_use: AnthropicServerToolUsage,
     pub service_tier: String,
 }
@@ -82,6 +83,7 @@ pub enum AnthropicContentBlock {
     #[serde(rename = "text")]
     Text {
         text: String,
+        #[serde(default = "Vec::default")]
         citations: Vec<AnthropicCitation>,
     },
     #[serde(rename = "thinking")]
@@ -235,10 +237,14 @@ pub enum AnthropicDelta {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct AnthropicMessageDeltaUsage {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cache_creation_input_tokens: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cache_read_input_tokens: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub input_tokens: Option<usize>,
     pub output_tokens: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub server_tool_use: Option<AnthropicServerToolUsage>,
 }
 
@@ -276,10 +282,10 @@ impl std::error::Error for AnthropicError {}
 impl ProviderError for AnthropicError {}
 
 // ---------------------------------- Helper functions ----------------------------------
-fn assistant() -> String {
+fn assistant_as_str() -> String {
     "assistant".to_string()
 }
 
-fn text() -> String {
-    "text".to_string()
+fn message_as_str() -> String {
+    "message".to_string()
 }

@@ -148,7 +148,6 @@ macro_rules! generate_basic_tests {
                 .generate_text()
                 .await;
 
-            dbg!(&result);
             assert!(result.is_ok());
 
             let text = result
@@ -350,6 +349,7 @@ macro_rules! generate_language_model_streaming_tests {
 
             let mut buf = String::new();
             while let Some(chunk) = stream.next().await {
+                // println!("chunk: {:?}", chunk);
                 if let LanguageModelStreamChunkType::Text(text) = chunk {
                     buf.push_str(&text);
                 }

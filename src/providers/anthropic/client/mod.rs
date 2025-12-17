@@ -22,20 +22,28 @@ pub struct AnthropicOptions {
     #[builder(default = "4096")]
     pub max_tokens: u32,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_sequences: Option<Vec<String>>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub system: Option<String>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub thinking: Option<AnthropicThinking>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<AnthropicTool>>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub top_k: Option<u32>,
     #[builder(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
 }
 
@@ -73,7 +81,6 @@ impl<M: ModelName> Client for Anthropic<M> {
 
     fn body(&self) -> reqwest::Body {
         let body = serde_json::to_string(&self.options).unwrap();
-        println!("anthropic body: {body}");
         reqwest::Body::from(body)
     }
 

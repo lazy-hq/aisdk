@@ -17,15 +17,21 @@ impl From<LanguageModelOptions> for AnthropicOptions {
         // time checks if not set in core
         let max_tokens = options.max_output_tokens.unwrap_or(10_000);
 
-        if let Some(system) = options.system {
+        if let Some(system) = options.system
+            && system.len() > 0
+        {
             request.system(Some(system));
+        } else {
+            request.system(None);
         }
 
         // convert messages to anthropic messages
         for msg in options.messages {
             match msg.message {
                 Message::System(s) => {
-                    request.system(Some(s.content));
+                    if s.content.len() > 0 {
+                        request.system(Some(s.content));
+                    }
                 }
                 Message::User(u) => {
                     messages.push(AnthropicMessageParam::User { content: u.content });
@@ -66,6 +72,8 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                 }
             }
         }
+        // update messages
+        request.messages(messages);
 
         // convert tools to anthropic tools
         if let Some(tools) = options.tools {

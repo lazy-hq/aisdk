@@ -40,16 +40,6 @@ impl From<LanguageModelOptions> for client::OpenAIOptions {
             .filter_map(|m| m.message.into())
             .collect();
 
-        // system prompt first since openai likes it at the top
-        // if let Some(system) = options.system {
-        //     items.insert(
-        //         0,
-        //         client::OpenAiInputItem::Message(client::OpenAIMessageParam::System {
-        //             content: system,
-        //         }),
-        //     );
-        // }
-
         let tools: Option<Vec<types::ToolParams>> = options.tools.map(|t| {
             t.tools
                 .lock()
