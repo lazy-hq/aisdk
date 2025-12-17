@@ -10,9 +10,9 @@ use crate::providers::openai::OpenAI;
 model_capabilities! {
     provider: OpenAI,
     models: {
-        CodexMini {
-            model_name: "codex-mini",
-            constructor_name: codex_mini,
+        CodexMiniLatest {
+            model_name: "codex-mini-latest",
+            constructor_name: codex_mini_latest,
             display_name: "Codex Mini",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
@@ -59,19 +59,19 @@ model_capabilities! {
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt4o20240513 {
-            model_name: "gpt-4o-(2024-05-13)",
+            model_name: "gpt-4o-2024-05-13",
             constructor_name: gpt_4o_2024_05_13,
             display_name: "GPT-4o (2024-05-13)",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt4o20240806 {
-            model_name: "gpt-4o-(2024-08-06)",
+            model_name: "gpt-4o-2024-08-06",
             constructor_name: gpt_4o_2024_08_06,
             display_name: "GPT-4o (2024-08-06)",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt4o20241120 {
-            model_name: "gpt-4o-(2024-11-20)",
+            model_name: "gpt-4o-2024-11-20",
             constructor_name: gpt_4o_2024_11_20,
             display_name: "GPT-4o (2024-11-20)",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
@@ -94,9 +94,9 @@ model_capabilities! {
             display_name: "GPT-5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Gpt51Chat {
-            model_name: "gpt-5.1-chat",
-            constructor_name: gpt_5_1_chat,
+        Gpt51ChatLatest {
+            model_name: "gpt-5.1-chat-latest",
+            constructor_name: gpt_5_1_chat_latest,
             display_name: "GPT-5.1 Chat",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
@@ -124,9 +124,9 @@ model_capabilities! {
             display_name: "GPT-5.2",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Gpt52Chat {
-            model_name: "gpt-5.2-chat",
-            constructor_name: gpt_5_2_chat,
+        Gpt52ChatLatest {
+            model_name: "gpt-5.2-chat-latest",
+            constructor_name: gpt_5_2_chat_latest,
             display_name: "GPT-5.2 Chat",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
@@ -137,7 +137,7 @@ model_capabilities! {
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5ChatLatest {
-            model_name: "gpt-5-chat-(latest)",
+            model_name: "gpt-5-chat-latest",
             constructor_name: gpt_5_chat_latest,
             display_name: "GPT-5 Chat (latest)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]

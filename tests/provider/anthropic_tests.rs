@@ -1,6 +1,6 @@
 //! Anthropic provider integration tests.
 
-use aisdk::providers::anthropic::{Anthropic, ClaudeOpus4};
+use aisdk::providers::anthropic::{Anthropic, ClaudeOpus40};
 
 // Include all macro definitions
 include!("macros.rs");
@@ -9,10 +9,10 @@ include!("macros.rs");
 generate_language_model_tests!(
     provider: Anthropic,
     api_key_var: "ANTHROPIC_API_KEY",
-    model_struct: ClaudeOpus4,
-    default_model: Anthropic::claude_haiku_3(),
-    tool_model: Anthropic::claude_sonnet_3(),
-    structured_output_model: Anthropic::claude_sonnet_4_5(),
+    model_struct: ClaudeOpus40,
+    default_model: Anthropic::claude_haiku_4_5(),
+    tool_model: Anthropic::claude_haiku_4_5(),
+    structured_output_model: Anthropic::claude_haiku_4_5(),
     reasoning_model: Anthropic::claude_haiku_4_5(),
     skip_reasoning: true,
     skip_tool: false,

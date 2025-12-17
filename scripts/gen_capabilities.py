@@ -63,6 +63,7 @@ def load_provider_models(root: Path, provider_name: str) -> Dict[str, dict]:
         try:
             with open(toml_file, 'rb') as f:
                 config = tomllib.load(f)
+                config['filename'] = toml_file.stem
                 model_key = to_pascal_case(toml_file.stem)
                 models[model_key] = config
                 log(f"Loaded model: {model_key} from {toml_file.name}")
@@ -141,9 +142,8 @@ def get_model_name(toml_data: dict, filename: str) -> str:
     if 'model_name' in toml_data:
         return toml_data['model_name']
 
-    # Fallback to name field or derive from filename
-    name = toml_data.get('name', filename.replace('.toml', ''))
-    return name.lower().replace(' ', '-')
+    # Fallback to stored filename or derive from filename param
+    return toml_data.get('filename', filename.replace('.toml', ''))
 
 def generate_capabilities_rs(provider_input: str, models: Dict[str, dict]) -> str:
     """Generate the complete capabilities.rs content."""

@@ -16,9 +16,9 @@ model_capabilities! {
             display_name: "DeepSeek R1 Distill Llama 70B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Gemma29b {
-            model_name: "gemma-2-9b",
-            constructor_name: gemma_2_9b,
+        Gemma29bIt {
+            model_name: "gemma2-9b-it",
+            constructor_name: gemma2_9b_it,
             display_name: "Gemma 2 9B",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
@@ -34,15 +34,15 @@ model_capabilities! {
             display_name: "Llama 3.3 70B Versatile",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Llama370b {
-            model_name: "llama-3-70b",
-            constructor_name: llama_3_70b,
+        Llama370b8192 {
+            model_name: "llama3-70b-8192",
+            constructor_name: llama3_70b_8192,
             display_name: "Llama 3 70B",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Llama38b {
-            model_name: "llama-3-8b",
-            constructor_name: llama_3_8b,
+        Llama38b8192 {
+            model_name: "llama3-8b-8192",
+            constructor_name: llama3_8b_8192,
             display_name: "Llama 3 8B",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
