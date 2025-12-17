@@ -50,7 +50,7 @@ impl<M: ModelName> Client for Anthropic<M> {
     type StreamEvent = AnthropicStreamEvent;
 
     fn path(&self) -> &str {
-        "/messages"
+        "/v1/messages"
     }
 
     fn method(&self) -> reqwest::Method {
@@ -73,6 +73,7 @@ impl<M: ModelName> Client for Anthropic<M> {
 
     fn body(&self) -> reqwest::Body {
         let body = serde_json::to_string(&self.options).unwrap();
+        println!("anthropic body: {body}");
         reqwest::Body::from(body)
     }
 
