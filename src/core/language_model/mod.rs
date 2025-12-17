@@ -49,6 +49,14 @@ pub const DEFAULT_TOOL_STEP_COUNT: usize = 3;
 /// generation and streaming responses.
 #[async_trait]
 pub trait LanguageModel: Send + Sync + std::fmt::Debug + Clone + 'static {
+    /// Returns the name or identifier of the language model.
+    ///
+    /// This method provides a human-readable name for the model instance,
+    /// which can be used for logging, debugging, or display purposes.
+    ///
+    /// # Returns
+    ///
+    /// A string representing the model's name (e.g., "gpt-4", "claude-3").
     fn name(&self) -> String;
     /// Performs a single, non-streaming text generation request.
     ///
@@ -517,7 +525,14 @@ pub struct LanguageModelStream {
 }
 
 impl LanguageModelStream {
-    // Creates a new MpmcStream with an associated Sender
+    /// Creates a new stream with an associated sender for streaming chunks.
+    ///
+    /// This method returns a tuple containing the sender for pushing chunks
+    /// and the receiver stream for consuming them.
+    ///
+    /// # Returns
+    ///
+    /// A tuple of `(UnboundedSender<LanguageModelStreamChunkType>, LanguageModelStream)`.
     pub fn new() -> (
         UnboundedSender<LanguageModelStreamChunkType>,
         LanguageModelStream,

@@ -12,7 +12,7 @@ pub mod client;
 pub mod language_model;
 pub mod messages;
 pub mod provider;
-pub(crate) mod tools;
+pub mod tools;
 pub mod utils;
 
 // Re-export key components to provide a clean public API.
@@ -23,4 +23,4 @@ pub use language_model::{
 
 pub use messages::{AssistantMessage, Message, Role, SystemMessage, UserMessage};
 pub use provider::Provider;
-pub use tools::{Tool, ToolExecute};
+pub use tools::{Tool, ToolCallInfo, ToolResultInfo};

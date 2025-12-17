@@ -222,6 +222,18 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
 
 /// Methods available in the [`ConversationStage`] state.
 impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
+    /// Sets a simple text prompt for the request.
+    ///
+    /// This method allows setting a user prompt.
+    /// The prompt represents the user's input to the language model.
+    ///
+    /// # Parameters
+    ///
+    /// * `prompt` - The user prompt text.
+    ///
+    /// # Returns
+    ///
+    /// The builder in the [`OptionsStage`] state.
     pub fn prompt(self, prompt: impl Into<String>) -> LanguageModelRequestBuilder<M, OptionsStage>
     where
         M: TextInputSupport,
@@ -234,6 +246,18 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
         }
     }
 
+    /// Sets conversation messages for the request.
+    ///
+    /// This method allows providing a full conversation history as a vector of messages,
+    /// enabling multi-turn conversations with the language model.
+    ///
+    /// # Parameters
+    ///
+    /// * `messages` - A vector of [`Message`] instances representing the conversation.
+    ///
+    /// # Returns
+    ///
+    /// The builder in the [`OptionsStage`] state.
     pub fn messages(self, messages: Vec<Message>) -> LanguageModelRequestBuilder<M, OptionsStage>
     where
         M: TextInputSupport,
@@ -252,6 +276,18 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
 
 /// Methods available in the [`OptionsStage`] state.
 impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
+    /// Sets the output schema for structured generation.
+    ///
+    /// This method configures the language model to generate output that conforms
+    /// to the provided JSON schema. The schema is derived from the given type `T`.
+    ///
+    /// # Type Parameters
+    ///
+    /// * `T` - A type that implements [`JsonSchema`], used to generate the output schema.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the schema configured.
     pub fn schema<T: JsonSchema>(mut self) -> Self
     where
         M: StructuredOutputSupport,
@@ -360,6 +396,15 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
+    /// Adds a tool to the request.
+    ///
+    /// # Arguments
+    ///
+    /// * `tool` - The tool to add.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the tool added.
     pub fn with_tool(mut self, tool: Tool) -> Self
     where
         M: ToolCallSupport,

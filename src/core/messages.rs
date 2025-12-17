@@ -268,7 +268,8 @@ impl MessageBuilder<Conversation> {
     ///
     /// The builder with the message added.
     pub fn assistant(mut self, content: impl Into<String>) -> MessageBuilder<Conversation> {
-        self.messages.push(Message::Assistant(content.into().into()));
+        self.messages
+            .push(Message::Assistant(content.into().into()));
         MessageBuilder {
             messages: self.messages,
             state: std::marker::PhantomData,

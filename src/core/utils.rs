@@ -1,3 +1,5 @@
+//! Helper functions for `aisdk`
+
 use crate::{
     Error,
     core::{Message, language_model::LanguageModelOptions, messages::TaggedMessage},
@@ -21,22 +23,22 @@ use crate::{
 ///
 /// ```rust,no_run
 /// use aisdk::core::{LanguageModelRequest, utils::step_count_is};
-/// use aisdk::providers::openai::OpenAI;
+/// // use aisdk::providers::openai::OpenAI; // Requires "openai" feature
 ///
-/// #[tokio::main]
-/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let result = LanguageModelRequest::builder()
-///         .model(OpenAI::new("gpt-4o"))
-///         .system("You are a helpful assistant with access to tools.")
-///         .prompt("What is the weather in New York?")
-///         .stop_when(step_count_is(3)) // Limit agent loop to 3 steps
-///         .build()
-///         .generate_text()
-///         .await?;
-///
-///     println!("{}", result.text().unwrap());
-///     Ok(())
-/// }
+/// // #[tokio::main]
+/// // async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// //     let result = LanguageModelRequest::builder()
+/// //         .model(OpenAI::gpt_5())
+/// //         .system("You are a helpful assistant with access to tools.")
+/// //         .prompt("What is the weather in New York?")
+/// //         .stop_when(step_count_is(3)) // Limit agent loop to 3 steps
+/// //         .build()
+/// //         .generate_text()
+/// //         .await?;
+/// //
+/// //     println!("{}", result.text().unwrap());
+/// //     Ok(())
+/// // }
 /// ```
 pub fn step_count_is(step: usize) -> impl Fn(&LanguageModelOptions) -> bool {
     move |options| options.steps().len() > step

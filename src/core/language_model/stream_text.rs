@@ -35,27 +35,34 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// # use aisdk::core::LanguageModelRequest;
-    /// # use aisdk::core::language_model::LanguageModelStreamChunkType;
-    /// # use aisdk::providers::openai::OpenAI;
-    /// # use futures::StreamExt;
-    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-    /// let mut request = LanguageModelRequest::builder()
-    ///     .model(OpenAI::new("gpt-4"))
-    ///     .prompt("Tell me a story")
-    ///     .build();
+    ///# #[cfg(feature = "openai")]
+    ///# {
+    ///    use aisdk::{
+    ///        core::{LanguageModelRequest, LanguageModelStreamChunkType},
+    ///        providers::openai::OpenAI,
+    ///    };
     ///
-    /// let response = request.stream_text().await?;
-    /// while let Some(chunk) = response.stream.next().await {
-    ///     match chunk {
-    ///         LanguageModelStreamChunkType::Text(text) => {
-    ///             print!("{}", text);
+    ///    async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///
+    ///        let openai = OpenAI::gpt_5();
+    ///
+    ///        let stream = LanguageModelRequest::builder()
+    ///            .model(openai)
+    ///            .prompt("What is the meaning of life?")
+    ///            .build()
+    ///            .stream_text()
+    ///            .await?
+    ///            .stream;
+    ///
+    ///         while let Some(chunk) = stream.next().await {
+    ///             if let LanguageModelStreamChunkType::Text(text) = chunk {
+    ///                 println!("{}", text);
+    ///             }
     ///         }
-    ///         _ => {}
-    ///     }
-    /// }
-    /// # Ok(())
-    /// # }
+    ///        
+    ///        Ok(())
+    ///    }
+    ///# }
     /// ```
     pub async fn stream_text(&mut self) -> Result<StreamTextResponse> {
         let (system_prompt, messages) = resolve_message(&self.options, &self.prompt);
@@ -246,41 +253,123 @@ impl StreamTextResponse {
 }
 
 impl StreamTextResponse {
+    /// Returns all messages from the conversation.
+    ///
+    /// This includes system prompts, user inputs, assistant responses,
+    /// and any tool-related messages that occurred during streaming.
+    ///
+    /// # Returns
+    ///
+    /// A vector of all [`Message`] instances in the conversation.
     pub async fn messages(&self) -> Vec<Message> {
         self.options.lock().await.messages()
     }
 
+    /// Returns the conversation step with the specified index.
+    ///
+    /// A step represents all messages exchanged during one cycle of model interaction,
+    /// including user input, assistant responses, and tool calls/results.
+    ///
+    /// # Parameters
+    ///
+    /// * `index` - The step ID to retrieve.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<Step>` containing the step if it exists.
     pub async fn step(&self, index: usize) -> Option<Step> {
         self.options.lock().await.step(index)
     }
 
+    /// Returns the most recent conversation step.
+    ///
+    /// This is equivalent to calling `step()` with the highest step ID.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<Step>` containing the last step if any steps exist.
     pub async fn last_step(&self) -> Option<Step> {
         self.options.lock().await.last_step()
     }
 
+    /// Returns all conversation steps in chronological order.
+    ///
+    /// Each step contains all messages exchanged during that cycle of interaction.
+    ///
+    /// # Returns
+    ///
+    /// A vector of all [`Step`] instances in order.
     pub async fn steps(&self) -> Vec<Step> {
         self.options.lock().await.steps()
     }
 
+    /// Calculates the total token usage across all conversation steps.
+    ///
+    /// This aggregates input, output, reasoning, and cached token counts
+    /// from all assistant messages in the conversation.
+    ///
+    /// # Returns
+    ///
+    /// A [`Usage`] struct containing the aggregated token statistics.
     pub async fn usage(&self) -> Usage {
         self.options.lock().await.usage()
     }
 
+    /// Returns the content of the last assistant message, excluding reasoning.
+    ///
+    /// This provides access to the final output content from the language model,
+    /// filtering out any reasoning content that may be present.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<LanguageModelResponseContentType>` containing the content if available.
     pub async fn content(&self) -> Option<LanguageModelResponseContentType> {
         self.options.lock().await.content().cloned()
     }
 
+    /// Returns the text content of the last assistant message.
+    ///
+    /// This extracts the plain text from the final assistant response,
+    /// if the content type is text.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<String>` containing the text if the last message is text content.
     pub async fn text(&self) -> Option<String> {
         self.options.lock().await.text()
     }
 
+    /// Extracts all tool execution results from the conversation.
+    ///
+    /// This collects all tool result messages that were generated during
+    /// the streaming process, including results from tool calls.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<Vec<ToolResultInfo>>` containing all tool results if any exist.
     pub async fn tool_results(&self) -> Option<Vec<ToolResultInfo>> {
         self.options.lock().await.tool_results()
     }
 
+    /// Extracts all tool calls from the conversation.
+    ///
+    /// This collects all tool call requests that were made by the assistant
+    /// during the streaming process.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<Vec<ToolCallInfo>>` containing all tool calls if any exist.
     pub async fn tool_calls(&self) -> Option<Vec<ToolCallInfo>> {
         self.options.lock().await.tool_calls()
     }
+    /// Returns the reason why text generation stopped.
+    ///
+    /// This indicates how and why the streaming process terminated,
+    /// such as completion, error, or user-defined stop conditions.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<StopReason>` indicating the termination reason if available.
     pub async fn stop_reason(&self) -> Option<StopReason> {
         self.options.lock().await.stop_reason()
     }

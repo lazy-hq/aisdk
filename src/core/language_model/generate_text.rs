@@ -39,19 +39,30 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// # use aisdk::core::LanguageModelRequest;
-    /// # use aisdk::providers::openai::OpenAI;
-    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-    /// let mut request = LanguageModelRequest::builder()
-    ///     .model(OpenAI::new("gpt-4"))
-    ///     .prompt("Calculate 2 + 2")
-    ///     .build();
+    ///# #[cfg(feature = "openai")]
+    ///# {
+    ///    use aisdk::{
+    ///        core::{LanguageModelRequest},
+    ///        providers::openai::OpenAI,
+    ///    };
     ///
-    /// let response = request.generate_text().await?;
-    /// println!("Response: {}", response.text().unwrap_or("No text"));
-    /// # Ok(())
-    /// # }
+    ///    async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///
+    ///        let openai = OpenAI::gpt_5();
+    ///
+    ///        let result = LanguageModelRequest::builder()
+    ///            .model(openai)
+    ///            .prompt("What is the meaning of life?")
+    ///            .build()
+    ///            .generate_text()
+    ///            .await?;
+    ///
+    ///        println!("{}", result.text().unwrap());
+    ///        Ok(())
+    ///    }
+    ///# }
     /// ```
+    ///
     pub async fn generate_text(&mut self) -> Result<GenerateTextResponse> {
         let (system_prompt, messages) = resolve_message(&self.options, &self.prompt);
 

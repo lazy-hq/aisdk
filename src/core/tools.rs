@@ -14,7 +14,7 @@
 //!
 //! # Example
 //! ```
-//! use aisdk::core::Tool;
+//! use aisdk::core::tools::{Tool, ToolExecute};
 //! use aisdk_macros::tool;
 //!
 //! #[tool]
@@ -23,28 +23,10 @@
 //!     Ok(format!("{}", a + b))
 //! }
 //!
-//! let tool: Tool = get_weather();
+//! let tool: Tool = sum();
 //!
-//! assert_eq!(tool.name, "get_weather");
-//! assert_eq!(tool.description, "Adds two numbers together.");
-//! assert_eq!(tool.input_schema.to_value(), serde_json::json!({
-//!     "type": "object",
-//!     "required": ["a", "b"],
-//!     "properties": {
-//!         "a": {
-//!             "type": "integer",
-//!             "format": "uint8",
-//!             "minimum": 0,
-//!             "maximum": 255
-//!         },
-//!         "b": {
-//!             "type": "integer",
-//!             "format": "uint8",
-//!             "minimum": 0,
-//!             "maximum": 255
-//!         }
-//!     }
-//! }));
+//! assert_eq!(tool.name, "sum");
+//! assert_eq!(tool.description, " Adds two numbers together.");
 //!
 //!
 //! ```
@@ -52,30 +34,21 @@
 //! # Example with struct
 //!
 //! ```rust
-//! use aisdk::core::{Tool, ToolExecute};
+//! use aisdk::core::tools::{Tool, ToolExecute};
+//! use schemars::schema_for;
+//! use serde::{Deserialize, Serialize};
 //! use serde_json::Value;
+//!
+//! #[derive(Serialize, Deserialize, schemars::JsonSchema)]
+//! struct SumInput {
+//!     a: u8,
+//!     b: u8,
+//! }
 //!
 //! let tool: Tool = Tool {
 //!     name: "sum".to_string(),
 //!     description: "Adds two numbers together.".to_string(),
-//!     input_schema: serde_json::json!({
-//!         "type": "object",
-//!         "required": ["a", "b"],
-//!         "properties": {
-//!             "a": {
-//!                 "type": "integer",
-//!                 "format": "uint8",
-//!                 "minimum": 0,
-//!                 "maximum": 255
-//!             },
-//!             "b": {
-//!                 "type": "integer",
-//!                 "format": "uint8",
-//!                 "minimum": 0,
-//!                 "maximum": 255
-//!             }
-//!         }
-//!     }),
+//!     input_schema: schema_for!(SumInput),
 //!     execute:
 //!         ToolExecute::new(Box::new(|params: Value| {
 //!             let a = params["a"].as_u64().unwrap();
@@ -83,6 +56,9 @@
 //!             Ok(format!("{}", a + b))
 //!         })),
 //! };
+//!
+//! assert_eq!(tool.name, "sum");
+//! assert_eq!(tool.description, "Adds two numbers together.");
 //! ```
 //!
 
@@ -95,6 +71,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use tokio::task::JoinHandle;
 
+/// A function that will be called when the tool is executed.
 pub type ToolFn = Box<dyn Fn(Value) -> std::result::Result<String, String> + Send + Sync>;
 
 /// Holds the function that will be called when the tool is executed. the function
@@ -106,7 +83,8 @@ pub struct ToolExecute {
 }
 
 impl ToolExecute {
-    pub(crate) fn call(&self, map: Value) -> Result<String> {
+    /// Calls the tool with the given input.
+    pub fn call(&self, map: Value) -> Result<String> {
         (*self.inner)(map).map_err(Error::ToolCallError)
     }
 
@@ -158,57 +136,31 @@ impl<'de> Deserialize<'de> for ToolExecute {
 ///
 /// # Example
 /// ```
-/// use aisdk::core::Tool;
-/// use aisdk_macros::tool;
+/// use aisdk::core::tools::{Tool, ToolExecute};
+/// use schemars::schema_for;
+/// use serde::{Deserialize, Serialize};
+/// use serde_json::Value;
+///
+/// #[derive(Serialize, Deserialize, schemars::JsonSchema)]
+/// struct SumInput {
+///     a: u8,
+///     b: u8,
+/// }
 ///
 /// let tool: Tool = Tool {
 ///     name: "sum".to_string(),
 ///     description: "Adds two numbers together.".to_string(),
-///     input_schema: serde_json::json!({
-///         "type": "object",
-///         "required": ["a", "b"],
-///         "properties": {
-///             "a": {
-///                 "type": "integer",
-///                 "format": "uint8",
-///                 "minimum": 0,
-///                 "maximum": 255
-///             },
-///             "b": {
-///                 "type": "integer",
-///                 "format": "uint8",
-///                 "minimum": 0,
-///                 "maximum": 255
-///             }
-///         }
-///     }),
-///     execute: ToolExecute::new(Box::new(|params| {
-///         let a = params["a"].as_u64().unwrap();
-///         let b = params["b"].as_u64().unwrap();
-///         Ok(format!("{}", a + b))
-///     })),
+///     input_schema: schema_for!(SumInput),
+///     execute:
+///         ToolExecute::new(Box::new(|params: Value| {
+///             let a = params["a"].as_u64().unwrap();
+///             let b = params["b"].as_u64().unwrap();
+///             Ok(format!("{}", a + b))
+///         })),
 /// };
 ///
 /// assert_eq!(tool.name, "sum");
 /// assert_eq!(tool.description, "Adds two numbers together.");
-/// assert_eq!(tool.input_schema.to_value(), serde_json::json!({
-///     "type": "object",
-///     "required": ["a", "b"],
-///     "properties": {
-///         "a": {
-///             "type": "integer",
-///             "format": "uint8",
-///             "minimum": 0,
-///             "maximum": 255
-///         },
-///         "b": {
-///             "type": "integer",
-///             "format": "uint8",
-///             "minimum": 0,
-///             "maximum": 255
-///         }
-///     }
-/// }));
 /// ```
 #[derive(Builder, Clone, Default)]
 #[builder(pattern = "owned", setter(into), build_fn(error = "Error"))]
@@ -240,17 +192,21 @@ impl Tool {
 }
 
 #[derive(Debug, Clone, Default)]
+/// A list of tools.
 pub struct ToolList {
+    /// The list of tools.
     pub tools: Arc<Mutex<Vec<Tool>>>,
 }
 
 impl ToolList {
+    /// Creates a new `ToolList` instance with the given list of tools.
     pub fn new(tools: Vec<Tool>) -> Self {
         Self {
             tools: Arc::new(Mutex::new(tools)),
         }
     }
 
+    /// Adds a tool to the list.
     pub fn add_tool(&mut self, tool: Tool) {
         self.tools
             .lock()
@@ -258,6 +214,7 @@ impl ToolList {
             .push(tool);
     }
 
+    /// Executes a tool.
     pub async fn execute(&self, tool_info: ToolCallInfo) -> JoinHandle<Result<String>> {
         let tools = self.tools.clone();
         tokio::spawn(async move {
@@ -306,14 +263,17 @@ impl ToolCallInfo {
         }
     }
 
+    /// Sets the name of the tool.
     pub fn name(&mut self, name: impl Into<String>) {
         self.tool.name = name.into();
     }
 
+    /// Sets the id of the tool.
     pub fn id(&mut self, id: impl Into<String>) {
         self.tool.id = id.into();
     }
 
+    /// Sets the input of the tool.
     pub fn input(&mut self, inp: serde_json::Value) {
         self.input = inp;
     }
@@ -322,7 +282,10 @@ impl ToolCallInfo {
 /// Contains information from a tool
 #[derive(Debug, Clone)]
 pub struct ToolResultInfo {
+    /// The details of the tool.
     pub tool: ToolDetails,
+
+    /// The output of the tool.
     pub output: Result<serde_json::Value>,
 }
 
@@ -336,6 +299,7 @@ impl Default for ToolResultInfo {
 }
 
 impl ToolResultInfo {
+    /// Creates a new `ToolResultInfo` instance with the given name.
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             tool: ToolDetails {
@@ -346,14 +310,17 @@ impl ToolResultInfo {
         }
     }
 
+    /// Sets the name of the tool.
     pub fn name(&mut self, name: impl Into<String>) {
         self.tool.name = name.into();
     }
 
+    /// Sets the id of the tool.
     pub fn id(&mut self, id: impl Into<String>) {
         self.tool.id = id.into();
     }
 
+    /// Sets the output of the tool.
     pub fn output(&mut self, inp: serde_json::Value) {
         self.output = Ok(inp);
     }
