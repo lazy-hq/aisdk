@@ -1,29 +1,44 @@
-use crate::error::ProviderError;
 use serde::{Deserialize, Serialize};
 
+/// Response structure from the OpenAI API.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OpenAiResponse {
+pub(crate) struct OpenAiResponse {
+    /// Conversation parameters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversation: Option<ConversationParam>,
+    /// Timestamp of creation.
     pub created_at: Option<f64>,
+    /// Error information if present.
     pub error: Option<OpenAIErrorByCode>,
+    /// Unique identifier.
     pub id: Option<String>,
+    /// Details for incomplete responses.
     pub incomplete_details: Option<IncompleteDetails>,
+    /// Maximum output tokens.
     pub max_output_tokens: Option<u32>,
+    /// Maximum tool calls.
     pub max_tool_calls: Option<u32>,
+    /// Model used.
     pub model: Option<String>,
+    /// Output messages.
     pub output: Option<Vec<MessageItem>>,
+    /// Whether parallel tool calls are enabled.
     pub parallel_tool_calls: Option<bool>,
+    /// Previous response ID.
     pub previous_response_id: Option<String>,
+    /// Reasoning configuration.
     pub reasoning: Option<ReasoningConfig>,
+    /// Text configuration.
     pub text: Option<TextConfig>,
+    /// Usage statistics.
     pub usage: Option<ResponseUsage>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
 #[serde(tag = "type")]
-pub enum OpenAiStreamEvent {
+/// Events emitted during streaming from OpenAI.
+pub(crate) enum OpenAiStreamEvent {
     /// Emitted when the model response is complete.
     #[serde(rename = "response.completed")]
     ResponseCompleted {
@@ -67,43 +82,49 @@ pub enum OpenAiStreamEvent {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ResponseUsage {
+/// Token usage statistics from OpenAI response.
+pub(crate) struct ResponseUsage {
+    /// Number of input tokens.
     pub input_tokens: u32,
+    /// Details of input tokens.
     pub input_tokens_details: InputTokenDetails,
+    /// Number of output tokens.
     pub output_tokens: u32,
+    /// Details of output tokens.
     pub output_tokens_details: OutputTokenDetails,
+    /// Total tokens used.
     pub total_tokens: u32,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct InputTokenDetails {
+pub(crate) struct InputTokenDetails {
     pub cached_tokens: u32,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OutputTokenDetails {
+pub(crate) struct OutputTokenDetails {
     pub reasoning_tokens: u32,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ConversationParam {
+pub(crate) struct ConversationParam {
     pub id: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct IncompleteDetails {
+pub(crate) struct IncompleteDetails {
     pub reason: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ReasoningConfig {
+pub(crate) struct ReasoningConfig {
     pub effort: Option<ReasoningEffort>,
     pub summary: Option<SummaryType>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum ReasoningEffort {
+pub(crate) enum ReasoningEffort {
     #[default]
     None,
     Minimal,
@@ -116,7 +137,7 @@ pub enum ReasoningEffort {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[non_exhaustive]
-pub enum ToolParams {
+pub(crate) enum ToolParams {
     Function {
         name: String,
         parameters: serde_json::Value,
@@ -128,7 +149,7 @@ pub enum ToolParams {
 // auto, concise, or detailed
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum SummaryType {
+pub(crate) enum SummaryType {
     #[default]
     Auto,
     Concise,
@@ -136,14 +157,14 @@ pub enum SummaryType {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct TextConfig {
+pub(crate) struct TextConfig {
     pub format: Option<TextResponseFormat>,
     pub verbosity: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum TextResponseFormat {
+pub(crate) enum TextResponseFormat {
     Text,
     JsonSchema {
         name: String,
@@ -153,29 +174,8 @@ pub enum TextResponseFormat {
     },
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub enum ErrorType {
-    #[serde(rename = "invalid_request_error")]
-    #[default]
-    InvalidRequestError,
-    AuthenticationError,
-    PermissionError,
-    NotFoundError,
-    RequestTooLarge,
-    RateLimitError,
-    ApiError,
-    OverloadedError,
-}
-
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct OpenAIError {
-    #[serde(rename = "type")]
-    pub type_: ErrorType,
-    pub message: String,
-}
-
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OpenAIErrorByCode {
+pub(crate) struct OpenAIErrorByCode {
     pub code: String,
     pub message: String,
 }
@@ -183,7 +183,7 @@ pub struct OpenAIErrorByCode {
 /// See <https://platform.openai.com/docs/api-reference/responses/create#responses_create-input>
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
-pub enum Input {
+pub(crate) enum Input {
     #[serde(untagged)]
     TextInput(String),
     #[serde(untagged)]
@@ -193,7 +193,7 @@ pub enum Input {
 /// See <https://platform.openai.com/docs/api-reference/responses/create#responses_create-input-input_item_list>
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
-pub enum InputItem {
+pub(crate) enum InputItem {
     /// See <https://platform.openai.com/docs/api-reference/responses/create#responses_create-input-input_item_list-input_message>
     InputMessage {
         content: InputItemContent,
@@ -207,14 +207,14 @@ pub enum InputItem {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
-pub enum InputItemContent {
+pub(crate) enum InputItemContent {
     Text(String),
     InputItemContentList(Vec<ContentType>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum Role {
+pub(crate) enum Role {
     User,
     Assistant,
     System,
@@ -225,7 +225,7 @@ pub enum Role {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
 #[serde(untagged)]
-pub enum MessageItem {
+pub(crate) enum MessageItem {
     InputMessage {
         content: Vec<ContentType>,
         role: Role,
@@ -275,27 +275,28 @@ pub enum MessageItem {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
-pub enum FunctionCallOutput {
+pub(crate) enum FunctionCallOutput {
     Text(String),
     Other(ContentType),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ReasoningSummary {
+pub(crate) struct ReasoningSummary {
     #[serde(rename = "type")]
     pub type_: String, // always "summary_text"
     pub text: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ReasoningTextContent {
+pub(crate) struct ReasoningTextContent {
     pub type_: String, // always "reasoning_text"
     pub text: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ContentType {
+#[allow(clippy::enum_variant_names)]
+pub(crate) enum ContentType {
     InputText {
         text: String,
     },
@@ -313,7 +314,7 @@ pub enum ContentType {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
-pub enum ImageDetail {
+pub(crate) enum ImageDetail {
     #[default]
     Auto,
     High,
@@ -323,7 +324,7 @@ pub enum ImageDetail {
 /// See <https://platform.openai.com/docs/api-reference/responses/create#responses_create-input-input_item_list-item-output_message-content>
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum OutputContent {
+pub(crate) enum OutputContent {
     OutputText {
         annotations: Vec<OutputTextAnnotation>,
         logprobs: Vec<LogProbs>,
@@ -336,7 +337,7 @@ pub enum OutputContent {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum OutputTextAnnotation {
+pub(crate) enum OutputTextAnnotation {
     FileCitation {
         file_id: String,
         filename: String,
@@ -360,7 +361,7 @@ pub enum OutputTextAnnotation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct LogProbs {
+pub(crate) struct LogProbs {
     pub bytes: Vec<u8>,
     pub logprob: f64,
     pub token: String,
@@ -368,41 +369,8 @@ pub struct LogProbs {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct TopLogProbs {
+pub(crate) struct TopLogProbs {
     pub bytes: Vec<u8>,
     pub logprob: f64,
     pub token: String,
-}
-
-// ---------------------------------- Trait implementations ----------------------------------
-
-impl std::fmt::Display for ErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ErrorType::InvalidRequestError => write!(f, "invalid_request_error"),
-            ErrorType::AuthenticationError => write!(f, "authentication_error"),
-            ErrorType::PermissionError => write!(f, "permission_error"),
-            ErrorType::NotFoundError => write!(f, "not_found_error"),
-            ErrorType::RequestTooLarge => write!(f, "request_too_large"),
-            ErrorType::RateLimitError => write!(f, "rate_limit_error"),
-            ErrorType::ApiError => write!(f, "api_error"),
-            ErrorType::OverloadedError => write!(f, "overloaded_error"),
-        }
-    }
-}
-
-impl std::fmt::Display for OpenAIError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "OpenAIError: {:?} - {:?}", self.type_, self.message)
-    }
-}
-
-impl std::error::Error for OpenAIError {}
-
-impl ProviderError for OpenAIError {}
-
-impl Default for Input {
-    fn default() -> Self {
-        Self::InputItemList(Vec::new())
-    }
 }

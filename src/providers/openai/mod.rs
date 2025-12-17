@@ -15,6 +15,7 @@ use crate::providers::openai::settings::OpenAIProviderSettings;
 /// The OpenAI provider.
 #[derive(Debug, Clone)]
 pub struct OpenAI<M: ModelName> {
+    /// Configuration settings for the OpenAI provider.
     pub settings: OpenAIProviderSettings,
     options: OpenAIOptions,
     _phantom: std::marker::PhantomData<M>,
@@ -64,24 +65,54 @@ impl<M: ModelName> Default for OpenAIBuilder<M> {
 
 impl<M: ModelName> OpenAIBuilder<M> {
     /// Sets the base URL for the OpenAI API.
+    ///
+    /// # Parameters
+    ///
+    /// * `base_url` - The base URL string for API requests.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the base URL set.
     pub fn base_url(mut self, base_url: impl Into<String>) -> Self {
         self.settings.base_url = base_url.into();
         self
     }
 
     /// Sets the API key for the OpenAI API.
+    ///
+    /// # Parameters
+    ///
+    /// * `api_key` - The API key string for authentication.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the API key set.
     pub fn api_key(mut self, api_key: impl Into<String>) -> Self {
         self.settings.api_key = api_key.into();
         self
     }
 
     /// Sets the name of the provider. Defaults to "openai".
+    ///
+    /// # Parameters
+    ///
+    /// * `provider_name` - The provider name string.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the provider name set.
     pub fn provider_name(mut self, provider_name: impl Into<String>) -> Self {
         self.settings.provider_name = provider_name.into();
         self
     }
 
-    /// Builds the OpenAI provider settings.
+    /// Builds the OpenAI provider.
+    ///
+    /// Validates the configuration and creates the provider instance.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the configured `OpenAI` provider or an `Error`.
     pub fn build(self) -> Result<OpenAI<M>, Error> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::ProviderError;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub enum AnthropicErrorType {
+pub(crate) enum AnthropicErrorType {
     #[serde(rename = "invalid_request_error")]
     #[default]
     InvalidRequestError,
@@ -17,14 +17,14 @@ pub enum AnthropicErrorType {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicError {
+pub(crate) struct AnthropicError {
     #[serde(rename = "type")]
     pub type_: AnthropicErrorType,
     pub message: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub enum AnthropicStopReason {
+pub(crate) enum AnthropicStopReason {
     #[default]
     #[serde(rename = "end_turn")]
     EndTurn,
@@ -41,7 +41,7 @@ pub enum AnthropicStopReason {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicMessageResponse {
+pub(crate) struct AnthropicMessageResponse {
     pub id: String,
     pub content: Vec<AnthropicContentBlock>,
     pub model: String,
@@ -55,7 +55,7 @@ pub struct AnthropicMessageResponse {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicUsage {
+pub(crate) struct AnthropicUsage {
     pub cache_creation: AnthropicCacheCreation,
     pub cache_creation_input_tokens: usize,
     pub cache_read_input_tokens: usize,
@@ -66,19 +66,19 @@ pub struct AnthropicUsage {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicCacheCreation {
+pub(crate) struct AnthropicCacheCreation {
     pub ephemeral_1h_input_tokens: usize,
     pub ephemeral_5m_input_tokens: usize,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicServerToolUsage {
+pub(crate) struct AnthropicServerToolUsage {
     pub web_search_requests: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicContentBlock {
+pub(crate) enum AnthropicContentBlock {
     #[serde(rename = "text")]
     Text {
         text: String,
@@ -98,7 +98,8 @@ pub enum AnthropicContentBlock {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicCitation {
+#[allow(clippy::enum_variant_names)]
+pub(crate) enum AnthropicCitation {
     CitationCharLocation {
         cited_text: String,
         document_index: usize,
@@ -140,7 +141,7 @@ pub enum AnthropicCitation {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "role")]
-pub enum AnthropicMessageParam {
+pub(crate) enum AnthropicMessageParam {
     #[serde(rename = "user")]
     User { content: String },
     #[serde(rename = "assistant")]
@@ -151,7 +152,7 @@ pub enum AnthropicMessageParam {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicAssistantMessageParamContent {
+pub(crate) enum AnthropicAssistantMessageParamContent {
     #[serde(rename = "text")]
     Text { text: String },
     #[serde(rename = "thinking")]
@@ -165,7 +166,7 @@ pub enum AnthropicAssistantMessageParamContent {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicTool {
+pub(crate) struct AnthropicTool {
     pub name: String,
     pub description: String,
     pub input_schema: String,
@@ -173,7 +174,7 @@ pub struct AnthropicTool {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicThinking {
+pub(crate) enum AnthropicThinking {
     #[default]
     #[serde(rename = "disable")]
     Disable,
@@ -185,7 +186,7 @@ pub enum AnthropicThinking {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicStreamEvent {
+pub(crate) enum AnthropicStreamEvent {
     #[serde(rename = "message_start")]
     MessageStart {
         message: AnthropicMessageResponse,
@@ -220,7 +221,8 @@ pub enum AnthropicStreamEvent {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum AnthropicDelta {
+#[allow(clippy::enum_variant_names)]
+pub(crate) enum AnthropicDelta {
     #[serde(rename = "text_delta")]
     TextDelta { text: String },
     #[serde(rename = "thinking_delta")]
@@ -234,7 +236,7 @@ pub enum AnthropicDelta {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicMessageDeltaUsage {
+pub(crate) struct AnthropicMessageDeltaUsage {
     pub cache_creation_input_tokens: Option<usize>,
     pub cache_read_input_tokens: Option<usize>,
     pub input_tokens: Option<usize>,
@@ -243,7 +245,7 @@ pub struct AnthropicMessageDeltaUsage {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct AnthropicMessageDelta {
+pub(crate) struct AnthropicMessageDelta {
     pub stop_reason: Option<AnthropicStopReason>,
     pub stop_sequence: Option<String>,
 }

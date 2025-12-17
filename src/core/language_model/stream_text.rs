@@ -41,12 +41,13 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     ///        core::{LanguageModelRequest, LanguageModelStreamChunkType},
     ///        providers::openai::OpenAI,
     ///    };
+    ///    use futures::StreamExt;
     ///
     ///    async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///
     ///        let openai = OpenAI::gpt_5();
     ///
-    ///        let stream = LanguageModelRequest::builder()
+    ///        let mut stream = LanguageModelRequest::builder()
     ///            .model(openai)
     ///            .prompt("What is the meaning of life?")
     ///            .build()
