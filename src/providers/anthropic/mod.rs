@@ -4,7 +4,7 @@
 pub mod capabilities;
 pub mod client;
 pub mod conversions;
-pub mod langauge_model;
+pub mod language_model;
 pub mod settings;
 
 use crate::core::capabilities::ModelName;
