@@ -190,17 +190,16 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
             let input_schema = schema_for!(Function);
             // End
 
-            let mut tool = Tool::new();
+            let mut tool = Tool::builder()
+                .name(#name.to_string())
+                .description(#description.to_string())
+                .input_schema(input_schema)
+                .execute(ToolExecute::new(Box::new(|inp| -> std::result::Result<String, String> {
+                    #(#binding_tokens)*
+                    #block
+                })));
 
-            tool.name = #name.to_string();
-            tool.description = #description.to_string();
-            tool.input_schema = input_schema;
-            tool.execute = ToolExecute::new(Box::new(|inp| -> std::result::Result<String, String> {
-                #(#binding_tokens)*
-                #block
-            }));
-
-            tool
+            tool.build().expect("Failed to build tool")
         }
     };
 

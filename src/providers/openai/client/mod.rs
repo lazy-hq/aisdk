@@ -6,8 +6,9 @@ pub mod types;
 
 pub use types::*;
 
+use crate::core::client::Client;
 use crate::error::Error;
-use crate::{core::client::Client, providers::openai::OpenAI};
+use crate::providers::openai::{ModelName, OpenAI};
 use derive_builder::Builder;
 use reqwest::header::CONTENT_TYPE;
 use reqwest_eventsource::Event;
@@ -48,12 +49,12 @@ impl OpenAIOptions {
     }
 }
 
-impl Client for OpenAI {
+impl<M: ModelName> Client for OpenAI<M> {
     type Response = types::OpenAiResponse;
     type StreamEvent = types::OpenAiStreamEvent;
 
     fn path(&self) -> &str {
-        "/v1/responses"
+        "responses"
     }
 
     fn method(&self) -> reqwest::Method {

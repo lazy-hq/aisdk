@@ -26,8 +26,8 @@ use std::fmt::Debug;
 use std::ops::Add;
 use std::pin::Pin;
 use std::sync::Arc;
-use std::sync::mpsc::{self, Receiver, Sender};
 use std::task::{Context, Poll};
+use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
 
 // ============================================================================
 // Section: constants
@@ -48,8 +48,7 @@ pub const DEFAULT_TOOL_STEP_COUNT: usize = 3;
 /// be extensible to support various functionalities, such as single-shot
 /// generation and streaming responses.
 #[async_trait]
-pub trait LanguageModel: Send + Sync + std::fmt::Debug {
-    /// Returns a human-readable name for the language model.
+pub trait LanguageModel: Send + Sync + std::fmt::Debug + Clone + 'static {
     fn name(&self) -> String;
     /// Performs a single, non-streaming text generation request.
     ///
@@ -514,26 +513,24 @@ pub(crate) type ProviderStream =
 
 /// A stream wrapper that provides a channel-based interface for language model streaming.
 pub struct LanguageModelStream {
-    receiver: Receiver<LanguageModelStreamChunkType>,
+    receiver: UnboundedReceiver<LanguageModelStreamChunkType>,
 }
 
 impl LanguageModelStream {
-    /// Creates a new stream with an associated sender for pushing chunks.
-    pub fn new() -> (Sender<LanguageModelStreamChunkType>, LanguageModelStream) {
-        let (tx, rx) = mpsc::channel();
+    // Creates a new MpmcStream with an associated Sender
+    pub fn new() -> (
+        UnboundedSender<LanguageModelStreamChunkType>,
+        LanguageModelStream,
+    ) {
+        let (tx, rx) = mpsc::unbounded_channel();
         (tx, LanguageModelStream { receiver: rx })
     }
 }
 
 impl Stream for LanguageModelStream {
     type Item = LanguageModelStreamChunkType;
-
-    fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        match self.receiver.try_recv() {
-            Ok(item) => Poll::Ready(Some(item)),
-            Err(mpsc::TryRecvError::Empty) => Poll::Pending,
-            Err(mpsc::TryRecvError::Disconnected) => Poll::Ready(None),
-        }
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.receiver.poll_recv(cx)
     }
 }
 

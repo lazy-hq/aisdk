@@ -91,7 +91,7 @@ pub enum AnthropicContentBlock {
     #[serde(rename = "tool_use")]
     ToolUse {
         id: String,
-        input: serde_json::Value, // TODO: not sure if this is 'Value' check with Anthropic docs
+        input: String,
         name: String,
     },
 }
@@ -159,7 +159,7 @@ pub enum AnthropicAssistantMessageParamContent {
     #[serde(rename = "tool_use")]
     ToolUse {
         id: String,
-        input: serde_json::Value, // TODO: not sure if this is 'Value' check with Anthropic docs
+        input: String,
         name: String,
     },
 }
@@ -168,7 +168,7 @@ pub enum AnthropicAssistantMessageParamContent {
 pub struct AnthropicTool {
     pub name: String,
     pub description: String,
-    pub input_schema: serde_json::Value,
+    pub input_schema: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

@@ -38,7 +38,7 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                         messages.push(AnthropicMessageParam::Assistant {
                             content: AnthropicAssistantMessageParamContent::ToolUse {
                                 id: tool.tool.id,
-                                input: tool.input,
+                                input: serde_json::to_string(&tool.input).unwrap(),
                                 name: tool.tool.name,
                             },
                         });
@@ -78,7 +78,7 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                         AnthropicTool {
                             name: tool.name,
                             description: tool.description,
-                            input_schema: tool.input_schema.to_value(),
+                            input_schema: tool.input_schema.to_value().to_string(),
                         }
                     })
                     .collect(),

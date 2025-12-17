@@ -1,66 +1,3 @@
-// Macro definitions for provider test generation.
-
-/// Configuration structure for provider test generation.
-///
-/// This struct defines which models to use for different test categories.
-///
-pub struct ProviderConfig {
-    /// Default model for general tests
-    pub default_model: &'static str,
-
-    /// Tool model for tool tests
-    pub tool_model: Option<&'static str>,
-
-    /// Model for reasoning-specific tests (optional)
-    pub reasoning_model: Option<&'static str>,
-
-    /// Model for non-reasoning validation tests (optional)
-    pub non_reasoning_model: Option<&'static str>,
-
-    /// Model for stractured output tests (optional)
-    pub structured_output_model: Option<&'static str>,
-
-    /// Model name to use for error handling tests
-    pub error_model: &'static str,
-}
-
-impl ProviderConfig {
-    /// Get the appropriate model for basic tests
-    pub fn basic_model(&self) -> &str {
-        self.default_model
-    }
-
-    /// Get the appropriate model for reasoning tests
-    pub fn reasoning_model(&self) -> &str {
-        self.reasoning_model.unwrap_or(self.default_model)
-    }
-
-    /// Get the appropriate model for non-reasoning validation tests
-    pub fn non_reasoning_model(&self) -> &str {
-        self.non_reasoning_model.unwrap_or(self.default_model)
-    }
-
-    /// Get the appropriate model for tool tests
-    pub fn tool_model(&self) -> &str {
-        self.tool_model.unwrap_or(self.default_model)
-    }
-
-    /// Get the appropriate model for streaming tests
-    pub fn streaming_model(&self) -> &str {
-        self.default_model
-    }
-
-    /// Get the appropriate model for structured output tests
-    pub fn structured_output_model(&self) -> &str {
-        self.structured_output_model.unwrap_or(self.default_model)
-    }
-
-    /// Get the model for error handling tests
-    pub fn error_model(&self) -> &str {
-        self.error_model
-    }
-}
-
 /// Main macro to generate all language model provider integration tests.
 ///
 /// This macro generates a comprehensive suite of tests for a language model provider,
@@ -68,43 +5,50 @@ impl ProviderConfig {
 ///
 /// # Parameters
 ///
-/// * `$provider_type` - The type of the provider (e.g., `OpenAI`)
-/// * `$config:expr` - A `ProviderConfig` instance defining model mappings
-/// * `$env_key:expr` - Environment variable name for the API key
+/// * `provider: $provider_type:ident` - The type of the provider (e.g., `OpenAI`)
+/// * `api_key_var: $env_key:expr` - Environment variable name for the API key (e.g., `"OPENAI_API_KEY"`)
+/// * `model_struct: $model_struct:ident` - The model struct type (e.g., `Gpt5`)
+/// * `default_model: $default_model:expr` - Expression for the default model instance
+/// * `tool_model: $tool_model:expr` - Expression for the model instance used in tool tests
+/// * `structured_output_model: $structured_output_model:expr` - Expression for the model instance used in structured output tests
+/// * `reasoning_model: $reasoning_model:expr` - Expression for the model instance used in reasoning tests
 /// * `skip_reasoning: $skip_reasoning:tt` - Bool literal to skip reasoning tests at compile time
 /// * `skip_tool: $skip_tool:tt` - Bool literal to skip tool tests at compile time
 /// * `skip_structured_output: $skip_structured_output:tt` - Bool literal to skip structured output tests at compile time
 /// * `skip_streaming: $skip_streaming:tt` - Bool literal to skip streaming tests at compile time
 ///
 /// # Example
-/// ```rust
-/// let config = ProviderConfig {
-///     default_model: "gpt-4o",
-///     reasoning_model: Some("o1-mini"),
-///     non_reasoning_model: Some("gpt-4"),
-///     error_model: "invalid-model-name",
-/// };
 ///
+/// ```rust
 /// generate_language_model_tests!(
-///     OpenAI,
-///     config,
-///     "OPENAI_API_KEY",
-///     skip_reasoning: false,
+///     provider: OpenAI,
+///     api_key_var: "OPENAI_API_KEY",
+///     model_struct: Gpt5,
+///     default_model: OpenAI::gpt_5_nano(),
+///     tool_model: OpenAI::gpt_5_nano(),
+///     structured_output_model: OpenAI::gpt_5_nano(),
+///     reasoning_model: OpenAI::gpt_5_nano(),
+///     skip_reasoning: true,
 ///     skip_tool: false,
 ///     skip_structured_output: false,
 ///     skip_streaming: false
 /// );
-/// ```
+///
 macro_rules! generate_language_model_tests {
     (
-        $provider_type:ty,
-        $config:expr,
-        $env_key:expr,
+        provider: $provider_type:ident,
+        api_key_var: $env_key:expr,
+        model_struct: $model_struct:ident,
+        default_model: $default_model:expr,
+        tool_model: $tool_model:expr,
+        structured_output_model: $structured_output_model:expr,
+        reasoning_model: $reasoning_model:expr,
         skip_reasoning: $skip_reasoning:tt,
         skip_tool: $skip_tool:tt,
         skip_structured_output: $skip_structured_output:tt,
         skip_streaming: $skip_streaming:tt
     ) => {
+        use aisdk::core::tools::ToolExecute;
         use aisdk::core::{
             LanguageModelRequest, LanguageModelStreamChunkType, Message,
             language_model::{LanguageModelResponseContentType, StopReason},
@@ -112,11 +56,15 @@ macro_rules! generate_language_model_tests {
         };
         use aisdk_macros::tool;
         use dotenv::dotenv;
-        use futures::StreamExt;
-        use schemars::JsonSchema;
-        #[allow(unused_imports)]
-        use serde::Deserialize;
         use std::sync::{Arc, Mutex};
+
+        #[allow(unused_imports)]
+        use {
+            futures::StreamExt,
+            schemars::JsonSchema,
+            serde::Deserialize,
+            serde_json::Value,
+        };
 
         // Helper macro for API key checking
         macro_rules! skip_if_no_api_key {
@@ -129,39 +77,71 @@ macro_rules! generate_language_model_tests {
             };
         }
 
-        // Helper macro to get provider with custom settings
-        macro_rules! provider_with_settings {
-            () => {
-                <$provider_type>::builder()
-                    .api_key(std::env::var($env_key).unwrap())
-                    .model_name($config.default_model)
-                    .build()
-                    .expect("Failed to build provider")
-            };
-        }
-
         // Generate all standard test categories
-        generate_basic_tests!($provider_type, $config);
-        generate_language_model_stop_reason_tests!($provider_type, $config);
-        generate_language_model_streaming_tests!($provider_type, $config, $skip_streaming);
-        generate_language_model_tool_tests!($provider_type, $config, $skip_tool);
-        generate_language_model_schema_tests!($provider_type, $config, $skip_structured_output);
-        generate_language_model_hook_tests!($provider_type, $config);
-        generate_language_model_step_id_tests!($provider_type, $config);
-        generate_language_model_reasoning_tests!($provider_type, $config, $skip_reasoning);
-        generate_language_model_error_tests!($provider_type, $config);
+        generate_provider_has_default_interface!($provider_type, $model_struct);
+        generate_basic_tests!($default_model);
+        generate_language_model_stop_reason_tests!($default_model);
+        generate_language_model_hook_tests!($tool_model);
+        generate_language_model_step_id_tests!($default_model);
+        generate_language_model_streaming_tests!($reasoning_model, $skip_streaming);
+        generate_language_model_tool_tests!($tool_model, $skip_tool);
+        generate_language_model_schema_tests!($structured_output_model, $skip_structured_output);
+        generate_language_model_reasoning_tests!($reasoning_model, $skip_reasoning);
     };
 }
 
-/// Generate basic text generation tests
+// Test to ensure all providers have the default provider settings builder interface
+macro_rules! generate_provider_has_default_interface {
+    ($provider_type:ident, $model_struct:ident) => {
+        #[tokio::test]
+        async fn test_provider_has_default_interface() {
+            let provider = $provider_type::<$model_struct>::builder()
+                .provider_name("test-provider".to_string())
+                .api_key("test-api-key")
+                .base_url("http://localhost:8080".to_string())
+                .build();
+
+            // check if provider didn't throw an error
+            assert!(provider.is_ok());
+
+            // check provider settings
+            let provider = provider.unwrap();
+            assert_eq!(provider.settings.provider_name, "test-provider");
+            assert_eq!(provider.settings.api_key, "test-api-key");
+            assert_eq!(provider.settings.base_url, "http://localhost:8080/");
+
+            // should fail on invalid base url
+            let provider2 = $provider_type::<$model_struct>::builder()
+                .provider_name("test-provider2".to_string())
+                .api_key("test-api-key2")
+                .base_url("ocalhost:80802".to_string())
+                .build();
+
+            assert!(provider2.is_err());
+            assert_eq!(provider2.unwrap_err().to_string(), "Invalid input: Base URL must start with http:// or https://");
+
+            // should fail on empty api key
+            let provider3 = $provider_type::<$model_struct>::builder()
+                .provider_name("test-provider3".to_string())
+                .api_key("")
+                .base_url("http://localhost:8080/".to_string())
+                .build();
+
+            assert!(provider3.is_err());
+            assert_eq!(provider3.unwrap_err().to_string(), "A required field is missing: api_key");
+        }
+    };
+}
+
+// Generate basic text generation tests
 macro_rules! generate_basic_tests {
-    ($provider_type:ty, $config:expr) => {
+    ($default_model:expr) => {
         #[tokio::test]
         async fn test_generate_text_basic() {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($default_model)
                 .prompt("Respond with exactly the word 'hello' in all lowercase.Do not include any punctuation, prefixes, or suffixes.")
                 .build()
                 .generate_text()
@@ -185,7 +165,7 @@ macro_rules! generate_basic_tests {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(provider_with_settings!())
+                .model($default_model)
                 .system("Only say hello whatever the user says. all lowercase no punctuation, prefixes, or suffixes.")
                 .prompt("Hello how are you doing?")
                 .build()
@@ -216,7 +196,7 @@ macro_rules! generate_basic_tests {
                 .build();
 
             let mut language_model = LanguageModelRequest::builder()
-                .model(provider_with_settings!())
+                .model($default_model)
                 .messages(messages)
                 .build();
 
@@ -245,7 +225,7 @@ macro_rules! generate_basic_tests {
                 .build();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($default_model)
                 .system("Only say hello whatever the user says. all lowercase no punctuation, prefixes, or suffixes.")
                 .messages(messages)
                 .build()
@@ -268,13 +248,13 @@ macro_rules! generate_basic_tests {
 
 /// Generate stop reason tests
 macro_rules! generate_language_model_stop_reason_tests {
-    ($provider_type:ty, $config:expr) => {
+    ($default_model:expr) => {
         #[tokio::test]
         async fn test_stop_reason_normal_finish() {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($default_model)
                 .prompt("Respond with exactly the word 'hello' in all lowercase. Do not include any punctuation.")
                 .build()
                 .generate_text()
@@ -290,7 +270,7 @@ macro_rules! generate_language_model_stop_reason_tests {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-             .model(<$provider_type>::new($config.basic_model()))
+             .model($default_model)
              .prompt("just response with 'HI' nothing less nothing more")
              .stop_when(|_| true) // Always stop
              .build()
@@ -307,7 +287,7 @@ macro_rules! generate_language_model_stop_reason_tests {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.error_model()))
+                .model($default_model)
                 .prompt("Hello")
                 .build()
                 .generate_text()
@@ -329,32 +309,35 @@ macro_rules! generate_language_model_stop_reason_tests {
         async fn test_stop_reason_stream_finish() {
             skip_if_no_api_key!();
 
-            let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+            let mut response = LanguageModelRequest::builder()
+                .model($default_model)
                 .prompt("Respond with 'world'")
                 .build()
                 .stream_text()
                 .await
                 .unwrap();
 
+            // consume the stream
+            while let Some(_) = response.stream.next().await {}
+
             // The stream is already consumed internally, stop_reason is set
-            assert!(matches!(response.stop_reason(), Some(StopReason::Finish)));
+            assert!(matches!(response.stop_reason().await, Some(StopReason::Finish)));
         }
     };
 }
 
 /// Generate streaming tests
 macro_rules! generate_language_model_streaming_tests {
-    ($provider_type:ty, $config:expr, true) => {
+    ($reasoning_model:expr, true) => {
         // Skipping streaming tests: provider doesn't support streaming
     };
-    ($provider_type:ty, $config:expr, false) => {
+    ($reasoning_model:expr, false) => {
         #[tokio::test]
         async fn test_generate_stream_basic() {
             skip_if_no_api_key!();
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.streaming_model()))
+                .model($reasoning_model)
                 .prompt("Respond with exactly the word 'hello' in all lowercase.Do not include any punctuation, prefixes, or suffixes.")
                 .build()
                 .stream_text()
@@ -378,7 +361,7 @@ macro_rules! generate_language_model_streaming_tests {
             skip_if_no_api_key!();
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.reasoning_model()))
+                .model($reasoning_model)
                 .prompt("Count from 1 to 5 step by step")
                 .reasoning_effort(aisdk::core::language_model::ReasoningEffort::Medium)
                 .build()
@@ -402,10 +385,10 @@ macro_rules! generate_language_model_streaming_tests {
 
 /// Generate tool-related tests
 macro_rules! generate_language_model_tool_tests {
-    ($provider_type:ty, $config:expr, true) => {
+    ($tool_model:expr, true) => {
         // Skipping tool tests: provider doesn't support tools
     };
-    ($provider_type:ty, $config:expr, false) => {
+    ($tool_model:expr, false) => {
         #[tokio::test]
         async fn test_generate_text_with_tools() {
             skip_if_no_api_key!();
@@ -417,7 +400,7 @@ macro_rules! generate_language_model_tool_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call a tool to get the username.")
                 .prompt("What is the username?")
                 .with_tool(get_username())
@@ -443,7 +426,7 @@ macro_rules! generate_language_model_tool_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("you are a helpful assistant.")
                 .prompt("What is the username with user id 123?")
                 .with_tool(get_username())
@@ -466,7 +449,7 @@ macro_rules! generate_language_model_tool_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call a tool to get the username.")
                 .prompt("What is the username?")
                 .with_tool(get_username())
@@ -501,7 +484,7 @@ macro_rules! generate_language_model_tool_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("You are a helpful assistant.")
                 .prompt("What is the username for user id 123?")
                 .with_tool(get_username())
@@ -521,15 +504,71 @@ macro_rules! generate_language_model_tool_tests {
 
             assert!(buf.contains("sura"));
         }
+
+        #[tokio::test]
+        async fn test_generate_stream_with_structs() {
+            skip_if_no_api_key!();
+
+            // define tool function body, should return Result<String, String>
+            #[allow(unused_variables)]
+            let func = ToolExecute::new(Box::new(|inp: Value| {
+                // Ai SDK will pass in a json object with the following structure
+                // ```json
+                // {
+                //     "location": "New York"
+                // }
+                // ```
+                let location = inp.get("location").unwrap();
+                Ok(format!("Cloudy"))
+            }));
+
+            // define tool input structure
+            #[derive(schemars::JsonSchema, Debug)]
+            #[allow(dead_code)]
+            struct ToolInput {
+                location: String,
+            }
+
+            // change tool arguments to json schema
+            // Which will be similar to the following
+            // ```json
+            // "properties": {
+            //     "location": {
+            //         "type": "string"
+            //     }
+            // }
+            let schema = schemars::schema_for!(ToolInput);
+
+            // bring it all together
+            let get_weather_tool = Tool::builder()
+                .name("get-weather")
+                .description("Get the weather information given a location")
+                .input_schema(schema.clone())
+                .execute(func)
+                .build()
+                .unwrap();
+
+            // call the model with the tool
+            let result = LanguageModelRequest::builder()
+                .model($tool_model)
+                .system("You are a helpful assistant with access to tools.")
+                .prompt("What is the weather in New York?")
+                .with_tool(get_weather_tool) // you don't need to call it with.
+                .build()
+                .generate_text()
+                .await;
+
+            assert!(result.is_ok());
+        }
     };
 }
 
 /// Generate schema/structured output tests
 macro_rules! generate_language_model_schema_tests {
-    ($provider_type:ty, $config:expr, true) => {
+    ($structured_output_model:expr, true) => {
         // Skipping structured output tests: provider doesn't support structured output
     };
-    ($provider_type:ty, $config:expr, false) => {
+    ($structured_output_model:expr, false) => {
         #[tokio::test]
         async fn test_generate_text_with_output_schema() {
             skip_if_no_api_key!();
@@ -544,7 +583,7 @@ macro_rules! generate_language_model_schema_tests {
             }
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.structured_output_model()))
+                .model($structured_output_model)
                 .prompt("generate user with dummy data, and and name of 'John Doe'")
                 .schema::<User>()
                 .build()
@@ -571,7 +610,7 @@ macro_rules! generate_language_model_schema_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.structured_output_model()))
+                .model($structured_output_model)
                 .prompt("generate user with dummy data, and add name of 'John Doe'")
                 .schema::<User>()
                 .build()
@@ -597,7 +636,7 @@ macro_rules! generate_language_model_schema_tests {
 
 /// Generate hook-related tests
 macro_rules! generate_language_model_hook_tests {
-    ($provider_type:ty, $config:expr) => {
+    ($tool_model:expr) => {
         #[tokio::test]
         async fn test_on_step_start_executes_before_each_step() {
             skip_if_no_api_key!();
@@ -612,7 +651,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighborhood())
@@ -643,7 +682,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighborhood())
@@ -674,7 +713,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighbourhood())
@@ -709,7 +748,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighborhood())
@@ -735,7 +774,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighbourhood())
@@ -766,7 +805,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. Return the neighborhood. Nothing more and nothing less")
                 .prompt("What is the neighborhood?")
                 .with_tool(get_neighbourhood())
@@ -799,7 +838,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system(
                     "Call the tool get_neighbourhood. Return the neighborhood. 
                     Nothing more and nothing less. If you can't find the neighborhood,
@@ -830,7 +869,7 @@ macro_rules! generate_language_model_hook_tests {
             let called_clone = Arc::clone(&called);
 
             let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .on_step_finish(move |_| {
                     *called_clone.lock().unwrap() = true;
@@ -848,7 +887,7 @@ macro_rules! generate_language_model_hook_tests {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .build()
                 .generate_text()
@@ -862,7 +901,7 @@ macro_rules! generate_language_model_hook_tests {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .on_step_start(|opts| {
                     opts.system = Some("Updated system message!!!".to_string());
@@ -883,7 +922,7 @@ macro_rules! generate_language_model_hook_tests {
 
             // Without hooks
             let result_no_hooks = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .build()
                 .generate_text()
@@ -892,7 +931,7 @@ macro_rules! generate_language_model_hook_tests {
 
             // With hooks (should not affect output)
             let result_with_hooks = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .on_step_finish(|_| {})
                 .build()
@@ -921,7 +960,7 @@ macro_rules! generate_language_model_hook_tests {
             }
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($tool_model)
                 .system("Call the tool. to find the username. and return only the username nothing more and nothing less")
                 .prompt("What is the username")
                 .with_tool(get_username())
@@ -958,8 +997,8 @@ macro_rules! generate_language_model_hook_tests {
             let called = Arc::new(Mutex::new(false));
             let called_clone = Arc::clone(&called);
 
-            let _ = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.streaming_model()))
+            let mut response = LanguageModelRequest::builder()
+                .model($tool_model)
                 .prompt("Say hello")
                 .on_step_start(move |_| {
                     *called_clone.lock().unwrap() = true;
@@ -968,6 +1007,9 @@ macro_rules! generate_language_model_hook_tests {
                 .stream_text()
                 .await
                 .unwrap();
+
+            // consume the stream
+            while let Some(_) = response.stream.next().await {}
 
             assert!(*called.lock().unwrap()); // Called before streaming starts
         }
@@ -980,7 +1022,7 @@ macro_rules! generate_language_model_hook_tests {
             let called_clone = Arc::clone(&called);
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.streaming_model()))
+                .model($tool_model)
                 .prompt("Say hello")
                 .on_step_finish(move |_| {
                     *called_clone.lock().unwrap() = true;
@@ -1000,13 +1042,13 @@ macro_rules! generate_language_model_hook_tests {
 
 /// Generate step ID tests
 macro_rules! generate_language_model_step_id_tests {
-    ($provider_type:ty, $config:expr) => {
+    ($default_model:expr) => {
         #[tokio::test]
         async fn test_step_id_basic_assignment() {
             skip_if_no_api_key!();
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.basic_model()))
+                .model($default_model)
                 .prompt("Respond with exactly 'test' in lowercase.")
                 .build()
                 .generate_text()
@@ -1031,7 +1073,7 @@ macro_rules! generate_language_model_step_id_tests {
             }
 
             let result = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.tool_model()))
+                .model($default_model)
                 .system("Call the tool to get the test value.")
                 .prompt("What is the test value?")
                 .with_tool(get_test_value())
@@ -1056,29 +1098,28 @@ macro_rules! generate_language_model_step_id_tests {
             skip_if_no_api_key!();
 
             let response = LanguageModelRequest::builder()
-                .model(<$provider_type>::new($config.streaming_model()))
+                .model($default_model)
                 .prompt("Respond with 'stream test'")
                 .build()
                 .stream_text()
                 .await
                 .unwrap();
 
-            let step_ids = response.step_ids();
-            // system (0), user (0), assistant (1)
-            assert_eq!(step_ids.len(), 3);
+            let step_ids = response.step_ids().await;
+            // user (0), assistant (0)
+            assert_eq!(step_ids.len(), 2);
             assert_eq!(step_ids[0], 0);
             assert_eq!(step_ids[1], 0);
-            assert_eq!(step_ids[2], 1);
         }
     };
 }
 
 /// Generate reasoning tests
 macro_rules! generate_language_model_reasoning_tests {
-    ($provider_type:ty, $config:expr, true) => {
+    ($reasoning_model:expr, true) => {
         // Skipping reasoning tests: provider doesn't support reasoning
     };
-    ($provider_type:ty, $config:expr, false) => {
+    ($reasoning_model:expr, false) => {
         // TODO: sura please fix this
         #[tokio::test]
         async fn test_reasoning_effort_with_non_reasoning_model() {
@@ -1086,7 +1127,7 @@ macro_rules! generate_language_model_reasoning_tests {
 
             let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| async {
                 LanguageModelRequest::builder()
-                    .model(<$provider_type>::new($config.non_reasoning_model()))
+                    .model($reasoning_model)
                     .prompt("What is 2 + 2? Answer with just the number.")
                     .reasoning_effort(aisdk::core::language_model::ReasoningEffort::Low)
                     .build()
@@ -1097,13 +1138,5 @@ macro_rules! generate_language_model_reasoning_tests {
 
             assert!(result.is_err());
         }
-    };
-}
-
-/// Generate error handling tests
-macro_rules! generate_language_model_error_tests {
-    ($provider_type:ty, $config:expr) => {
-        // Error tests are already covered in stop_reason_tests
-        // Additional error-specific tests can be added here
     };
 }

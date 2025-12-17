@@ -1,6 +1,7 @@
-//! Utility functions for the `aisdk` library.
-
-use crate::core::{Message, language_model::LanguageModelOptions, messages::TaggedMessage};
+use crate::{
+    Error,
+    core::{Message, language_model::LanguageModelOptions, messages::TaggedMessage},
+};
 
 /// Creates a hook that returns `true` if the number of conversation steps exceeds the given count.
 ///
@@ -82,6 +83,28 @@ pub(crate) fn sum_options(a: Option<usize>, b: Option<usize>) -> Option<usize> {
         (Some(x), Some(y)) => Some(x + y),
         _ => a.or(b),
     }
+}
+
+#[allow(dead_code)]
+/// Validates the base URL.
+pub(crate) fn validate_base_url(s: &str) -> crate::error::Result<String> {
+    use reqwest::Url;
+
+    let url = s
+        .parse::<Url>()
+        .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
+
+    if !matches!(url.scheme(), "http" | "https") {
+        return Err(Error::InvalidInput(
+            "Base URL must start with http:// or https://".into(),
+        ));
+    }
+
+    if url.host_str().is_none() {
+        return Err(Error::InvalidInput("Base URL must include a host".into()));
+    }
+
+    Ok(url.to_string())
 }
 
 #[cfg(test)]

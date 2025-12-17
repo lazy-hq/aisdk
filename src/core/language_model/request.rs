@@ -5,6 +5,7 @@
 //! pattern to ensure requests are constructed correctly and safely.
 
 use crate::core::Message;
+use crate::core::capabilities::*;
 use crate::core::language_model::{LanguageModel, LanguageModelOptions};
 use crate::core::tools::Tool;
 use schemars::{JsonSchema, schema_for};
@@ -12,36 +13,8 @@ use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-/// A request for text generation or streaming with a language model.
-///
-/// This struct holds the model instance and configuration options needed to perform
-/// text generation operations. It is typically constructed using the builder pattern
-/// to ensure all required fields are set.
-///
-/// # Type Parameters
-///
-/// * `M` - The language model type that implements the [`LanguageModel`] trait.
-///
-/// # Fields
-///
-/// * `model` - The language model instance to use for the request.
-/// * `system` - An optional system prompt. Mutually exclusive with messages.
-/// * `prompt` - A prompt for the model. Mutually exclusive with messages.
-/// * `messages` - A vector of [`Message`] instances. Mutually exclusive with prompt and system.
-/// * `options` - Additional configuration options for the request. See [`LanguageModelOptions`].
-///
-/// # Examples
-///
-/// ```rust
-/// use aisdk::core::{LanguageModelRequest};
-/// use aisdk::providers::openai::OpenAI;
-///
-/// let request = LanguageModelRequest::builder()
-///     .model(OpenAI::new("gpt-4"))
-///     .prompt("Hello, world!")
-///     .build();
-/// ```
-#[derive(Debug, Clone)]
+/// Options for text generation requests such as `generate_text` and `stream_text`.
+#[derive(Debug)]
 pub struct LanguageModelRequest<M: LanguageModel> {
     /// The language model to use for text generation.
     pub model: M,
@@ -249,16 +222,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
 
 /// Methods available in the [`ConversationStage`] state.
 impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
-    /// Sets a simple text prompt for the request.
-    ///
-    /// # Parameters
-    ///
-    /// * `prompt` - The user prompt text.
-    ///
-    /// # Returns
-    ///
-    /// The builder in the [`OptionsStage`] state.
-    pub fn prompt(self, prompt: impl Into<String>) -> LanguageModelRequestBuilder<M, OptionsStage> {
+    pub fn prompt(self, prompt: impl Into<String>) -> LanguageModelRequestBuilder<M, OptionsStage>
+    where
+        M: TextInputSupport,
+    {
         LanguageModelRequestBuilder {
             model: self.model,
             prompt: Some(prompt.into()),
@@ -267,16 +234,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
         }
     }
 
-    /// Sets conversation messages for the request.
-    ///
-    /// # Parameters
-    ///
-    /// * `messages` - A vector of [`Message`] instances.
-    ///
-    /// # Returns
-    ///
-    /// The builder in the [`OptionsStage`] state.
-    pub fn messages(self, messages: Vec<Message>) -> LanguageModelRequestBuilder<M, OptionsStage> {
+    pub fn messages(self, messages: Vec<Message>) -> LanguageModelRequestBuilder<M, OptionsStage>
+    where
+        M: TextInputSupport,
+    {
         LanguageModelRequestBuilder {
             model: self.model,
             prompt: self.prompt,
@@ -291,18 +252,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
 
 /// Methods available in the [`OptionsStage`] state.
 impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
-    /// Sets a JSON schema for structured output.
-    ///
-    /// The model will generate output conforming to the schema of type `T`.
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - A type that implements [`JsonSchema`].
-    ///
-    /// # Returns
-    ///
-    /// The builder with the schema set.
-    pub fn schema<T: JsonSchema>(mut self) -> Self {
+    pub fn schema<T: JsonSchema>(mut self) -> Self
+    where
+        M: StructuredOutputSupport,
+    {
         self.schema = Some(schema_for!(T));
         self
     }
@@ -407,16 +360,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
-    /// Adds a tool for the model to use during generation.
-    ///
-    /// # Parameters
-    ///
-    /// * `tool` - The tool to add.
-    ///
-    /// # Returns
-    ///
-    /// The builder with the tool added.
-    pub fn with_tool(mut self, tool: Tool) -> Self {
+    pub fn with_tool(mut self, tool: Tool) -> Self
+    where
+        M: ToolCallSupport,
+    {
         self.tools.get_or_insert_default().add_tool(tool);
         self
     }
@@ -484,7 +431,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
     pub fn reasoning_effort(
         mut self,
         reasoning_effort: impl Into<crate::core::language_model::ReasoningEffort>,
-    ) -> Self {
+    ) -> Self
+    where
+        M: ReasoningSupport,
+    {
         self.reasoning_effort = Some(reasoning_effort.into());
         self
     }

@@ -5,7 +5,7 @@ use crate::error::{Error, Result};
 use futures::Stream;
 use futures::StreamExt;
 use reqwest;
-use reqwest::Url;
+use reqwest::IntoUrl;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 use serde::de::DeserializeOwned;
 use std::pin::Pin;
@@ -21,11 +21,19 @@ pub(crate) trait Client {
     fn body(&self) -> reqwest::Body;
     fn headers(&self) -> reqwest::header::HeaderMap;
 
-    async fn send(&self, base_url: Url) -> Result<Self::Response> {
+    async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
         let client = reqwest::Client::new();
-        let base_url = base_url.join(self.path()).expect("Invalid base URL");
+
+        let base_url = base_url
+            .into_url()
+            .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
+
+        let url = base_url
+            .join(self.path())
+            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
+
         let resp = client
-            .request(self.method(), base_url)
+            .request(self.method(), url)
             .headers(self.headers())
             .query(&self.query_params())
             .body(self.body())
@@ -50,17 +58,24 @@ pub(crate) trait Client {
 
     async fn send_and_stream(
         &self,
-        base_url: Url,
+        base_url: impl IntoUrl,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
         Self: Sync,
     {
         let client = reqwest::Client::new();
-        let base_url = base_url.join(self.path()).expect("Invalid base URL");
+
+        let base_url = base_url
+            .into_url()
+            .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
+
+        let url = base_url
+            .join(self.path())
+            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
 
         let events_stream = client
-            .request(self.method(), base_url)
+            .request(self.method(), url)
             .headers(self.headers())
             .query(&self.query_params())
             .body(self.body())

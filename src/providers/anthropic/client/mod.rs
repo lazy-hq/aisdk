@@ -2,7 +2,7 @@ pub mod types;
 
 pub use types::*;
 
-use crate::Error;
+use crate::{Error, core::capabilities::ModelName};
 use derive_builder::Builder;
 use reqwest::header::CONTENT_TYPE;
 use reqwest_eventsource::Event;
@@ -17,15 +17,25 @@ use crate::{
 #[builder(setter(into), build_fn(error = "Error"))]
 pub struct AnthropicOptions {
     pub model: String,
+    #[builder(default)]
     pub messages: Vec<AnthropicMessageParam>,
+    #[builder(default = "4096")]
     pub max_tokens: u32,
+    #[builder(default)]
     pub stop_sequences: Option<Vec<String>>,
+    #[builder(default)]
     pub stream: Option<bool>,
+    #[builder(default)]
     pub system: Option<String>,
+    #[builder(default)]
     pub temperature: Option<f32>,
+    #[builder(default)]
     pub thinking: Option<AnthropicThinking>,
+    #[builder(default)]
     pub tools: Option<Vec<AnthropicTool>>,
+    #[builder(default)]
     pub top_k: Option<u32>,
+    #[builder(default)]
     pub top_p: Option<f32>,
 }
 
@@ -35,7 +45,7 @@ impl AnthropicOptions {
     }
 }
 
-impl Client for Anthropic {
+impl<M: ModelName> Client for Anthropic<M> {
     type Response = AnthropicMessageResponse;
     type StreamEvent = AnthropicStreamEvent;
 
