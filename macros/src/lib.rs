@@ -1,3 +1,6 @@
+#![deny(missing_docs)]
+//! Macros for the `aisdk` library.
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse::Parser;
@@ -28,9 +31,14 @@ use syn::{
 /// ```
 ///
 /// - `get_username` becomes the name of the tool
-/// - `Returns the username` becomes the description of the tool
+/// - `"Returns the username"` becomes the description of the tool
 /// - `id: String` becomes the input of the tool. converted to `{"id": "string"}`
 ///   as json schema
+///
+/// The function should return a `Result<String, String>` eventhough the return statement
+/// returns a `Tool` object. This is because the macro will automatically convert the
+/// function into a `Tool` object and return it. You should return what the model can
+/// understand as a `String`.
 ///
 /// In the event that the model refuses to send an argument, the default implementation
 /// will be used. this works perfectly for arguments that are `Option`s. Make sure to

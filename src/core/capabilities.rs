@@ -10,6 +10,7 @@
 /// struct name to actual model name
 /// e.g. struct Gpt4 {}, impl ModelName for Gpt3 { const MODEL_NAME: &'static str = "gpt-4"; }
 pub trait ModelName: Send + Sync + std::fmt::Debug + Clone + 'static {
+    /// The underlying API model name.
     const MODEL_NAME: &'static str;
 }
 

@@ -1,3 +1,5 @@
+//! Text Generation impl for the `LanguageModelRequest` trait.
+
 use crate::error::Result;
 use crate::{
     Error,
@@ -16,12 +18,51 @@ use serde::ser::Error as SerdeError;
 use std::ops::Deref;
 
 impl<M: LanguageModel> LanguageModelRequest<M> {
-    /// Generates text using a specified language model.
+    /// Generates text and executes tools using the language model.
     ///
-    /// Generate a text and call tools for a given prompt using a language model.
-    /// This function does not stream the output. If you want to stream the output, use `StreamText` instead.
+    /// This method performs non-streaming text generation, potentially involving multiple
+    /// steps of tool calling and execution until the conversation reaches a natural stopping point.
+    /// The model may call tools based on the configured options, and responses are processed
+    /// iteratively until completion.
     ///
-    /// Returns an `Error` if the underlying model fails to generate a response.
+    /// For streaming responses, use [`stream_text`](Self::stream_text) instead.
+    ///
+    /// # Returns
+    ///
+    /// A [`GenerateTextResponse`] containing the final conversation state and generated content.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`Error`] if the underlying language model fails to generate a response
+    /// or if tool execution encounters an error.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    ///# #[cfg(feature = "openai")]
+    ///# {
+    ///    use aisdk::{
+    ///        core::{LanguageModelRequest},
+    ///        providers::openai::OpenAI,
+    ///    };
+    ///
+    ///    async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///
+    ///        let openai = OpenAI::gpt_5();
+    ///
+    ///        let result = LanguageModelRequest::builder()
+    ///            .model(openai)
+    ///            .prompt("What is the meaning of life?")
+    ///            .build()
+    ///            .generate_text()
+    ///            .await?;
+    ///
+    ///        println!("{}", result.text().unwrap());
+    ///        Ok(())
+    ///    }
+    ///# }
+    /// ```
+    ///
     pub async fn generate_text(&mut self) -> Result<GenerateTextResponse> {
         let (system_prompt, messages) = resolve_message(&self.options, &self.prompt);
 
@@ -136,6 +177,22 @@ pub struct GenerateTextResponse {
 }
 
 impl GenerateTextResponse {
+    /// Deserializes the response text into a structured type.
+    ///
+    /// This method attempts to parse the generated text as JSON and deserialize it
+    /// into the specified type `T`. It requires that the response contains text content.
+    ///
+    /// # Type Parameters
+    ///
+    /// * `T` - The type to deserialize into, which must implement [`DeserializeOwned`].
+    ///
+    /// # Returns
+    ///
+    /// A result containing the deserialized value or a JSON error.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if there is no text response or if deserialization fails.
     pub fn into_schema<T: DeserializeOwned>(&self) -> std::result::Result<T, serde_json::Error> {
         if let Some(text) = &self.text() {
             serde_json::from_str(text)
@@ -145,6 +202,7 @@ impl GenerateTextResponse {
     }
 
     #[cfg(any(test, feature = "test-access"))]
+    /// Returns the step ids of the messages in the response.
     pub fn step_ids(&self) -> Vec<usize> {
         self.options.messages.iter().map(|t| t.step_id).collect()
     }
@@ -162,9 +220,10 @@ impl Deref for GenerateTextResponse {
 mod tests {
     use super::*;
     use crate::core::{
-        AssistantMessage, ToolCallInfo, ToolResultInfo,
+        AssistantMessage,
         language_model::{LanguageModelResponseContentType, Usage},
         messages::TaggedMessage,
+        tools::{ToolCallInfo, ToolResultInfo},
     };
 
     #[test]

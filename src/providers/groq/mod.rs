@@ -14,6 +14,7 @@ use crate::providers::openai::OpenAI;
 /// The Groq provider, wrapping OpenAI.
 #[derive(Debug, Clone)]
 pub struct Groq<M: ModelName> {
+    /// Configuration settings for the Groq provider.
     pub settings: GroqProviderSettings,
     inner: OpenAI<M>,
 }
@@ -52,25 +53,55 @@ impl<M: ModelName> Default for GroqBuilder<M> {
 }
 
 impl<M: ModelName> GroqBuilder<M> {
-    /// set the provider name for the Groq provider
+    /// Sets the provider name for the Groq provider.
+    ///
+    /// # Parameters
+    ///
+    /// * `provider_name` - The provider name string.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the provider name set.
     pub fn provider_name(mut self, provider_name: impl Into<String>) -> Self {
         self.settings.provider_name = provider_name.into();
         self
     }
 
-    /// set the base url for the Groq provider
+    /// Sets the base URL for the Groq provider.
+    ///
+    /// # Parameters
+    ///
+    /// * `base_url` - The base URL string for API requests.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the base URL set.
     pub fn base_url(mut self, base_url: impl Into<String>) -> Self {
         self.settings.base_url = base_url.into();
         self
     }
 
-    /// set the api key for the Groq provider
+    /// Sets the API key for the Groq provider.
+    ///
+    /// # Parameters
+    ///
+    /// * `api_key` - The API key string for authentication.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the API key set.
     pub fn api_key(mut self, api_key: impl Into<String>) -> Self {
         self.settings.api_key = api_key.into();
         self
     }
 
-    /// build the Groq provider
+    /// Builds the Groq provider.
+    ///
+    /// Validates the configuration and creates the provider instance.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the configured `Groq` provider or an `Error`.
     pub fn build(self) -> Result<Groq<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;

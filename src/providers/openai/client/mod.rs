@@ -2,9 +2,9 @@
 //! It is a thin wrapper around the `reqwest` crate.
 //! HTTP requests have this parts:
 
-pub mod types;
+pub(crate) mod types;
 
-pub use types::*;
+pub(crate) use types::*;
 
 use crate::core::client::Client;
 use crate::error::Error;
@@ -14,37 +14,38 @@ use reqwest::header::CONTENT_TYPE;
 use reqwest_eventsource::Event;
 use serde::{Deserialize, Serialize};
 
+/// Configuration options for OpenAI API requests.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
 #[builder(setter(into), build_fn(error = "Error"))]
-pub struct OpenAIOptions {
-    pub model: String,
+pub(crate) struct OpenAIOptions {
+    pub(crate) model: String,
     #[builder(default)]
-    pub input: Option<Input>, // open ai requires input to be set
+    pub(crate) input: Option<Input>, // open ai requires input to be set
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub text: Option<types::TextConfig>,
+    pub(crate) text: Option<types::TextConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub reasoning: Option<types::ReasoningConfig>,
+    pub(crate) reasoning: Option<types::ReasoningConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub temperature: Option<f32>,
+    pub(crate) temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub max_output_tokens: Option<usize>,
+    pub(crate) max_output_tokens: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub stream: Option<bool>,
+    pub(crate) stream: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub top_p: Option<f32>,
+    pub(crate) top_p: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
-    pub tools: Option<Vec<ToolParams>>,
+    pub(crate) tools: Option<Vec<ToolParams>>,
 }
 
 impl OpenAIOptions {
-    pub fn builder() -> OpenAIOptionsBuilder {
+    pub(crate) fn builder() -> OpenAIOptionsBuilder {
         OpenAIOptionsBuilder::default()
     }
 }

@@ -1,6 +1,7 @@
+/// Type definitions for Anthropic API.
 pub mod types;
 
-pub use types::*;
+pub(crate) use types::*;
 
 use crate::{Error, core::capabilities::ModelName};
 use derive_builder::Builder;
@@ -15,32 +16,32 @@ use crate::{
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
 #[builder(setter(into), build_fn(error = "Error"))]
-pub struct AnthropicOptions {
-    pub model: String,
+pub(crate) struct AnthropicOptions {
+    pub(crate) model: String,
     #[builder(default)]
-    pub messages: Vec<AnthropicMessageParam>,
+    pub(crate) messages: Vec<AnthropicMessageParam>,
     #[builder(default = "4096")]
-    pub max_tokens: u32,
+    pub(crate) max_tokens: u32,
     #[builder(default)]
-    pub stop_sequences: Option<Vec<String>>,
+    pub(crate) stop_sequences: Option<Vec<String>>,
     #[builder(default)]
-    pub stream: Option<bool>,
+    pub(crate) stream: Option<bool>,
     #[builder(default)]
-    pub system: Option<String>,
+    pub(crate) system: Option<String>,
     #[builder(default)]
-    pub temperature: Option<f32>,
+    pub(crate) temperature: Option<f32>,
     #[builder(default)]
-    pub thinking: Option<AnthropicThinking>,
+    pub(crate) thinking: Option<AnthropicThinking>,
     #[builder(default)]
-    pub tools: Option<Vec<AnthropicTool>>,
+    pub(crate) tools: Option<Vec<AnthropicTool>>,
     #[builder(default)]
-    pub top_k: Option<u32>,
+    pub(crate) top_k: Option<u32>,
     #[builder(default)]
-    pub top_p: Option<f32>,
+    pub(crate) top_p: Option<f32>,
 }
 
 impl AnthropicOptions {
-    pub fn builder() -> AnthropicOptionsBuilder {
+    pub(crate) fn builder() -> AnthropicOptionsBuilder {
         AnthropicOptionsBuilder::default()
     }
 }
