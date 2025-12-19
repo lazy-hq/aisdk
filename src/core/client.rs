@@ -15,7 +15,7 @@ pub(crate) trait Client {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
     type StreamEvent: DeserializeOwned + std::fmt::Debug + Clone;
 
-    fn path(&self) -> &str;
+    fn path(&self) -> String;
     fn method(&self) -> reqwest::Method;
     fn query_params(&self) -> Vec<(&str, &str)>;
     fn body(&self) -> reqwest::Body;
@@ -29,7 +29,7 @@ pub(crate) trait Client {
             .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
 
         let url = base_url
-            .join(self.path())
+            .join(&self.path())
             .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
 
         let resp = client
@@ -71,7 +71,7 @@ pub(crate) trait Client {
             .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
 
         let url = base_url
-            .join(self.path())
+            .join(&self.path())
             .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
 
         let events_stream = client
