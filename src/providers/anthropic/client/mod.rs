@@ -108,6 +108,5 @@ impl<M: ModelName> Client for Anthropic<M> {
 
     fn end_stream(event: &Self::StreamEvent) -> bool {
         matches!(event, AnthropicStreamEvent::MessageStop)
-            || matches!(event, AnthropicStreamEvent::NotSupported(json) if json == "[END]")
     }
 }
