@@ -202,7 +202,7 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
     ///
     /// # Parameters
     ///
-    /// * `messages` - A vector of [`Message`] instances representing the conversation.
+    /// * `messages` - `Messages` instances representing the conversation.
     ///
     /// # Returns
     ///
@@ -253,7 +253,7 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
     ///
     /// # Parameters
     ///
-    /// * `messages` - A vector of [`Message`] instances representing the conversation.
+    /// * `messages` - `Messages` instances representing the conversation.
     ///
     /// # Returns
     ///
