@@ -102,6 +102,11 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         let stream = response.scan::<_, Result<Vec<LanguageModelStreamChunk>>, _, _>(
             StreamState::default(),
             |state, evt_res| {
+                let unsupported =  |event: &str| {
+                    vec![LanguageModelStreamChunk::Delta(
+                        LanguageModelStreamChunkType::NotSupported(format!("AnthropicStreamEvent::{event}")),
+                    )]
+                };
                 futures::future::ready(match evt_res {
                     Ok(event) => match event {
                         AnthropicStreamEvent::MessageStart { .. } => {
@@ -117,23 +122,20 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                 state
                                     .content_blocks
                                     .insert(index, AccumulatedBlock::Text(String::new()));
-                                None
+                                Some(Ok(unsupported("ContentBlockStart::Text")))
                             }
                             AnthropicContentBlock::Thinking { .. } => {
                                 state
                                     .content_blocks
                                     .insert(index, AccumulatedBlock::Thinking(String::new()));
-                                None
+                                Some(Ok(unsupported("ContentBlockStart::Thinking")))
                             }
                             AnthropicContentBlock::RedactedThinking { data } => {
                                 state.content_blocks.insert(
                                     index,
                                     AccumulatedBlock::RedactedThinking(data.clone()),
                                 );
-                                Some(Ok(vec![LanguageModelStreamChunk::Done(AssistantMessage {
-                                    content: LanguageModelResponseContentType::Reasoning(data),
-                                    usage: None,
-                                })]))
+                                Some(Ok(unsupported("ContentBlockStart::RedactedThinking")))
                             }
                             AnthropicContentBlock::ToolUse { id, name, .. } => {
                                 state.content_blocks.insert(
@@ -144,7 +146,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                         accumulated_json: String::new(),
                                     },
                                 );
-                                None
+                                Some(Ok(unsupported("ContentBlockStart::ToolUse")))
                             }
                         },
                         AnthropicStreamEvent::ContentBlockDelta { index, delta } => {
@@ -159,7 +161,6 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                             LanguageModelStreamChunkType::Text(delta_text),
                                         )]))
                                     }
-
                                     // TODO: handle Reasoning delta event
                                     (
                                         AccumulatedBlock::ToolUse {
@@ -172,15 +173,18 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                             LanguageModelStreamChunkType::ToolCall(partial_json),
                                         )]))
                                     }
-                                    _ => None,
+                                    _ => Some(Ok(unsupported("ContentBlockDelta"))),
                                 }
                             } else {
-                                None
+                                unreachable!("Anthropic accumulator must be initialized on AnthropicStreamEvent::ContentBlockStart")
                             }
+                        }
+                        AnthropicStreamEvent::ContentBlockStop { .. } => {
+                            Some(Ok(unsupported("ContentBlockStop")))
                         }
                         AnthropicStreamEvent::MessageDelta { usage, .. } => {
                             state.usage = Some(usage);
-                            None
+                            Some(Ok(unsupported("MessageDelta")))
                         }
                         AnthropicStreamEvent::MessageStop => {
                             let mut collected = vec![];
@@ -243,7 +247,11 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                 LanguageModelStreamChunkType::Failed(reason),
                             )]))
                         }
-                        _ => None,
+                        AnthropicStreamEvent::NotSupported(txt) => {
+                            Some(Ok(vec![LanguageModelStreamChunk::Delta(
+                                LanguageModelStreamChunkType::NotSupported(txt),
+                            )]))
+                        }
                     },
                     Err(e) => Some(Err(e)),
                 })
