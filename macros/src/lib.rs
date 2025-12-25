@@ -141,7 +141,7 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     let ty = &*pat_type.ty;
                     let ident_str = ident.to_string();
                     Some(quote! {
-                        let #ident: #ty = serde_json::from_value(
+                        let #ident: #ty = ::aisdk::__private::serde_json::from_value(
                             inp.as_object()
                                 .unwrap()
                                 .get(#ident_str)
@@ -175,10 +175,12 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #vis fn #fn_name() #return_type  {
-            use schemars::{schema_for, JsonSchema, Schema};
+            // use schemars::{schema_for, JsonSchema, Schema};
             use std::collections::HashMap;
+            use ::aisdk::__private::schemars::{schema_for, JsonSchema, Schema};
 
-            #[derive(JsonSchema, Debug)]
+            #[derive(::aisdk::__private::schemars::JsonSchema, Debug)]
+            #[schemars(crate = "::aisdk::__private::schemars")]
             #[allow(dead_code)]
             //#[schemars(deny_unknown_fields)]
             struct Function {
