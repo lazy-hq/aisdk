@@ -19,7 +19,7 @@ use syn::{
 /// # Example
 ///
 /// ```rust,no_run
-/// use aisdk_macros::tool;
+/// use aisdk::macros::tool;
 /// use aisdk::core::tools::Tool;
 ///
 /// #[tool]
@@ -49,7 +49,7 @@ use syn::{
 ///
 /// # Example with overrides
 /// ```rust,no_run
-/// use aisdk_macros::tool;
+/// use aisdk::macros::tool;
 /// use aisdk::core::tools::Tool;
 ///
 ///     #[tool(
@@ -141,7 +141,7 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     let ty = &*pat_type.ty;
                     let ident_str = ident.to_string();
                     Some(quote! {
-                        let #ident: #ty = serde_json::from_value(
+                        let #ident: #ty = ::aisdk::__private::serde_json::from_value(
                             inp.as_object()
                                 .unwrap()
                                 .get(#ident_str)
@@ -175,11 +175,12 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #vis fn #fn_name() #return_type  {
-            use schemars::{schema_for, JsonSchema, Schema};
+            // use schemars::{schema_for, JsonSchema, Schema};
             use std::collections::HashMap;
-            use aisdk::core::tools::ToolExecute;
+            use ::aisdk::__private::schemars::{schema_for, JsonSchema, Schema};
 
-            #[derive(JsonSchema, Debug)]
+            #[derive(::aisdk::__private::schemars::JsonSchema, Debug)]
+            #[schemars(crate = "::aisdk::__private::schemars")]
             #[allow(dead_code)]
             //#[schemars(deny_unknown_fields)]
             struct Function {
@@ -190,11 +191,11 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
             let input_schema = schema_for!(Function);
             // End
 
-            let mut tool = Tool::builder()
+            let mut tool = ::aisdk::core::tools::Tool::builder()
                 .name(#name.to_string())
                 .description(#description.to_string())
                 .input_schema(input_schema)
-                .execute(ToolExecute::new(Box::new(|inp| -> std::result::Result<String, String> {
+                .execute(::aisdk::core::tools::ToolExecute::new(Box::new(|inp| -> std::result::Result<String, String> {
                     #(#binding_tokens)*
                     #block
                 })));

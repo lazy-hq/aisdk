@@ -15,7 +15,7 @@
 //! # Example
 //! ```
 //! use aisdk::core::tools::{Tool, ToolExecute};
-//! use aisdk_macros::tool;
+//! use aisdk::macros::tool;
 //!
 //! #[tool]
 //! /// Adds two numbers together.
@@ -63,6 +63,7 @@
 //!
 
 use crate::error::{Error, Result};
+use crate::extensions::Extensions;
 use derive_builder::Builder;
 use schemars::Schema;
 use serde::{Deserialize, Serialize};
@@ -243,12 +244,20 @@ pub struct ToolDetails {
 }
 
 /// Contains information necessary to call a tool
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Default, Debug, Clone)]
 pub struct ToolCallInfo {
     /// The details of the tool to be called.
     pub tool: ToolDetails,
     /// The input parameters for the tool.
     pub input: serde_json::Value,
+    /// Provider-specific extensions.
+    pub extensions: Extensions,
+}
+
+impl PartialEq for ToolCallInfo {
+    fn eq(&self, other: &Self) -> bool {
+        self.tool == other.tool && self.input == other.input
+    }
 }
 
 impl ToolCallInfo {
@@ -259,6 +268,7 @@ impl ToolCallInfo {
                 name: name.into(),
                 ..Default::default()
             },
+            extensions: Extensions::default(),
             ..Default::default()
         }
     }

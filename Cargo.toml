@@ -15,10 +15,11 @@ keywords = ["ai", "sdk", "aisdk", "ai-sdk-rs", "openai"]
 categories = ["api-bindings", "asynchronous"]
 
 [features]
-full = ["prompt", "openai", "anthropic", "groq"]
+full = ["prompt", "openai", "anthropic", "groq", "google"]
 openai = []
 anthropic = []
 groq = ["openai"]
+google = []
 prompt = ["tera", "glob"]
 test-access = []
 axum = ["dep:axum"]
@@ -39,12 +40,13 @@ reqwest = { version = "0.12", features = ["json", "stream"] }
 reqwest-eventsource = "0.6.0"
 uuid = { version = "1.0", features = ["v4"] }
 axum = { version = ">=0.7, <0.9", optional = true }
+parking_lot = "0.12.5"
+aisdk-macros = { version = "0.2.1", path = "./macros" }
 
 [dev-dependencies]
 cargo-husky = { version = "1", features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy", "run-cargo-fmt"] }
 dotenv = "0.15.0"
 tempfile = "3.10.1"
-aisdk-macros = { version = "0.2.1", path = "./macros" }
 
 [package.metadata.release]
 pre-release-commit-message = "chore: release {{version}}"
@@ -70,3 +72,8 @@ required-features = ["anthropic", "test-access"]
 name = "groq_tests"
 path = "tests/provider/groq_tests.rs"
 required-features = ["groq", "test-access"]
+
+[[test]]
+name = "google_tests"
+path = "tests/provider/google_tests.rs"
+required-features = ["google", "test-access"]

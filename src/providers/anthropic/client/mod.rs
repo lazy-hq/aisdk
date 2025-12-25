@@ -50,8 +50,8 @@ impl<M: ModelName> Client for Anthropic<M> {
     type Response = AnthropicMessageResponse;
     type StreamEvent = AnthropicStreamEvent;
 
-    fn path(&self) -> &str {
-        "/messages"
+    fn path(&self) -> String {
+        "/messages".to_string()
     }
 
     fn method(&self) -> reqwest::Method {

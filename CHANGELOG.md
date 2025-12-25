@@ -20,8 +20,11 @@ Changelog entries are grouped by type, with the following types:
 - Added `Messages` type alias for `Vec<Message>`.
 - Added semlesss integration to work with vercel's ai-sdk-ui.
 - Added seamless integration to work with axum + vercel's ai-sdk ui.
+- Added Google provider
+- Added `Extensions` struct for attaching provider-specific metadata to core SDK structures
 - Async accessor methods to `StreamTextResponse` for thread-safe data retrieval (`messages()`, `steps()`, `usage()`, etc.)
 - Added `builder()` method for `Tool` for easier construction
+- `tool` macro is now re-exported from the main `aisdk` crate for easier access
 
 ### Changed
 - Model capabilities are now enforced at compile time via marker traits, preventing invalid feature usage (e.g., tool calls on unsupported models).
@@ -29,6 +32,8 @@ Changelog entries are grouped by type, with the following types:
 - User does not need to import `aisdk::core::tools::ToolExecute` anymore to work with the tool macro
 - `LanguageModel` trait now requires `Clone + 'static` bounds (all providers must implement `Clone`)
 - Streaming implementation now uses `tokio::sync::mpsc` instead of `std::sync::mpsc`
+- Import path for `tool` macro has changed from `use aisdk_macros::tool` to `use aisdk::macros::tool`
+
 
 ### Removed
 - Removed the tool macro re-export from `src/core/mod.rs`. User should use `aisdk_macros::tool` directly

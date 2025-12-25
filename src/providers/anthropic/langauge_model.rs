@@ -9,6 +9,7 @@ use crate::core::language_model::{
 use crate::core::messages::AssistantMessage;
 use crate::core::tools::ToolDetails;
 use crate::core::{LanguageModelStreamChunkType, ToolCallInfo};
+use crate::extensions::Extensions;
 use crate::providers::anthropic::Anthropic;
 use crate::providers::anthropic::client::{
     AnthropicContentBlock, AnthropicDelta, AnthropicMessageDeltaUsage, AnthropicOptions,
@@ -61,6 +62,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                             id: id.to_string(),
                             name: name.to_string(),
                         },
+                        extensions: Extensions::default(),
                     }));
                 }
             }
@@ -210,6 +212,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                                             id: id.clone(),
                                                             name: name.clone(),
                                                         },
+                                                        extensions: Extensions::default(),
                                                     },
                                                 ),
                                             );
