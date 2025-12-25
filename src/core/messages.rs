@@ -31,6 +31,9 @@ pub enum Message {
     Developer(String),
 }
 
+/// A List of `Message`s
+pub type Messages = Vec<Message>;
+
 impl Message {
     /// Start a new conversation with an empty message list.
     ///
@@ -45,7 +48,7 @@ impl Message {
     /// for _ in 0..10 {
     ///     msg = msg.user("hello");
     /// }
-    /// let messages = msg.build(); // messages is a Vec<Message>
+    /// let messages = msg.build();
     /// ```
     pub fn conversation_builder() -> MessageBuilder<Conversation> {
         MessageBuilder::conversation_builder()
@@ -172,7 +175,7 @@ pub struct Conversation;
 /// preventing invalid conversation structures.
 #[derive(Debug, Clone)]
 pub struct MessageBuilder<State = Initial> {
-    messages: Vec<Message>,
+    messages: Messages,
     state: std::marker::PhantomData<State>,
 }
 
@@ -199,7 +202,7 @@ impl Default for MessageBuilder {
 
 impl<State> MessageBuilder<State> {
     /// Builds the message list.
-    pub fn build(self) -> Vec<Message> {
+    pub fn build(self) -> Messages {
         self.messages
     }
 }

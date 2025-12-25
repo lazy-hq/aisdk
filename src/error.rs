@@ -30,7 +30,7 @@ impl PartialEq for dyn ProviderError {
 /// A specialized `Result` type for SDK operations.
 pub type Result<T> = std::result::Result<T, Error>;
 
-/// The primary error enum for all SDK-related failures.
+/// The primary error enum for all AI SDK related failures.
 #[derive(Debug, thiserror::Error, Clone, PartialEq)]
 pub enum Error {
     /// Error indicating a required field was missing.

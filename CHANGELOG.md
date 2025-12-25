@@ -17,6 +17,9 @@ Changelog entries are grouped by type, with the following types:
 ## [Unreleased] - ReleaseDate
 
 ### Added
+- Added `Messages` type alias for `Vec<Message>`.
+- Added semlesss integration to work with vercel's ai-sdk-ui.
+- Added seamless integration to work with axum + vercel's ai-sdk ui.
 - Added Google provider
 - Added `Extensions` struct for attaching provider-specific metadata to core SDK structures
 - Async accessor methods to `StreamTextResponse` for thread-safe data retrieval (`messages()`, `steps()`, `usage()`, etc.)

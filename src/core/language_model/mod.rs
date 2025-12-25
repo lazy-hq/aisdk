@@ -11,11 +11,11 @@ pub mod stream_text;
 
 use crate::core::messages::{AssistantMessage, TaggedMessage, TaggedMessageHelpers};
 use crate::core::tools::ToolList;
-use crate::core::utils;
 use crate::core::{
     Message,
     tools::{ToolCallInfo, ToolResultInfo},
 };
+use crate::core::{Messages, utils};
 use crate::error::{Error, Result};
 use async_trait::async_trait;
 use derive_builder::Builder;
@@ -107,12 +107,12 @@ pub struct Step {
     /// The unique identifier for this step.
     pub step_id: usize,
     /// The messages that occurred during this step.
-    pub messages: Vec<Message>,
+    pub messages: Messages,
 }
 
 impl Step {
     /// Creates a new `Step` with the given ID and messages.
-    pub fn new(step_id: usize, messages: Vec<Message>) -> Self {
+    pub fn new(step_id: usize, messages: Messages) -> Self {
         Self { step_id, messages }
     }
 
@@ -271,7 +271,7 @@ impl LanguageModelOptions {
     }
 
     /// Returns a vector of all messages in the conversation.
-    pub fn messages(&self) -> Vec<Message> {
+    pub fn messages(&self) -> Messages {
         self.messages.iter().map(|m| m.message.clone()).collect()
     }
 
@@ -309,7 +309,7 @@ impl LanguageModelOptions {
 
     /// Returns the step with the given index, if it exists.
     pub fn step(&self, index: usize) -> Option<Step> {
-        let messages: Vec<Message> = self
+        let messages: Messages = self
             .messages
             .iter()
             .filter(|t| t.step_id == index)
@@ -330,7 +330,7 @@ impl LanguageModelOptions {
 
     /// Returns all steps in chronological order.
     pub fn steps(&self) -> Vec<Step> {
-        let mut step_map: HashMap<usize, Vec<Message>> = HashMap::new();
+        let mut step_map: HashMap<usize, Messages> = HashMap::new();
         for tagged in &self.messages {
             step_map
                 .entry(tagged.step_id)

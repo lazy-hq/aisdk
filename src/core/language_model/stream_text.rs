@@ -1,7 +1,8 @@
 //! Text Streaming impl for the `LanguageModelRequest` trait.
 
 use crate::core::{
-    AssistantMessage, LanguageModelStreamChunkType, Message, ToolCallInfo, ToolResultInfo,
+    AssistantMessage, LanguageModelStreamChunkType, Message, Messages, ToolCallInfo,
+    ToolResultInfo,
     language_model::{
         LanguageModel, LanguageModelOptions, LanguageModelResponseContentType, LanguageModelStream,
         LanguageModelStreamChunk, Step, StopReason, Usage, request::LanguageModelRequest,
@@ -262,7 +263,7 @@ impl StreamTextResponse {
     /// # Returns
     ///
     /// A vector of all [`Message`] instances in the conversation.
-    pub async fn messages(&self) -> Vec<Message> {
+    pub async fn messages(&self) -> Messages {
         self.options.lock().await.messages()
     }
 

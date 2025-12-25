@@ -6,6 +6,7 @@
 pub mod core;
 pub mod error;
 pub mod extensions;
+pub mod integrations;
 #[cfg(feature = "prompt")]
 pub mod prompt;
 pub mod providers;

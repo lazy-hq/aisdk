@@ -21,6 +21,6 @@ pub use language_model::{
     request::LanguageModelRequest, stream_text::StreamTextResponse,
 };
 
-pub use messages::{AssistantMessage, Message, Role, SystemMessage, UserMessage};
+pub use messages::{AssistantMessage, Message, Messages, Role, SystemMessage, UserMessage};
 pub use provider::Provider;
 pub use tools::{Tool, ToolCallInfo, ToolResultInfo};
