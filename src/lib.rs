@@ -10,5 +10,9 @@ pub mod prompt;
 pub mod providers;
 
 // re-exports
-pub use aisdk_macros::tool;
 pub use error::{Error, Result};
+
+/// Re-exports the `aisdk_macros::tool` macro for convenient tool definition.
+pub mod macros {
+    pub use aisdk_macros::tool;
+}

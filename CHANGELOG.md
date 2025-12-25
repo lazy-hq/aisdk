@@ -27,9 +27,7 @@ Changelog entries are grouped by type, with the following types:
 - User does not need to import `aisdk::core::tools::ToolExecute` anymore to work with the tool macro
 - `LanguageModel` trait now requires `Clone + 'static` bounds (all providers must implement `Clone`)
 - Streaming implementation now uses `tokio::sync::mpsc` instead of `std::sync::mpsc`
-- **BREAKING**: Import path for `tool` macro has changed from `use aisdk_macros::tool` to `use aisdk::tool`
-    - Users should update their imports from `aisdk_macros::tool` to `aisdk::tool`
-    - The `aisdk-macros` crate no longer needs to be added as a direct dependency
+- Import path for `tool` macro has changed from `use aisdk_macros::tool` to `use aisdk::macros::tool`
 
 
 ### Removed

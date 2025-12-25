@@ -19,7 +19,7 @@ use syn::{
 /// # Example
 ///
 /// ```rust,no_run
-/// use aisdk::tool;
+/// use aisdk::macros::tool;
 /// use aisdk::core::tools::Tool;
 ///
 /// #[tool]
@@ -49,7 +49,7 @@ use syn::{
 ///
 /// # Example with overrides
 /// ```rust,no_run
-/// use aisdk::tool;
+/// use aisdk::macros::tool;
 /// use aisdk::core::tools::Tool;
 ///
 ///     #[tool(

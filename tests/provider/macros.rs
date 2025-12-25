@@ -54,17 +54,12 @@ macro_rules! generate_language_model_tests {
             language_model::{LanguageModelResponseContentType, StopReason},
             tools::Tool,
         };
-        use aisdk::tool;
+        use aisdk::macros::tool;
         use dotenv::dotenv;
         use std::sync::{Arc, Mutex};
 
         #[allow(unused_imports)]
-        use {
-            futures::StreamExt,
-            schemars::JsonSchema,
-            serde::Deserialize,
-            serde_json::Value,
-        };
+        use {futures::StreamExt, schemars::JsonSchema, serde::Deserialize, serde_json::Value};
 
         // Helper macro for API key checking
         macro_rules! skip_if_no_api_key {
@@ -118,7 +113,10 @@ macro_rules! generate_provider_has_default_interface {
                 .build();
 
             assert!(provider2.is_err());
-            assert_eq!(provider2.unwrap_err().to_string(), "Invalid input: Base URL must start with http:// or https://");
+            assert_eq!(
+                provider2.unwrap_err().to_string(),
+                "Invalid input: Base URL must start with http:// or https://"
+            );
 
             // should fail on empty api key
             let provider3 = $provider_type::<$model_struct>::builder()
@@ -128,7 +126,10 @@ macro_rules! generate_provider_has_default_interface {
                 .build();
 
             assert!(provider3.is_err());
-            assert_eq!(provider3.unwrap_err().to_string(), "A required field is missing: api_key");
+            assert_eq!(
+                provider3.unwrap_err().to_string(),
+                "A required field is missing: api_key"
+            );
         }
     };
 }

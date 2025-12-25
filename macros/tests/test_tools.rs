@@ -3,7 +3,7 @@
 #[cfg(test)]
 mod tests {
     use aisdk::core::tools::Tool;
-    use aisdk::tool;
+    use aisdk::macros::tool;
     use serde_json::Value;
     use std::collections::HashMap;
 
