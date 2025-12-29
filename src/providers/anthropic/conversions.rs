@@ -6,64 +6,99 @@ use crate::providers::anthropic::client::{
     AnthropicAssistantMessageParamContent, AnthropicMessageDeltaUsage, AnthropicMessageParam,
     AnthropicOptions, AnthropicThinking, AnthropicTool, AnthropicUsage,
 };
+use crate::providers::anthropic::extensions;
 
 impl From<LanguageModelOptions> for AnthropicOptions {
     fn from(options: LanguageModelOptions) -> Self {
         let mut messages = Vec::new();
         let mut request = AnthropicOptions::builder();
+        request.model("");
+
         // TODO: anthropic max_tokens is required. handle compile
         // time checks if not set in core
-        let max_tokens = options.max_output_tokens.unwrap_or(10000);
+        let max_tokens = options.max_output_tokens.unwrap_or(10_000);
 
-        if let Some(system) = options.system {
+        if let Some(system) = options.system
+            && !system.is_empty()
+        {
             request.system(Some(system));
+        } else {
+            request.system(None);
         }
 
         // convert messages to anthropic messages
         for msg in options.messages {
             match msg.message {
                 Message::System(s) => {
-                    request.system(Some(s.content));
+                    if !s.content.is_empty() {
+                        request.system(Some(s.content));
+                    }
                 }
                 Message::User(u) => {
-                    messages.push(AnthropicMessageParam::User { content: u.content });
+                    messages.push(AnthropicMessageParam::User {
+                        content:
+                            crate::providers::anthropic::client::AnthropicUserMessageContent::Text(
+                                u.content,
+                            ),
+                    });
                 }
                 Message::Assistant(a) => match a.content {
                     LanguageModelResponseContentType::Text(text) => {
                         messages.push(AnthropicMessageParam::Assistant {
-                            content: AnthropicAssistantMessageParamContent::Text { text },
+                            content: vec![AnthropicAssistantMessageParamContent::Text { text }],
                         });
                     }
                     LanguageModelResponseContentType::ToolCall(tool) => {
                         messages.push(AnthropicMessageParam::Assistant {
-                            content: AnthropicAssistantMessageParamContent::ToolUse {
+                            content: vec![AnthropicAssistantMessageParamContent::ToolUse {
                                 id: tool.tool.id,
-                                input: serde_json::to_string(&tool.input).unwrap(),
+                                input: tool.input,
                                 name: tool.tool.name,
-                            },
+                            }],
                         });
                     }
-                    LanguageModelResponseContentType::Reasoning(reasoning) => {
+                    LanguageModelResponseContentType::Reasoning {
+                        content,
+                        extensions,
+                    } => {
+                        // Retrieve Anthropic-specific signature from extensions
+                        let signature = extensions
+                            .get::<extensions::AnthropicThinkingMetadata>()
+                            .signature
+                            .clone()
+                            .unwrap_or_else(|| content.clone());
+
                         messages.push(AnthropicMessageParam::Assistant {
-                            content: AnthropicAssistantMessageParamContent::Thinking {
-                                thinking: reasoning.clone(),
-                                signature: reasoning, // TODO: handle antropic thinking
-                                                      // signatures appropriately
-                            },
+                            content: vec![AnthropicAssistantMessageParamContent::Thinking {
+                                thinking: content.clone(),
+                                signature,
+                            }],
                         });
                     }
                     LanguageModelResponseContentType::NotSupported(_) => {}
                 },
-                Message::Tool(tool) => messages.push(AnthropicMessageParam::User {
-                    content: format!("{:?}", tool),
-                }),
+                Message::Tool(tool) => {
+                    messages.push(AnthropicMessageParam::User {
+                        content: crate::providers::anthropic::client::AnthropicUserMessageContent::Blocks(vec![
+                            crate::providers::anthropic::client::AnthropicUserMessageContentBlock::ToolResult {
+                                tool_use_id: tool.tool.id,
+                                content: tool.output.unwrap_or_default().to_string(),
+                            },
+                        ]),
+                    });
+                }
                 Message::Developer(dev) => {
                     messages.push(AnthropicMessageParam::User {
-                        content: format!("<developer>\n{}\n</developer>", dev),
+                        content:
+                            crate::providers::anthropic::client::AnthropicUserMessageContent::Text(
+                                format!("<developer>\n{}\n</developer>", dev),
+                            ),
                     });
                 }
             }
         }
+        // update messages
+        request.messages(messages);
 
         // convert tools to anthropic tools
         if let Some(tools) = options.tools {
@@ -75,10 +110,14 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                     .iter()
                     .map(|t| {
                         let tool = t.clone();
+                        let mut tool_schema = tool.input_schema.to_value();
+                        if let Some(schema) = tool_schema.as_object_mut() {
+                            schema.remove("$schema");
+                        };
                         AnthropicTool {
                             name: tool.name,
                             description: tool.description,
-                            input_schema: tool.input_schema.to_value().to_string(),
+                            input_schema: tool_schema,
                         }
                     })
                     .collect(),

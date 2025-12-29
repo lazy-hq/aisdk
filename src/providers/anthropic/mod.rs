@@ -6,7 +6,8 @@ pub mod capabilities;
 pub mod client;
 /// Conversion utilities for Anthropic types.
 pub mod conversions;
-pub mod langauge_model;
+pub mod extensions;
+pub mod language_model;
 pub mod settings;
 
 use crate::core::capabilities::ModelName;

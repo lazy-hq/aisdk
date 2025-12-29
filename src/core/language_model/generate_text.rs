@@ -107,9 +107,15 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                             .messages
                             .push(TaggedMessage::new(options.current_step_id, assistant_msg));
                     }
-                    LanguageModelResponseContentType::Reasoning(reason) => {
+                    LanguageModelResponseContentType::Reasoning {
+                        content,
+                        extensions,
+                    } => {
                         let assistant_msg = Message::Assistant(AssistantMessage {
-                            content: reason.clone().into(),
+                            content: LanguageModelResponseContentType::Reasoning {
+                                content: content.clone(),
+                                extensions: extensions.clone(),
+                            },
                             usage: response.usage.clone(),
                         });
                         options

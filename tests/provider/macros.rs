@@ -349,6 +349,7 @@ macro_rules! generate_language_model_streaming_tests {
 
             let mut buf = String::new();
             while let Some(chunk) = stream.next().await {
+                // println!("chunk: {:?}", chunk);
                 if let LanguageModelStreamChunkType::Text(text) = chunk {
                     buf.push_str(&text);
                 }
@@ -487,7 +488,7 @@ macro_rules! generate_language_model_tool_tests {
             let response = LanguageModelRequest::builder()
                 .model($tool_model)
                 .system("You are a helpful assistant.")
-                .prompt("What is the username for user id 123?")
+                .prompt("What is the username for user id '123'?")
                 .with_tool(get_username())
                 .build()
                 .stream_text()
@@ -974,7 +975,7 @@ macro_rules! generate_language_model_hook_tests {
                             LanguageModelResponseContentType::Text(_) => {
                                 *text_clone.lock().unwrap() = true;
                             }
-                            LanguageModelResponseContentType::Reasoning(_) => {
+                            LanguageModelResponseContentType::Reasoning { .. } => {
                                 *text_clone.lock().unwrap() = true;
                             }
                             _ => {}

@@ -22,7 +22,7 @@ impl Default for GoogleProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "google".to_string(),
-            base_url: "https://generativelanguage.googleapis.com/v1beta/".to_string(),
+            base_url: "https://generativelanguage.googleapis.com".to_string(),
             api_key: std::env::var("GOOGLE_API_KEY").unwrap_or_default(),
         }
     }

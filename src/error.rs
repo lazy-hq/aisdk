@@ -38,8 +38,13 @@ pub enum Error {
     MissingField(String),
 
     /// An error returned from the API.
-    #[error("API error: {0}")]
-    ApiError(String),
+    #[error("API error: {status_code:?} - {details}")]
+    ApiError {
+        /// The error details/message.
+        details: String,
+        /// The HTTP status code, if available.
+        status_code: Option<reqwest::StatusCode>,
+    },
 
     /// An error for invalid input.
     #[error("Invalid input: {0}")]
@@ -71,7 +76,12 @@ impl From<Error> for String {
     fn from(value: Error) -> String {
         match value {
             Error::MissingField(error) => format!("Missing field: {error}"),
-            Error::ApiError(error) => format!("API error: {error}"),
+            Error::ApiError {
+                details,
+                status_code,
+            } => {
+                format!("API error: {status_code:?} - {details}")
+            }
             Error::InvalidInput(error) => format!("Invalid input: {error}"),
             Error::ToolCallError(error) => format!("Tool error: {error}"),
             Error::Other(error) => format!("Other error: {error}"),

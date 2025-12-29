@@ -25,6 +25,7 @@ Changelog entries are grouped by type, with the following types:
 - Async accessor methods to `StreamTextResponse` for thread-safe data retrieval (`messages()`, `steps()`, `usage()`, etc.)
 - Added `builder()` method for `Tool` for easier construction
 - `tool` macro is now re-exported from the main `aisdk` crate for easier access
+- Automatic retry logic with exponential backoff for rate limit errors (429)
 
 ### Changed
 - Model capabilities are now enforced at compile time via marker traits, preventing invalid feature usage (e.g., tool calls on unsupported models).
@@ -33,6 +34,8 @@ Changelog entries are grouped by type, with the following types:
 - `LanguageModel` trait now requires `Clone + 'static` bounds (all providers must implement `Clone`)
 - Streaming implementation now uses `tokio::sync::mpsc` instead of `std::sync::mpsc`
 - Import path for `tool` macro has changed from `use aisdk_macros::tool` to `use aisdk::macros::tool`
+- `Error::ApiError` now uses a struct with `status_code: Option<StatusCode>` and `details: String` fields
+- `LanguageModelResponseContentType::Reasoning` now includes an `extensions` field for provider-specific metadata
 
 
 ### Removed
@@ -43,6 +46,9 @@ Changelog entries are grouped by type, with the following types:
 
 ### Fixed
 - `aisdk-macros` `#[tool]` function unused variable warning even though it is used
+- Anthropic provider API endpoint path corrected from `/messages` to `/v1/messages`
+- Anthropic provider serialization/deserialization issues with tool calls
+- Stream reliability issues that caused premature termination
 
 ## [0.2.1] - 2025-12-02
 

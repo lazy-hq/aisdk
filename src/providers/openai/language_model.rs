@@ -75,7 +75,28 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
         self.options = options;
 
-        let openai_stream = self.send_and_stream(&self.settings.base_url).await?;
+        // Retry logic for rate limiting
+        let max_retries = 5;
+        let mut retry_count = 0;
+        let mut wait_time = std::time::Duration::from_secs(1);
+
+        let openai_stream = loop {
+            match self.send_and_stream(&self.settings.base_url).await {
+                Ok(stream) => break stream,
+                Err(crate::error::Error::ApiError {
+                    status_code: Some(status),
+                    ..
+                }) if status == reqwest::StatusCode::TOO_MANY_REQUESTS
+                    && retry_count < max_retries =>
+                {
+                    retry_count += 1;
+                    tokio::time::sleep(wait_time).await;
+                    wait_time *= 2; // Exponential backoff
+                    continue;
+                }
+                Err(e) => return Err(e),
+            }
+        };
 
         let stream = openai_stream.map(|evt_res| match evt_res {
             Ok(client::OpenAiStreamEvent::ResponseOutputTextDelta { delta, .. }) => {
@@ -112,9 +133,10 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
                         types::MessageItem::Reasoning { summary, .. } => {
                             if let Some(types::ReasoningSummary { text, .. }) = summary.first() {
                                 result.push(LanguageModelStreamChunk::Done(AssistantMessage {
-                                    content: LanguageModelResponseContentType::Reasoning(
-                                        text.to_owned(),
-                                    ),
+                                    content: LanguageModelResponseContentType::Reasoning {
+                                        content: text.to_owned(),
+                                        extensions: crate::extensions::Extensions::default(),
+                                    },
                                     usage: Some(usage.clone()),
                                 }));
                             }

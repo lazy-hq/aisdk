@@ -40,16 +40,6 @@ impl From<LanguageModelOptions> for client::OpenAIOptions {
             .filter_map(|m| m.message.into())
             .collect();
 
-        // system prompt first since openai likes it at the top
-        // if let Some(system) = options.system {
-        //     items.insert(
-        //         0,
-        //         client::OpenAiInputItem::Message(client::OpenAIMessageParam::System {
-        //             content: system,
-        //         }),
-        //     );
-        // }
-
         let tools: Option<Vec<types::ToolParams>> = options.tools.map(|t| {
             t.tools
                 .lock()
@@ -130,12 +120,12 @@ impl From<Message> for Option<types::InputItem> {
                         type_: "function_call".to_string(),
                     }))
                 }
-                LanguageModelResponseContentType::Reasoning(ref reason) => {
+                LanguageModelResponseContentType::Reasoning { ref content, .. } => {
                     Some(types::InputItem::Item(types::MessageItem::Reasoning {
                         id: None,
                         summary: vec![types::ReasoningSummary {
                             type_: "summary_text".to_string(),
-                            text: reason.clone(),
+                            text: content.clone(),
                         }],
                         type_: "reasoning".to_string(),
                         content: None,

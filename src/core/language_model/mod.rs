@@ -358,7 +358,9 @@ impl LanguageModelOptions {
         if let Some(msg) = self.messages.last() {
             match msg.message {
                 Message::Assistant(ref assistant_msg) => {
-                    if let LanguageModelResponseContentType::Reasoning(_) = assistant_msg.content {
+                    if let LanguageModelResponseContentType::Reasoning { .. } =
+                        assistant_msg.content
+                    {
                         None
                     } else {
                         Some(&assistant_msg.content)
@@ -414,7 +416,12 @@ pub enum LanguageModelResponseContentType {
     /// A tool call request.
     ToolCall(ToolCallInfo),
     /// Reasoning or thinking content.
-    Reasoning(String),
+    Reasoning {
+        /// The reasoning/thinking content
+        content: String,
+        /// Provider-specific extensions
+        extensions: crate::extensions::Extensions,
+    },
     /// Feature not supported by the provider.
     NotSupported(String),
 }
@@ -492,7 +499,7 @@ pub enum LanguageModelStreamChunkType {
     Start,
     /// A chunk of generated text.
     Text(String),
-    /// Reasoning summary text chunk
+    /// Reasoning summary text chunk (content delta only)
     Reasoning(String),
     /// Tool call argument chunk
     ToolCall(String),

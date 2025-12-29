@@ -63,7 +63,28 @@ impl<M: ModelName> LanguageModel for Google<M> {
         self.options.request = Some(request);
         self.options.streaming = true;
 
-        let google_stream = self.send_and_stream(&self.settings.base_url).await?;
+        // Retry logic for rate limiting
+        let max_retries = 5;
+        let mut retry_count = 0;
+        let mut wait_time = std::time::Duration::from_secs(1);
+
+        let google_stream = loop {
+            match self.send_and_stream(&self.settings.base_url).await {
+                Ok(stream) => break stream,
+                Err(crate::error::Error::ApiError {
+                    status_code: Some(status),
+                    ..
+                }) if status == reqwest::StatusCode::TOO_MANY_REQUESTS
+                    && retry_count < max_retries =>
+                {
+                    retry_count += 1;
+                    tokio::time::sleep(wait_time).await;
+                    wait_time *= 2; // Exponential backoff
+                    continue;
+                }
+                Err(e) => return Err(e),
+            }
+        };
 
         #[derive(Default)]
         struct StreamState {

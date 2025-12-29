@@ -21,7 +21,7 @@ impl Default for GroqProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "Groq".to_string(),
-            base_url: "https://api.groq.com/openai/v1/".to_string(),
+            base_url: "https://api.groq.com/openai".to_string(),
             api_key: std::env::var("GROQ_API_KEY").unwrap_or_default(),
         }
     }

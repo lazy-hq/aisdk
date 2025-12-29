@@ -45,11 +45,11 @@ pub(crate) struct AnthropicMessageResponse {
     pub id: String,
     pub content: Vec<AnthropicContentBlock>,
     pub model: String,
-    #[serde(default = "assistant")]
+    #[serde(default = "assistant_as_str")]
     role: String, // always "assistant"
     pub stop_reason: Option<String>,
     pub stop_sequences: Option<Vec<String>>,
-    #[serde(rename = "type", default = "text")]
+    #[serde(rename = "type", default = "message_as_str")]
     type_: String,
     pub usage: AnthropicUsage,
 }
@@ -61,6 +61,7 @@ pub(crate) struct AnthropicUsage {
     pub cache_read_input_tokens: usize,
     pub input_tokens: usize,
     pub output_tokens: usize,
+    #[serde(default = "AnthropicServerToolUsage::default")]
     pub server_tool_use: AnthropicServerToolUsage,
     pub service_tier: String,
 }
@@ -82,6 +83,7 @@ pub(crate) enum AnthropicContentBlock {
     #[serde(rename = "text")]
     Text {
         text: String,
+        #[serde(default = "Vec::default")]
         citations: Vec<AnthropicCitation>,
     },
     #[serde(rename = "thinking")]
@@ -91,7 +93,7 @@ pub(crate) enum AnthropicContentBlock {
     #[serde(rename = "tool_use")]
     ToolUse {
         id: String,
-        input: String,
+        input: serde_json::Value,
         name: String,
     },
 }
@@ -143,10 +145,42 @@ pub(crate) enum AnthropicCitation {
 #[serde(tag = "role")]
 pub(crate) enum AnthropicMessageParam {
     #[serde(rename = "user")]
-    User { content: String },
+    User {
+        content: AnthropicUserMessageContent,
+    },
     #[serde(rename = "assistant")]
     Assistant {
-        content: AnthropicAssistantMessageParamContent,
+        content: Vec<AnthropicAssistantMessageParamContent>,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+/// See more [here](https://platform.claude.com/docs/en/api/messages#message_param)
+pub enum AnthropicUserMessageContent {
+    /// Regular text content
+    Text(String),
+    /// List of content blocks
+    Blocks(Vec<AnthropicUserMessageContentBlock>),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+/// See more [here](https://platform.claude.com/docs/en/api/messages#content_block_param)
+pub enum AnthropicUserMessageContentBlock {
+    #[serde(rename = "text")]
+    /// Regular text content
+    Text {
+        /// The text content
+        text: String,
+    },
+    #[serde(rename = "tool_result")]
+    /// Tool result content
+    ToolResult {
+        /// The ID of the tool used
+        tool_use_id: String,
+        /// The content of the tool result
+        content: String,
     },
 }
 
@@ -160,7 +194,7 @@ pub(crate) enum AnthropicAssistantMessageParamContent {
     #[serde(rename = "tool_use")]
     ToolUse {
         id: String,
-        input: String,
+        input: serde_json::Value,
         name: String,
     },
 }
@@ -169,7 +203,7 @@ pub(crate) enum AnthropicAssistantMessageParamContent {
 pub(crate) struct AnthropicTool {
     pub name: String,
     pub description: String,
-    pub input_schema: String,
+    pub input_schema: serde_json::Value,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -237,10 +271,14 @@ pub(crate) enum AnthropicDelta {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct AnthropicMessageDeltaUsage {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cache_creation_input_tokens: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cache_read_input_tokens: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub input_tokens: Option<usize>,
     pub output_tokens: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub server_tool_use: Option<AnthropicServerToolUsage>,
 }
 
@@ -278,10 +316,10 @@ impl std::error::Error for AnthropicError {}
 impl ProviderError for AnthropicError {}
 
 // ---------------------------------- Helper functions ----------------------------------
-fn assistant() -> String {
+fn assistant_as_str() -> String {
     "assistant".to_string()
 }
 
-fn text() -> String {
-    "text".to_string()
+fn message_as_str() -> String {
+    "message".to_string()
 }

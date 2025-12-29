@@ -23,21 +23,29 @@ pub(crate) struct AnthropicOptions {
     #[builder(default = "4096")]
     pub(crate) max_tokens: u32,
     #[builder(default)]
-    pub(crate) stop_sequences: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop_sequences: Option<Vec<String>>,
     #[builder(default)]
-    pub(crate) stream: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
     #[builder(default)]
-    pub(crate) system: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub system: Option<String>,
     #[builder(default)]
-    pub(crate) temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature: Option<f32>,
     #[builder(default)]
-    pub(crate) thinking: Option<AnthropicThinking>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thinking: Option<AnthropicThinking>,
     #[builder(default)]
-    pub(crate) tools: Option<Vec<AnthropicTool>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tools: Option<Vec<AnthropicTool>>,
     #[builder(default)]
-    pub(crate) top_k: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_k: Option<u32>,
     #[builder(default)]
-    pub(crate) top_p: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_p: Option<f32>,
 }
 
 impl AnthropicOptions {
@@ -51,7 +59,7 @@ impl<M: ModelName> Client for Anthropic<M> {
     type StreamEvent = AnthropicStreamEvent;
 
     fn path(&self) -> String {
-        "/messages".to_string()
+        "/v1/messages".to_string()
     }
 
     fn method(&self) -> reqwest::Method {
@@ -88,19 +96,31 @@ impl<M: ModelName> Client for Anthropic<M> {
                         return Ok(AnthropicStreamEvent::NotSupported("[END]".to_string()));
                     }
 
-                    let value: serde_json::Value = serde_json::from_str(&msg.data)
-                        .map_err(|e| Error::ApiError(format!("Invalid JSON in SSE data: {}", e)))?;
+                    let value: serde_json::Value =
+                        serde_json::from_str(&msg.data).map_err(|e| Error::ApiError {
+                            status_code: None,
+                            details: format!("Invalid JSON in SSE data: {}", e),
+                        })?;
 
                     Ok(serde_json::from_value::<AnthropicStreamEvent>(value)
                         .unwrap_or(AnthropicStreamEvent::NotSupported(msg.data)))
                 }
             },
-            Err(e) => Err(Error::ApiError(format!("SSE error: {}", e))),
+            Err(e) => {
+                // Extract status code if it's an InvalidStatusCode error
+                let status_code = match &e {
+                    reqwest_eventsource::Error::InvalidStatusCode(status, _) => Some(*status),
+                    _ => None,
+                };
+                Err(Error::ApiError {
+                    status_code,
+                    details: format!("SSE error: {}", e),
+                })
+            }
         }
     }
 
     fn end_stream(event: &Self::StreamEvent) -> bool {
         matches!(event, AnthropicStreamEvent::MessageStop)
-            || matches!(event, AnthropicStreamEvent::NotSupported(json) if json == "[END]")
     }
 }

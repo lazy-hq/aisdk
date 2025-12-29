@@ -132,16 +132,18 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                 ));
                                                 options.stop_reason = Some(StopReason::Finish);
                                             }
-                                            LanguageModelResponseContentType::Reasoning(
-                                                ref reason,
-                                            ) => {
+                                            LanguageModelResponseContentType::Reasoning {
+                                                ref content,
+                                                ref extensions,
+                                            } => {
                                                 options.messages.push(TaggedMessage::new(
                                                 current_step_id,
                                                 Message::Assistant(AssistantMessage {
                                                     content:
-                                                        LanguageModelResponseContentType::Reasoning(
-                                                            reason.clone(),
-                                                        ),
+                                                        LanguageModelResponseContentType::Reasoning {
+                                                            content: content.clone(),
+                                                            extensions: extensions.clone(),
+                                                        },
                                                     usage: final_msg.usage.clone(),
                                                     }),
                                                 ));
@@ -182,14 +184,15 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                             options.stop_reason = Some(StopReason::Hook);
                                             break;
                                         }
-
-                                        let _ = tx.send(LanguageModelStreamChunkType::End(
-                                            final_msg.clone(),
-                                        ));
                                     }
-                                    LanguageModelStreamChunk::Delta(other) => {
-                                        let _ = tx.send(other.clone()); // propagate chunks
-                                    }
+                                    LanguageModelStreamChunk::Delta(other) => match other {
+                                        // Propagate text and reasoning chunks
+                                        LanguageModelStreamChunkType::Text(_)
+                                        | LanguageModelStreamChunkType::Reasoning(_) => {
+                                            let _ = tx.send(other.clone());
+                                        }
+                                        _ => {}
+                                    },
                                 }
                             }
                         }
