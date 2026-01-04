@@ -1,4 +1,4 @@
-//! This module provides the Groq provider, wrapping OpenAI for Groq requests.
+//! This module provides the Groq provider, wrapping OpenAI Chat Completions for Groq requests.
 
 pub mod capabilities;
 pub mod language_model;
@@ -9,14 +9,14 @@ use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
 use crate::providers::groq::settings::GroqProviderSettings;
-use crate::providers::openai::OpenAI;
+use crate::providers::openai_chat_completions::OpenAIChatCompletions;
 
-/// The Groq provider, wrapping OpenAI.
+/// The Groq provider, wrapping OpenAI Chat Completions API.
 #[derive(Debug, Clone)]
 pub struct Groq<M: ModelName> {
     /// Configuration settings for the Groq provider.
     pub settings: GroqProviderSettings,
-    inner: OpenAI<M>,
+    pub(crate) inner: OpenAIChatCompletions<M>,
 }
 
 impl<M: ModelName> Groq<M> {
@@ -36,14 +36,14 @@ impl<M: ModelName> Default for Groq<M> {
 /// Groq provider builder
 pub struct GroqBuilder<M: ModelName> {
     settings: GroqProviderSettings,
-    inner: OpenAI<M>,
+    inner: OpenAIChatCompletions<M>,
 }
 
 impl<M: ModelName> Default for GroqBuilder<M> {
     /// Creates a new Groq provider with default settings.
     fn default() -> Self {
         let settings = GroqProviderSettings::default();
-        let mut inner = OpenAI::default();
+        let mut inner = OpenAIChatCompletions::default();
         inner.settings.provider_name = settings.provider_name.clone();
         inner.settings.base_url = settings.base_url.clone();
         inner.settings.api_key = settings.api_key.clone();

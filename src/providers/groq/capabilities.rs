@@ -10,18 +10,6 @@ use crate::providers::groq::Groq;
 model_capabilities! {
     provider: Groq,
     models: {
-        DeepseekR1DistillLlama70b {
-            model_name: "deepseek-r1-distill-llama-70b",
-            constructor_name: deepseek_r1_distill_llama_70b,
-            display_name: "DeepSeek R1 Distill Llama 70B",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gemma29bIt {
-            model_name: "gemma2-9b-it",
-            constructor_name: gemma2_9b_it,
-            display_name: "Gemma 2 9B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         Llama318bInstant {
             model_name: "llama-3.1-8b-instant",
             constructor_name: llama_3_1_8b_instant,
@@ -34,34 +22,46 @@ model_capabilities! {
             display_name: "Llama 3.3 70B Versatile",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Llama370b8192 {
-            model_name: "llama3-70b-8192",
-            constructor_name: llama3_70b_8192,
-            display_name: "Llama 3 70B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        MetaLlamaLlama4Maverick17b128eInstruct {
+            model_name: "meta-llama/llama-4-maverick-17b-128e-instruct",
+            constructor_name: meta_llama_llama_4_maverick_17b_128e_instruct,
+            display_name: "Llama 4 Maverick 17B",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Llama38b8192 {
-            model_name: "llama3-8b-8192",
-            constructor_name: llama3_8b_8192,
-            display_name: "Llama 3 8B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        MetaLlamaLlama4Scout17b16eInstruct {
+            model_name: "meta-llama/llama-4-scout-17b-16e-instruct",
+            constructor_name: meta_llama_llama_4_scout_17b_16e_instruct,
+            display_name: "Llama 4 Scout 17B",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        LlamaGuard38b {
-            model_name: "llama-guard-3-8b",
-            constructor_name: llama_guard_3_8b,
-            display_name: "Llama Guard 3 8B",
-            capabilities: [TextInputSupport, TextOutputSupport]
+        MetaLlamaLlamaGuard412b {
+            model_name: "meta-llama/llama-guard-4-12b",
+            constructor_name: meta_llama_llama_guard_4_12b,
+            display_name: "Llama Guard 4 12B",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
         },
-        MistralSaba24b {
-            model_name: "mistral-saba-24b",
-            constructor_name: mistral_saba_24b,
-            display_name: "Mistral Saba 24B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        MoonshotaiKimiK2Instruct0905 {
+            model_name: "moonshotai/kimi-k2-instruct-0905",
+            constructor_name: moonshotai_kimi_k2_instruct_0905,
+            display_name: "Kimi K2 Instruct 0905",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        QwenQwq32b {
-            model_name: "qwen-qwq-32b",
-            constructor_name: qwen_qwq_32b,
-            display_name: "Qwen QwQ 32B",
+        OpenaiGptOss120b {
+            model_name: "openai/gpt-oss-120b",
+            constructor_name: openai_gpt_oss_120b,
+            display_name: "GPT OSS 120B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGptOss20b {
+            model_name: "openai/gpt-oss-20b",
+            constructor_name: openai_gpt_oss_20b,
+            display_name: "GPT OSS 20B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen332b {
+            model_name: "qwen/qwen3-32b",
+            constructor_name: qwen_qwen3_32b,
+            display_name: "Qwen3 32B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
