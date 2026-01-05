@@ -16,6 +16,9 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+- Migrate Groq provider to use OpenAI's ChatCompletions API
+
 ## [0.3.0] - 2025-12-29
 
 ### Added
