@@ -54,14 +54,23 @@ pub(crate) fn resolve_message(
     prompt: &Option<String>,
 ) -> (String, Vec<TaggedMessage>) {
     let messages = if options.messages.is_empty() {
-        vec![
-            TaggedMessage::initial_step_msg(Message::System(
-                options.system.to_owned().unwrap_or_default().into(),
-            )),
-            TaggedMessage::initial_step_msg(Message::User(
-                prompt.to_owned().unwrap_or_default().into(),
-            )),
-        ]
+        let mut msgs = Vec::new();
+
+        // Only add system message if system prompt is provided and not empty
+        if let Some(ref system) = options.system
+            && !system.is_empty()
+        {
+            msgs.push(TaggedMessage::initial_step_msg(Message::System(
+                system.clone().into(),
+            )));
+        }
+
+        // Add user message
+        msgs.push(TaggedMessage::initial_step_msg(Message::User(
+            prompt.to_owned().unwrap_or_default().into(),
+        )));
+
+        msgs
     } else {
         options.messages.to_vec()
     };
