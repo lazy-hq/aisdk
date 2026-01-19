@@ -55,6 +55,10 @@ pub enum Error {
     #[error("Tool error: {0}")]
     ToolCallError(String),
 
+    /// An error related to prompt template processing and rendering.
+    #[error("Prompt error: {0}")]
+    PromptError(String),
+
     /// A catch-all for other miscellaneous errors.
     #[error("AI SDK error: {0}")]
     Other(String),
@@ -86,6 +90,7 @@ impl From<Error> for String {
             Error::ToolCallError(error) => format!("Tool error: {error}"),
             Error::Other(error) => format!("Other error: {error}"),
             Error::ProviderError(error) => format!("Provider error: {error}"),
+            Error::PromptError(error) => format!("Prompt error: {error}"),
         }
     }
 }
