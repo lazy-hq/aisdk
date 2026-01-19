@@ -18,6 +18,7 @@ Changelog entries are grouped by type, with the following types:
 
 ### Added
 - Migrate Groq provider to use OpenAI's ChatCompletions API
+- Vercel AI GATEWAY provider
 
 ## [0.3.0] - 2025-12-29
 

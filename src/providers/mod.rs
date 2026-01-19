@@ -13,6 +13,9 @@ pub mod groq;
 #[cfg(feature = "google")]
 pub mod google;
 
+#[cfg(feature = "vercel")]
+pub mod vercel;
+
 // Internal module for OpenAI Chat Completions API compatible providers
 #[cfg(feature = "openaichatcompletions")]
 pub(crate) mod openai_chat_completions;
