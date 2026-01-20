@@ -1,0 +1,11 @@
+[package]
+name = "git-summary"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[dependencies]
+aisdk = { path = "../..", features = ["prompt", "openai"] }
+tokio = { version = "1.0", features = ["full"] }
+dotenv = "0.15.0"
