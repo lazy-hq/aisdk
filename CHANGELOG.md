@@ -17,7 +17,15 @@ Changelog entries are grouped by type, with the following types:
 ## [Unreleased] - ReleaseDate
 
 ### Added
-- Migrate Groq provider to use OpenAI's ChatCompletions API
+- Added `Vercel AI Geatway` provider
+- Added `OpenRouter` provider
+- Added `DeepSeek` provider
+- Added `Amazon Bedrock` provider
+- Added `TogetherAI` provider
+- Added `XAI` provider
+
+### Changed
+- Changed Groq provider to use OpenAI's ChatCompletions API
 
 ## [0.3.0] - 2025-12-29
 

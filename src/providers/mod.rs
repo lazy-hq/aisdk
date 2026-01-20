@@ -3,15 +3,53 @@
 
 #[cfg(feature = "openai")]
 pub mod openai;
+#[cfg(feature = "openai")]
+pub use openai::OpenAI;
 
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
+#[cfg(feature = "anthropic")]
+pub use anthropic::Anthropic;
 
 #[cfg(feature = "groq")]
 pub mod groq;
+#[cfg(feature = "groq")]
+pub use groq::Groq;
 
 #[cfg(feature = "google")]
 pub mod google;
+#[cfg(feature = "google")]
+pub use google::Google;
+
+#[cfg(feature = "vercel")]
+pub mod vercel;
+#[cfg(feature = "vercel")]
+pub use vercel::Vercel;
+
+#[cfg(feature = "openrouter")]
+pub mod openrouter;
+#[cfg(feature = "openrouter")]
+pub use openrouter::OpenRouter;
+
+#[cfg(feature = "deepseek")]
+pub mod deepseek;
+#[cfg(feature = "deepseek")]
+pub use deepseek::DeepSeek;
+
+#[cfg(feature = "amazon-bedrock")]
+pub mod amazon_bedrock;
+#[cfg(feature = "amazon-bedrock")]
+pub use amazon_bedrock::AmazonBedrock;
+
+#[cfg(feature = "togetherai")]
+pub mod togetherai;
+#[cfg(feature = "togetherai")]
+pub use togetherai::TogetherAI;
+
+#[cfg(feature = "xai")]
+pub mod xai;
+#[cfg(feature = "xai")]
+pub use xai::XAI;
 
 // Internal module for OpenAI Chat Completions API compatible providers
 #[cfg(feature = "openaichatcompletions")]

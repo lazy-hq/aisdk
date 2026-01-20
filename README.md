@@ -155,6 +155,17 @@ The AISDK prompt feature provides a powerful, file-based template system for man
 - [ ] Image Model Request Support
 - [ ] Voice Model Request Support
 - [ ] Additional Providers
+    - [x] Anthropic
+    - [x] Amazon Bedrock
+    - [x] DeepSeek
+    - [x] Google
+    - [x] Groq
+    - [x] OpenAI
+    - [x] OpenRouter
+    - [x] TogetherAI
+    - [x] Vercel
+    - [x] xAI (Grok)
+    - [ ] more to come...
 
 ## Contributing
 

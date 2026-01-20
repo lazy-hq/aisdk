@@ -22,11 +22,18 @@ def log(message: str):
 
 def print_help(include_description: bool = False):
     """Print help message."""
-    print("Usage: python gen_capabilities.py <provider>")
+    print("Usage: python gen_capabilities.py <provider> [folder_name]")
     print()
-    print("Example: python gen_capabilities.py OpenAI")
+    print("Arguments:")
+    print("  provider      - Provider struct name in PascalCase (e.g., 'OpenRouter', 'AmazonBedrock')")
+    print("  folder_name   - (Optional) Folder name in models.dev (e.g., 'amazon-bedrock')")
     print()
-    print("Note: The provider name must match the Rust provider struct (e.g., 'OpenAI' not 'openai').")
+    print("Examples:")
+    print("  python gen_capabilities.py OpenRouter")
+    print("  python gen_capabilities.py AmazonBedrock amazon-bedrock")
+    print()
+    print("Note: If your provider folder in models.dev doesn't match the lowercase")
+    print("      version of your struct name, provide the folder name as the second argument.")
     if include_description:
         print()
         print("Description:")
@@ -104,14 +111,14 @@ def load_provider_models(root: Path, provider_name: str) -> Dict[str, dict]:
 
 def to_pascal_case(s: str) -> str:
     """Convert string to PascalCase: gpt-3.5-turbo → Gpt35Turbo"""
-    # Replace dots and hyphens with underscores, then PascalCase
-    cleaned = s.replace('.', '_').replace('-', '_')
+    # Replace dots, hyphens, and colons with underscores, then PascalCase
+    cleaned = s.replace('.', '_').replace('-', '_').replace(':', '_')
     return ''.join(word.capitalize() for word in cleaned.split('_') if word)
 
 def to_constructor_name(s: str) -> str:
     """Convert string to lowercase constructor name: gpt-3.5-turbo → gpt_3_5_turbo"""
-    # Replace dots, hyphens, and parentheses with underscores, then lowercase
-    cleaned = s.replace('.', '_').replace('-', '_').replace('(', '_').replace(')', '_')
+    # Replace dots, hyphens, colons, and parentheses with underscores, then lowercase
+    cleaned = s.replace('.', '_').replace('-', '_').replace(':', '_').replace('(', '_').replace(')', '_')
     # Remove consecutive underscores and trailing underscores
     import re
     cleaned = re.sub(r'_+', '_', cleaned).strip('_')
@@ -251,12 +258,17 @@ def main():
         print_help(include_description=True)
         sys.exit(0)
 
-    if len(sys.argv) != 2:
+    if len(sys.argv) == 2:
+        provider_input = sys.argv[1]  # Keep original casing
+        provider_name = provider_input.lower()  # Lowercase for file operations
+        folder_name = provider_name  # Use lowercase version for folder lookup
+    elif len(sys.argv) == 3:
+        provider_input = sys.argv[1]  # Keep original casing for struct name
+        provider_name = provider_input.lower()  # Lowercase for file operations
+        folder_name = sys.argv[2]  # Use provided folder name for models.dev lookup
+    else:
         print_help(include_description=False)
         sys.exit(1)
-
-    provider_input = sys.argv[1]  # Keep original casing
-    provider_name = provider_input.lower()  # Lowercase for file operations
 
     # Determine project root
     root = Path(__file__).resolve().parent.parent
@@ -270,8 +282,8 @@ def main():
         # Ensure models.dev repository is available
         ensure_models_dev(root)
 
-        # Load model configurations
-        models = load_provider_models(root, provider_name)
+        # Load model configurations - use folder_name if provided, otherwise use provider_name
+        models = load_provider_models(root, folder_name)
         if not models:
             raise ValueError(f"No models found for provider '{provider_name}'")
 
