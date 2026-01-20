@@ -41,6 +41,11 @@ pub mod amazon_bedrock;
 #[cfg(feature = "amazon-bedrock")]
 pub use amazon_bedrock::AmazonBedrock;
 
+#[cfg(feature = "togetherai")]
+pub mod togetherai;
+#[cfg(feature = "togetherai")]
+pub use togetherai::TogetherAI;
+
 // Internal module for OpenAI Chat Completions API compatible providers
 #[cfg(feature = "openaichatcompletions")]
 pub(crate) mod openai_chat_completions;
