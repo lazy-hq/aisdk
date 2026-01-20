@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Changelog entries are grouped by type, with the following types:
+
 - `Added` for new features.
 - `Changed` for changes in existing functionality.
 - `Deprecated` for soon-to-be removed features.
@@ -17,11 +18,22 @@ Changelog entries are grouped by type, with the following types:
 ## [Unreleased] - ReleaseDate
 
 ### Added
+
 - Migrate Groq provider to use OpenAI's ChatCompletions API
+- PromptEnv – minimal API: PromptEnv::new(path) → generate_prompt(template_name, variables).
+- Error::PromptError variant for template-rendering failures.
+
+### Removed
+
+- PromptEnvironment, Promptable trait, and Prompt::new constructors removed.
+- Template names passed to generate_prompt must include the file extension (e.g. "system/base.md").
+- PROMPT_DIR env-var and multi-directory override behavior dropped; supply the exact directory path when creating PromptEnv.
+- glob, env, extension-switching, logging, and telemetry internals no longer exposed.
 
 ## [0.3.0] - 2025-12-29
 
 ### Added
+
 - Added `Messages` type alias for `Vec<Message>`.
 - Added seamless integration to work with vercel's ai-sdk-ui.
 - Added seamless integration to work with axum + vercel's ai-sdk ui.
@@ -33,6 +45,7 @@ Changelog entries are grouped by type, with the following types:
 - Automatic retry logic with exponential backoff for rate limit errors (429)
 
 ### Changed
+
 - Model capabilities are now enforced at compile time via marker traits, preventing invalid feature usage (e.g., tool calls on unsupported models).
 - Updated tool macro to require a return type of `Tool`
 - User does not need to import `aisdk::core::tools::ToolExecute` anymore to work with the tool macro
@@ -42,14 +55,15 @@ Changelog entries are grouped by type, with the following types:
 - `Error::ApiError` now uses a struct with `status_code: Option<StatusCode>` and `details: String` fields
 - `LanguageModelResponseContentType::Reasoning` now includes an `extensions` field for provider-specific metadata
 
-
 ### Removed
+
 - Removed the tool macro re-export from `src/core/mod.rs`. User should use `aisdk_macros::tool` directly
 - Removed async-openai dependency
 - `Clone` implementation from `LanguageModelRequest<M>`
 - `Deref` implementation from `StreamTextResponse` (direct field access no longer works)
 
 ### Fixed
+
 - `aisdk-macros` `#[tool]` function unused variable warning even though it is used
 - Anthropic provider API endpoint path corrected from `/messages` to `/v1/messages`
 - Anthropic provider serialization/deserialization issues with tool calls
@@ -58,11 +72,13 @@ Changelog entries are grouped by type, with the following types:
 ## [0.2.1] - 2025-12-02
 
 ### Added
+
 - OpenAI provider add verbosity option to default value
 
 ## [0.2.0] - 2025-12-02
 
 ### Added
+
 - Tooll Call Support
 - Hooks (StopWhen, OnStepStart, OnStepFinish) for Language Model Requests
 - Reasoning message and configuration options
@@ -70,10 +86,12 @@ Changelog entries are grouped by type, with the following types:
 - Groq provider
 
 ### Changed
+
 - Changed standalone (generate_text,stream_text) functions to methods on LanguageModelRequest struct
 - Rebranded to aisdk
 
 <!-- next-url -->
+
 [Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/lazy-hq/aisdk/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/lazy-hq/aisdk/compare/v0.2.0...v0.2.1
