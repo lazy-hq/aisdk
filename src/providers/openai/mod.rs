@@ -66,8 +66,6 @@ impl OpenAI<DynamicModel> {
     /// # Returns
     ///
     /// A configured `OpenAI<DynamicModel>` provider instance with default settings.
-    ///
-    /// ```
     pub fn model_name(name: impl Into<String>) -> Self {
         let settings = OpenAIProviderSettings::default();
         let options = OpenAIOptions::builder().model(name.into()).build().unwrap();
