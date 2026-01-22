@@ -5,6 +5,7 @@ pub mod language_model;
 pub mod settings;
 
 use crate::Error;
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
@@ -23,6 +24,33 @@ impl<M: ModelName> AmazonBedrock<M> {
     /// Amazon Bedrock provider setting builder.
     pub fn builder() -> AmazonBedrockBuilder<M> {
         AmazonBedrockBuilder::default()
+    }
+}
+
+impl AmazonBedrock<DynamicModel> {
+    /// Creates an Amazon Bedrock provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `AmazonBedrock::anthropic_claude_3_5_sonnet_v1_0()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `AmazonBedrock::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Amazon Bedrock model identifier (e.g., "anthropic.claude-3-5-sonnet-20241022-v2:0")
+    ///
+    /// # Returns
+    ///
+    /// A configured `AmazonBedrock<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = AmazonBedrockProviderSettings::default();
+        let inner = OpenAIChatCompletions::<DynamicModel>::model_name(name);
+
+        AmazonBedrock { settings, inner }
     }
 }
 
@@ -108,7 +136,7 @@ impl<M: ModelName> AmazonBedrockBuilder<M> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the configured `AmazonBedrock` provider or an `Error`.
+    /// A `Result` containing the configured `AmazonBedrock<M>` or an `Error`.
     pub fn build(mut self) -> Result<AmazonBedrock<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;
@@ -126,6 +154,27 @@ impl<M: ModelName> AmazonBedrockBuilder<M> {
             settings: self.settings,
             inner: self.inner,
         })
+    }
+}
+
+impl AmazonBedrockBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `AmazonBedrock::anthropic_claude_3_5_sonnet_v1_0()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Amazon Bedrock model identifier (e.g., "anthropic.claude-3-5-sonnet-20241022-v2:0")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.inner.options.model = model_name.into();
+        self
     }
 }
 

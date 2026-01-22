@@ -5,6 +5,7 @@ pub mod language_model;
 pub mod settings;
 
 use crate::Error;
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
@@ -23,6 +24,33 @@ impl<M: ModelName> Vercel<M> {
     /// Vercel provider setting builder.
     pub fn builder() -> VercelBuilder<M> {
         VercelBuilder::default()
+    }
+}
+
+impl Vercel<DynamicModel> {
+    /// Creates a Vercel provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `Vercel::claude_3_5_haiku()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `Vercel::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Vercel model identifier (e.g., "claude-3-5-haiku-2024-10-22")
+    ///
+    /// # Returns
+    ///
+    /// A configured `Vercel<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = VercelProviderSettings::default();
+        let inner = OpenAIChatCompletions::<DynamicModel>::model_name(name);
+
+        Vercel { settings, inner }
     }
 }
 
@@ -107,7 +135,7 @@ impl<M: ModelName> VercelBuilder<M> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the configured `Vercel` provider or an `Error`.
+    /// A `Result` containing the configured `Vercel<M>` or an `Error`.
     pub fn build(mut self) -> Result<Vercel<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;
@@ -125,6 +153,27 @@ impl<M: ModelName> VercelBuilder<M> {
             settings: self.settings,
             inner: self.inner,
         })
+    }
+}
+
+impl VercelBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "openai/gpt-5"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `Vercel::claude_3_5_haiku()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Vercel model identifier (e.g., "openai/gpt-5")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.inner.options.model = model_name.into();
+        self
     }
 }
 

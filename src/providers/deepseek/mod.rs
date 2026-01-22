@@ -5,6 +5,7 @@ pub mod language_model;
 pub mod settings;
 
 use crate::Error;
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
@@ -23,6 +24,33 @@ impl<M: ModelName> DeepSeek<M> {
     /// DeepSeek provider setting builder.
     pub fn builder() -> DeepSeekBuilder<M> {
         DeepSeekBuilder::default()
+    }
+}
+
+impl DeepSeek<DynamicModel> {
+    /// Creates a DeepSeek provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `DeepSeek::deepseek_chat()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `DeepSeek::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The DeepSeek model identifier (e.g., "deepseek-chat")
+    ///
+    /// # Returns
+    ///
+    /// A configured `DeepSeek<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = DeepSeekProviderSettings::default();
+        let inner = OpenAIChatCompletions::<DynamicModel>::model_name(name);
+
+        DeepSeek { settings, inner }
     }
 }
 
@@ -107,7 +135,7 @@ impl<M: ModelName> DeepSeekBuilder<M> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the configured `DeepSeek` provider or an `Error`.
+    /// A `Result` containing the configured `DeepSeek<M>` or an `Error`.
     pub fn build(mut self) -> Result<DeepSeek<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;
@@ -125,6 +153,27 @@ impl<M: ModelName> DeepSeekBuilder<M> {
             settings: self.settings,
             inner: self.inner,
         })
+    }
+}
+
+impl DeepSeekBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "deepseek-chat"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `DeepSeek::deepseek_chat()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The DeepSeek model identifier (e.g., "deepseek-chat")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.inner.options.model = model_name.into();
+        self
     }
 }
 

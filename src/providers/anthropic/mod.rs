@@ -10,6 +10,7 @@ pub mod extensions;
 pub mod language_model;
 pub mod settings;
 
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Error;
@@ -36,6 +37,40 @@ impl<M: ModelName> Anthropic<M> {
     }
 }
 
+impl Anthropic<DynamicModel> {
+    /// Creates an Anthropic provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `Anthropic::claude_sonnet_4_0()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `Anthropic::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Anthropic model identifier (e.g., "claude-sonnet-4-0", "claude-opus-4")
+    ///
+    /// # Returns
+    ///
+    /// A configured `Anthropic<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = AnthropicProviderSettings::default();
+        let options = AnthropicOptions::builder()
+            .model(name.into())
+            .build()
+            .unwrap();
+
+        Anthropic {
+            settings,
+            options,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
 impl<M: ModelName> Default for Anthropic<M> {
     /// Creates a new AnthropAI provider with default settings.
     fn default() -> Self {
@@ -56,6 +91,7 @@ impl<M: ModelName> Default for Anthropic<M> {
 /// Anthropic Provider Builder
 pub struct AnthropicBuilder<M: ModelName> {
     settings: AnthropicProviderSettings,
+    options: AnthropicOptions,
     _phantom: std::marker::PhantomData<M>,
 }
 
@@ -63,11 +99,37 @@ impl<M: ModelName> Default for AnthropicBuilder<M> {
     /// Creates a new AnthropAI provider with default settings.
     fn default() -> Self {
         let settings = AnthropicProviderSettings::default();
+        let options = AnthropicOptions::builder()
+            .model(M::MODEL_NAME.to_string())
+            .build()
+            .unwrap();
 
         Self {
             settings,
+            options,
             _phantom: std::marker::PhantomData,
         }
+    }
+}
+
+impl AnthropicBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "claude-sonnet-4-0", "claude-opus-4"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `Anthropic::claude_sonnet_4_0()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Anthropic model identifier (e.g., "claude-sonnet-4-0", "claude-opus-4")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.options.model = model_name.into();
+        self
     }
 }
 
@@ -130,17 +192,12 @@ impl<M: ModelName> AnthropicBuilder<M> {
             return Err(Error::MissingField("api_key".to_string()));
         }
 
-        let options = AnthropicOptions::builder()
-            .model(M::MODEL_NAME.to_string())
-            .build()
-            .unwrap();
-
         Ok(Anthropic {
             settings: AnthropicProviderSettings {
                 base_url,
                 ..self.settings
             },
-            options,
+            options: self.options,
             _phantom: std::marker::PhantomData,
         })
     }

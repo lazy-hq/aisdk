@@ -10,6 +10,7 @@ pub(crate) mod conversions;
 pub(crate) mod language_model;
 pub mod settings;
 
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use client::ChatCompletionsOptions;
 use settings::OpenAIChatCompletionsSettings;
@@ -32,6 +33,34 @@ impl<M: ModelName> Default for OpenAIChatCompletions<M> {
         let settings = OpenAIChatCompletionsSettings::default();
         let options = ChatCompletionsOptions {
             model: M::MODEL_NAME.to_string(),
+            messages: vec![],
+            ..Default::default()
+        };
+
+        Self {
+            settings,
+            options,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl OpenAIChatCompletions<DynamicModel> {
+    /// Creates an OpenAIChatCompletions provider with a dynamic model name using default settings.
+    ///
+    /// **INTERNAL USE ONLY**: This method is for internal provider implementations.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The model identifier (e.g., "gpt-4o", "llama-3.3-70b-specdec")
+    ///
+    /// # Returns
+    ///
+    /// A configured `OpenAIChatCompletions<DynamicModel>` provider instance.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = OpenAIChatCompletionsSettings::default();
+        let options = ChatCompletionsOptions {
+            model: name.into(),
             messages: vec![],
             ..Default::default()
         };

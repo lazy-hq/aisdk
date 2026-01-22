@@ -5,6 +5,7 @@ pub mod language_model;
 pub mod settings;
 
 use crate::Error;
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
@@ -23,6 +24,33 @@ impl<M: ModelName> Groq<M> {
     /// Groq provider setting builder.
     pub fn builder() -> GroqBuilder<M> {
         GroqBuilder::default()
+    }
+}
+
+impl Groq<DynamicModel> {
+    /// Creates a Groq provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `Groq::llama_3_3_70b_spec_dec()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `Groq::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Groq model identifier (e.g., "llama-3.3-70b-specdec", "mixtral-8x7b-32768")
+    ///
+    /// # Returns
+    ///
+    /// A configured `Groq<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = GroqProviderSettings::default();
+        let inner = OpenAIChatCompletions::<DynamicModel>::model_name(name);
+
+        Groq { settings, inner }
     }
 }
 
@@ -107,7 +135,7 @@ impl<M: ModelName> GroqBuilder<M> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the configured `Groq` provider or an `Error`.
+    /// A `Result` containing the configured `Groq<M>` or an `Error`.
     pub fn build(mut self) -> Result<Groq<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;
@@ -125,6 +153,27 @@ impl<M: ModelName> GroqBuilder<M> {
             settings: self.settings,
             inner: self.inner,
         })
+    }
+}
+
+impl GroqBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "llama-3.3-70b-specdec", "mixtral-8x7b-32768"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `Groq::llama_3_3_70b_spec_dec()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Groq model identifier (e.g., "llama-3.3-70b-specdec", "mixtral-8x7b-32768")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.inner.options.model = model_name.into();
+        self
     }
 }
 
