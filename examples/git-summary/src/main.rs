@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use aisdk::core::LanguageModelRequest;
 use aisdk::prompt;
-use aisdk::providers::openai::OpenAI;
+use aisdk::providers::OpenAI;
 
 mod git_tools {
     use aisdk::core::tools::Tool;

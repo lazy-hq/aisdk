@@ -43,7 +43,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     ///# {
     ///    use aisdk::{
     ///        core::{LanguageModelRequest},
-    ///        providers::openai::OpenAI,
+    ///        providers::OpenAI,
     ///    };
     ///
     ///    async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -23,7 +23,7 @@ use crate::{
 ///
 /// ```rust,no_run
 /// use aisdk::core::{LanguageModelRequest, utils::step_count_is};
-/// // use aisdk::providers::openai::OpenAI; // Requires "openai" feature
+/// // use aisdk::providers::OpenAI; // Requires "openai" feature
 ///
 /// // #[tokio::main]
 /// // async fn main() -> Result<(), Box<dyn std::error::Error>> {

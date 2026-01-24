@@ -40,7 +40,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     ///# {
     ///    use aisdk::{
     ///        core::{LanguageModelRequest, LanguageModelStreamChunkType},
-    ///        providers::openai::OpenAI,
+    ///        providers::OpenAI,
     ///    };
     ///    use futures::StreamExt;
     ///
