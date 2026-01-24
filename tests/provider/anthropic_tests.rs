@@ -14,8 +14,10 @@ generate_language_model_tests!(
     tool_model: Anthropic::claude_haiku_4_5(),
     structured_output_model: Anthropic::claude_haiku_4_5(),
     reasoning_model: Anthropic::claude_haiku_4_5(),
+    embedding_model: Anthropic::claude_haiku_4_5(),
     skip_reasoning: true,
     skip_tool: false,
     skip_structured_output: true,
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

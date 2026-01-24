@@ -4,7 +4,7 @@ use crate::{
     core::{
         capabilities::ModelName,
         client::EmbeddingClient,
-        embedding_model::{EmbeddingModel, EmbeddingModelResponse},
+        embedding_model::{EmbeddingModel, EmbeddingModelOptions, EmbeddingModelResponse},
     },
     providers::openai::OpenAI,
 };
@@ -16,12 +16,23 @@ pub struct OpenAIEmbeddingModelOptions {}
 
 #[async_trait]
 impl<M: ModelName> EmbeddingModel for OpenAI<M> {
-    async fn embed(&self) -> EmbeddingModelResponse {
-        let response = self.send(&self.settings.base_url).await.unwrap();
+    async fn embed(&self, input: EmbeddingModelOptions) -> EmbeddingModelResponse {
+        // Clone self to allow mutation
+        let mut model = self.clone();
 
-        let data = response.data.clone();
-        let data: Vec<Vec<f32>> = data.into_iter().map(|e| e.embedding).collect();
+        // Convert input to OpenAI embedding options
+        let mut options: crate::providers::openai::client::OpenAIEmbeddingOptions = input.into();
 
-        data
+        // Set the model name from the current model
+        options.model = model.embedding_options.model.clone();
+
+        // Update the model's embedding options
+        model.embedding_options = options;
+
+        // Send the request
+        let response = model.send(&model.settings.base_url).await.unwrap();
+
+        // Extract embeddings from response
+        response.data.into_iter().map(|e| e.embedding).collect()
     }
 }

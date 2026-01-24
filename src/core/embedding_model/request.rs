@@ -18,7 +18,12 @@ impl<M: EmbeddingModel> EmbeddingModelRequest<M> {
         EmbeddingModelRequestBuilder::default()
     }
 
+    /// Generates embeddings for the input text.
+    ///
+    /// # Returns
+    ///
+    /// A vector of embedding vectors, where each embedding is a vector of floats.
     pub async fn embed(&self) -> EmbeddingModelResponse {
-        self.model.embed().await
+        self.model.embed(self.input.clone()).await
     }
 }

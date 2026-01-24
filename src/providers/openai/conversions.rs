@@ -33,7 +33,7 @@ impl From<Tool> for types::ToolParams {
     }
 }
 
-impl From<LanguageModelOptions> for client::OpenAIOptions {
+impl From<LanguageModelOptions> for client::OpenAILanguageModelOptions {
     fn from(options: LanguageModelOptions) -> Self {
         let items: Vec<types::InputItem> = options
             .messages
@@ -57,7 +57,7 @@ impl From<LanguageModelOptions> for client::OpenAIOptions {
                 effort: Some(reasoning.into()),
             });
 
-        client::OpenAIOptions {
+        client::OpenAILanguageModelOptions {
             model: "".to_string(), // will be set in mod.rs
             input: Some(types::Input::InputItemList(items)),
             text: Some(types::TextConfig {
@@ -178,9 +178,9 @@ impl From<ReasoningEffort> for types::ReasoningEffort {
     }
 }
 
-impl From<EmbeddingModelOptions> for types::EmbeddingOptions {
+impl From<EmbeddingModelOptions> for types::OpenAIEmbeddingOptions {
     fn from(value: EmbeddingModelOptions) -> Self {
-        Self {
+        types::OpenAIEmbeddingOptions {
             input: value,
             model: "".to_string(), // will be set in mod.rs
             user: None,
@@ -242,9 +242,9 @@ mod tests {
             reasoning_effort: Some(LMReasoningEffort::Low),
             ..Default::default()
         };
-        let create_response: OpenAIOptions = options.into();
-        assert!(create_response.reasoning.is_some());
-        let reasoning = create_response.reasoning.unwrap();
+        let lm_options: OpenAILanguageModelOptions = options.into();
+        assert!(lm_options.reasoning.is_some());
+        let reasoning = lm_options.reasoning.unwrap();
         assert_eq!(reasoning.effort, Some(ReasoningEffort::Minimal));
         assert_eq!(reasoning.summary, Some(SummaryType::Auto));
     }
@@ -255,9 +255,9 @@ mod tests {
             reasoning_effort: Some(LMReasoningEffort::Medium),
             ..Default::default()
         };
-        let create_response: OpenAIOptions = options.into();
-        assert!(create_response.reasoning.is_some());
-        let reasoning = create_response.reasoning.unwrap();
+        let lm_options: OpenAILanguageModelOptions = options.into();
+        assert!(lm_options.reasoning.is_some());
+        let reasoning = lm_options.reasoning.unwrap();
         assert_eq!(reasoning.effort, Some(ReasoningEffort::Medium));
         assert_eq!(reasoning.summary, Some(SummaryType::Auto));
     }
@@ -268,9 +268,9 @@ mod tests {
             reasoning_effort: Some(LMReasoningEffort::High),
             ..Default::default()
         };
-        let create_response: OpenAIOptions = options.into();
-        assert!(create_response.reasoning.is_some());
-        let reasoning = create_response.reasoning.unwrap();
+        let lm_options: OpenAILanguageModelOptions = options.into();
+        assert!(lm_options.reasoning.is_some());
+        let reasoning = lm_options.reasoning.unwrap();
         assert_eq!(reasoning.effort, Some(ReasoningEffort::High));
         assert_eq!(reasoning.summary, Some(SummaryType::Auto));
     }
@@ -281,8 +281,8 @@ mod tests {
             reasoning_effort: None,
             ..Default::default()
         };
-        let create_response: OpenAIOptions = options.into();
-        assert!(create_response.reasoning.is_none());
+        let lm_options: OpenAILanguageModelOptions = options.into();
+        assert!(lm_options.reasoning.is_none());
     }
 
     #[test]

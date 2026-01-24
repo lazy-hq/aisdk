@@ -10,7 +10,7 @@ pub mod settings;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Error;
-use crate::providers::openai::client::OpenAIOptions;
+use crate::providers::openai::client::{OpenAIEmbeddingOptions, OpenAILanguageModelOptions};
 use crate::providers::openai::settings::OpenAIProviderSettings;
 
 /// The OpenAI provider.
@@ -18,7 +18,10 @@ use crate::providers::openai::settings::OpenAIProviderSettings;
 pub struct OpenAI<M: ModelName> {
     /// Configuration settings for the OpenAI provider.
     pub settings: OpenAIProviderSettings,
-    options: OpenAIOptions,
+    /// Options for Language Model
+    pub(crate) lm_options: OpenAILanguageModelOptions,
+    /// Options for Embedding Model
+    pub(crate) embedding_options: OpenAIEmbeddingOptions,
     _phantom: std::marker::PhantomData<M>,
 }
 
@@ -33,14 +36,23 @@ impl<M: ModelName> Default for OpenAI<M> {
     /// Creates a new OpenAI provider with default settings.
     fn default() -> Self {
         let settings = OpenAIProviderSettings::default();
-        let options = OpenAIOptions::builder()
+        let lm_options = OpenAILanguageModelOptions::builder()
             .model(M::MODEL_NAME.to_string())
             .build()
             .unwrap();
 
+        let embedding_options = OpenAIEmbeddingOptions {
+            input: vec![],
+            model: M::MODEL_NAME.to_string(),
+            user: None,
+            dimensions: None,
+            encoding_format: None,
+        };
+
         Self {
             settings,
-            options,
+            lm_options,
+            embedding_options,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -123,17 +135,26 @@ impl<M: ModelName> OpenAIBuilder<M> {
             return Err(Error::MissingField("api_key".to_string()));
         }
 
-        let options = OpenAIOptions::builder()
+        let lm_options = OpenAILanguageModelOptions::builder()
             .model(M::MODEL_NAME.to_string())
             .build()
             .unwrap();
+
+        let embedding_options = OpenAIEmbeddingOptions {
+            input: vec![],
+            model: M::MODEL_NAME.to_string(),
+            user: None,
+            dimensions: None,
+            encoding_format: None,
+        };
 
         Ok(OpenAI {
             settings: OpenAIProviderSettings {
                 base_url,
                 ..self.settings
             },
-            options,
+            lm_options,
+            embedding_options,
             _phantom: std::marker::PhantomData,
         })
     }

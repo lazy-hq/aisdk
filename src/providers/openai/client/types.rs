@@ -1,8 +1,40 @@
+use crate::error::Error;
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
+
+/// Configuration options for OpenAI API requests.
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
+#[builder(setter(into), build_fn(error = "Error"))]
+pub(crate) struct OpenAILanguageModelOptions {
+    pub(crate) model: String,
+    #[builder(default)]
+    pub(crate) input: Option<Input>, // open ai requires input to be set
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) text: Option<TextConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) reasoning: Option<ReasoningConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) max_output_tokens: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) stream: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) top_p: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) tools: Option<Vec<ToolParams>>,
+}
 
 /// Response structure from the OpenAI API.
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
-pub(crate) struct OpenAiResponse {
+pub(crate) struct OpenAIResponse {
     /// Conversation parameters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversation: Option<ConversationParam>,
@@ -33,7 +65,11 @@ pub(crate) struct OpenAiResponse {
     /// Usage statistics.
     pub usage: Option<ResponseUsage>,
 }
-
+impl OpenAILanguageModelOptions {
+    pub(crate) fn builder() -> OpenAILanguageModelOptionsBuilder {
+        OpenAILanguageModelOptionsBuilder::default()
+    }
+}
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[non_exhaustive]
 #[serde(tag = "type")]
@@ -43,13 +79,13 @@ pub(crate) enum OpenAiStreamEvent {
     #[serde(rename = "response.completed")]
     ResponseCompleted {
         sequence_number: u64,
-        response: OpenAiResponse,
+        response: OpenAIResponse,
     },
     /// An event that is emitted when a response finishes as incomplete.
     #[serde(rename = "response.incomplete")]
     ResponseIncomplete {
         sequence_number: u64,
-        response: OpenAiResponse,
+        response: OpenAIResponse,
     },
     /// Emitted when there is an additional text delta.
     #[serde(rename = "response.output_text.delta")]
@@ -399,7 +435,7 @@ pub(crate) struct EmbeddingResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[allow(dead_code)]
-pub struct EmbeddingOptions {
+pub(crate) struct OpenAIEmbeddingOptions {
     // TODO: The input must not exceed the max input tokens for the model
     // (8192 tokens for all embedding models), cannot be an empty string, and
     // any array must be 2048 dimensions or less.
