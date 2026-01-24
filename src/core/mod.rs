@@ -16,6 +16,7 @@ pub mod tools;
 pub mod utils;
 
 // Re-export key components to provide a clean public API.
+pub use capabilities::DynamicModel;
 pub use language_model::{
     LanguageModel, LanguageModelStreamChunkType, generate_text::GenerateTextResponse,
     request::LanguageModelRequest, stream_text::StreamTextResponse,

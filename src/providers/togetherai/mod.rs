@@ -5,6 +5,7 @@ pub mod language_model;
 pub mod settings;
 
 use crate::Error;
+use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Result;
@@ -23,6 +24,33 @@ impl<M: ModelName> TogetherAI<M> {
     /// Together AI provider setting builder.
     pub fn builder() -> TogetherAIBuilder<M> {
         TogetherAIBuilder::default()
+    }
+}
+
+impl TogetherAI<DynamicModel> {
+    /// Creates a Together AI provider with a dynamic model name using default settings.
+    ///
+    /// This allows you to specify the model name as a string rather than
+    /// using methods like `TogetherAI::llama_3_3_70b_spec_dec()`, etc.
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For custom configuration (API key, base URL, etc.), use the builder pattern:
+    /// `TogetherAI::<DynamicModel>::builder().model_name(...).api_key(...).build()`
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Together AI model identifier (e.g., "Llama-3.3-70B-Instruct-Turbo")
+    ///
+    /// # Returns
+    ///
+    /// A configured `TogetherAI<DynamicModel>` provider instance with default settings.
+    pub fn model_name(name: impl Into<String>) -> Self {
+        let settings = TogetherAIProviderSettings::default();
+        let inner = OpenAIChatCompletions::<DynamicModel>::model_name(name);
+
+        TogetherAI { settings, inner }
     }
 }
 
@@ -107,7 +135,7 @@ impl<M: ModelName> TogetherAIBuilder<M> {
     ///
     /// # Returns
     ///
-    /// A `Result` containing the configured `TogetherAI` provider or an `Error`.
+    /// A `Result` containing the configured `TogetherAI<M>` or an `Error`.
     pub fn build(mut self) -> Result<TogetherAI<M>> {
         // validate base url
         let base_url = validate_base_url(&self.settings.base_url)?;
@@ -125,6 +153,27 @@ impl<M: ModelName> TogetherAIBuilder<M> {
             settings: self.settings,
             inner: self.inner,
         })
+    }
+}
+
+impl TogetherAIBuilder<DynamicModel> {
+    /// Sets the model name from a string. e.g., "Llama-3.3-70B-Instruct-Turbo"
+    ///
+    /// **WARNING**: when using `DynamicModel`, model capabilities are not validated.
+    /// This means there is no compile-time guarantee that the model supports requested features.
+    ///
+    /// For compile-time model validation, use the constructor methods like `TogetherAI::llama_3_3_70b_spec_dec()`.
+    ///
+    /// # Parameters
+    ///
+    /// * `model_name` - The Together AI model identifier (e.g., "Llama-3.3-70B-Instruct-Turbo")
+    ///
+    /// # Returns
+    ///
+    /// The builder with the model name set.
+    pub fn model_name(mut self, model_name: impl Into<String>) -> Self {
+        self.inner.options.model = model_name.into();
+        self
     }
 }
 

@@ -47,7 +47,28 @@ pub trait AudioOutputSupport {}
 /// Marker traits for models that support image output.
 pub trait ImageOutputSupport {}
 
-/// Macro to define model capabilities for a provider
+/// A dynamic model that accepts any model name as a string.
+///
+/// Unlike statically-typed models (like `Gpt4o`, `Claude3`, etc.), this model
+/// DynamicModel bypasses compile-time capability checking and allows to set any model name as a string.
+///
+/// # Use Cases
+///
+/// - Loading model names from configuration files or environment variables
+/// - Runtime model selection based on user input
+/// - Supporting custom or fine-tuned models
+/// - Forward compatibility with future models not yet defined in the SDK
+#[derive(Debug, Clone)]
+pub struct DynamicModel {}
+
+impl ModelName for DynamicModel {
+    const MODEL_NAME: &'static str = ""; // model name injected at runtime
+}
+
+/// Macro to define model capabilities for a provider.
+///
+/// This macro generates model struct definitions, trait implementations,
+/// and constructor methods for a provider's supported models.
 #[macro_export]
 macro_rules! model_capabilities {
     (
@@ -68,7 +89,7 @@ macro_rules! model_capabilities {
             #[doc = concat!(
                 "Represents the **",
                 $display_name,
-                "** model.\n\n",
+                "** model.\\n\\n",
                 "- **Model identifier:** `",
                 $model_name,
                 "`"
@@ -111,5 +132,20 @@ macro_rules! model_capabilities {
                 }
             }
         )*
+
+        // Auto-generate capability implementations for Provider<DynamicModel>
+        // This allows runtime model selection with API-validated capabilities
+
+        impl ToolCallSupport for $provider<DynamicModel> {}
+        impl StructuredOutputSupport for $provider<DynamicModel> {}
+        impl ReasoningSupport for $provider<DynamicModel> {}
+        impl TextInputSupport for $provider<DynamicModel> {}
+        impl TextOutputSupport for $provider<DynamicModel> {}
+        impl ImageInputSupport for $provider<DynamicModel> {}
+        impl VideoInputSupport for $provider<DynamicModel> {}
+        impl AudioInputSupport for $provider<DynamicModel> {}
+        impl ImageOutputSupport for $provider<DynamicModel> {}
+        impl VideoOutputSupport for $provider<DynamicModel> {}
+        impl AudioOutputSupport for $provider<DynamicModel> {}
     };
 }

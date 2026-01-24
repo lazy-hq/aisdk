@@ -17,6 +17,7 @@ Changelog entries are grouped by type, with the following types:
 ## [Unreleased] - ReleaseDate
 
 ### Added
+- Added `DynamicModel`, `model_name()` methods to set model name dynamically
 - Added `Vercel AI Geatway` provider
 - Added `OpenRouter` provider
 - Added `DeepSeek` provider

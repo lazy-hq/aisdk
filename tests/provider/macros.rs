@@ -50,7 +50,7 @@ macro_rules! generate_language_model_tests {
     ) => {
         use aisdk::core::tools::ToolExecute;
         use aisdk::core::{
-            LanguageModelRequest, LanguageModelStreamChunkType, Message,
+            DynamicModel, LanguageModelRequest, LanguageModelStreamChunkType, Message,
             language_model::{LanguageModelResponseContentType, StopReason},
             tools::Tool,
         };
@@ -130,6 +130,14 @@ macro_rules! generate_provider_has_default_interface {
                 provider3.unwrap_err().to_string(),
                 "A required field is missing: api_key"
             );
+
+            // should have model_name() method for dynamic model
+            let _provider_dynamic = $provider_type::model_name("test-model".to_string());
+
+            // should have model_name() on dynamic model builder
+            let _provider_dynamic_builder = $provider_type::<DynamicModel>::builder()
+                .model_name("test-model".to_string())
+                .build();
         }
     };
 }
