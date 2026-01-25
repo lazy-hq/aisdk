@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: XAI::grok_3(),
     structured_output_model: XAI::grok_3(),
     reasoning_model: XAI::grok_3_mini(),
+    embedding_model: XAI::grok_3(),
     skip_reasoning: false,
     skip_tool: false,
     skip_structured_output: true,  // xAI doesn't seem to have structured output models
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

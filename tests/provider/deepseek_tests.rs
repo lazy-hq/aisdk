@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: DeepSeek::deepseek_chat(),
     structured_output_model: DeepSeek::deepseek_chat(),
     reasoning_model: DeepSeek::deepseek_reasoner(),
+    embedding_model: DeepSeek::deepseek_chat(),
     skip_reasoning: false,
     skip_tool: false,
     skip_structured_output: true,  // DeepSeek doesn't support structured output
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

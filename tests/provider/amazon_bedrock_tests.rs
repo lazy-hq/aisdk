@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: AmazonBedrock::anthropic_claude_3_5_sonnet_20241022_v2_0(),
     structured_output_model: AmazonBedrock::mistral_mixtral_8x7b_instruct_v0_1(),
     reasoning_model: AmazonBedrock::anthropic_claude_sonnet_4_20250514_v1_0(),
+    embedding_model: AmazonBedrock::anthropic_claude_3_5_haiku_20241022_v1_0(),
     skip_reasoning: false,
     skip_tool: false,
     skip_structured_output: false,
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

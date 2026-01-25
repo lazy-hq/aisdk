@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: OpenRouter::openai_gpt_5_1(),
     structured_output_model: OpenRouter::openai_gpt_5_1(),
     reasoning_model: OpenRouter::openai_o4_mini(),
+    embedding_model: OpenRouter::openai_gpt_5_1(),
     skip_reasoning: true,
     skip_tool: false,
     skip_structured_output: false,
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );
