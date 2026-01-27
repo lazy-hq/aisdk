@@ -181,7 +181,7 @@ impl From<ReasoningEffort> for types::ReasoningEffort {
 impl From<EmbeddingModelOptions> for types::OpenAIEmbeddingOptions {
     fn from(value: EmbeddingModelOptions) -> Self {
         types::OpenAIEmbeddingOptions {
-            input: value,
+            input: value.input,
             model: "".to_string(), // will be set in mod.rs
             user: None,
             dimensions: None, // TODO: add dimensions options to core options

@@ -1175,13 +1175,11 @@ macro_rules! generate_embedding_tests {
             let result = EmbeddingModelRequest::builder()
                 .model($embedding_model)
                 .input(vec!["Hello, world!".to_string()])
+                .dimensions(100)
                 .build()
-                .unwrap()
                 .embed()
                 .await
                 .expect("Embedding request failed");
-
-            dbg!(&result);
 
             // Check that we got back at least one embedding
             assert!(!result.is_empty(), "Expected at least one embedding");
@@ -1191,6 +1189,7 @@ macro_rules! generate_embedding_tests {
                 !result[0].is_empty(),
                 "Expected embedding vector to be non-empty"
             );
+            assert_eq!(dbg!(result.len()), 1);
 
             // Check that all values are valid floats (not NaN or infinity)
             for value in &result[0] {
@@ -1215,7 +1214,6 @@ macro_rules! generate_embedding_tests {
                 .model($embedding_model)
                 .input(inputs.clone())
                 .build()
-                .unwrap()
                 .embed()
                 .await
                 .expect("Embedding request failed");

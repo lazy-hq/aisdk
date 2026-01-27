@@ -180,6 +180,7 @@ impl From<types::UsageMetadata> for Usage {
 impl From<EmbeddingModelOptions> for GoogleEmbeddingOptions {
     fn from(value: EmbeddingModelOptions) -> Self {
         let requests = value
+            .input
             .into_iter()
             .map(|text| types::EmbedContentRequest {
                 model: String::new(), // will be set in embedding_model.rs
