@@ -25,7 +25,8 @@ pub struct OpenAIChatCompletions<M: ModelName> {
     pub settings: OpenAIChatCompletionsSettings,
     /// Request options for the API call
     pub(crate) options: ChatCompletionsOptions,
-    _phantom: std::marker::PhantomData<M>,
+    /// Phantom marker for the model type
+    pub(crate) _phantom: std::marker::PhantomData<M>,
 }
 
 impl<M: ModelName> Default for OpenAIChatCompletions<M> {

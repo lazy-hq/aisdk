@@ -6,9 +6,42 @@ use futures::Stream;
 use futures::StreamExt;
 use reqwest;
 use reqwest::IntoUrl;
+use reqwest::Url;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 use serde::de::DeserializeOwned;
 use std::pin::Pin;
+
+/// Joins a base URL with a path, handling trailing/leading slashes automatically.
+///
+/// This function normalizes the URL components to ensure proper joining:
+/// - Strips trailing slashes from base_url
+/// - Strips leading slashes from path
+/// - Joins them with a single slash
+///
+/// # Examples
+///
+/// ```ignore
+/// // All of these produce "https://api.example.com/v1/chat/completions"
+/// join_url("https://api.example.com/v1", "chat/completions");
+/// join_url("https://api.example.com/v1/", "chat/completions");
+/// join_url("https://api.example.com/v1", "/chat/completions");
+/// join_url("https://api.example.com/v1/", "/chat/completions");
+/// ```
+pub(crate) fn join_url(base_url: impl IntoUrl, path: &str) -> Result<Url> {
+    let base_url = base_url
+        .into_url()
+        .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
+
+    // Normalize: strip trailing slashes from base, strip leading slashes from path
+    let base_str = base_url.as_str().trim_end_matches('/');
+    let path_str = path.trim_start_matches('/');
+
+    // Join with a single slash
+    let full_url = format!("{}/{}", base_str, path_str);
+
+    Url::parse(&full_url)
+        .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))
+}
 
 #[allow(dead_code)]
 pub(crate) trait Client {
@@ -24,13 +57,7 @@ pub(crate) trait Client {
     async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
         let client = reqwest::Client::new();
 
-        let base_url = base_url
-            .into_url()
-            .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
-
-        let url = base_url
-            .join(&self.path())
-            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
+        let url = join_url(base_url, &self.path())?;
 
         let max_retries = 5;
         let mut retry_count = 0;
@@ -95,13 +122,7 @@ pub(crate) trait Client {
     {
         let client = reqwest::Client::new();
 
-        let base_url = base_url
-            .into_url()
-            .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
-
-        let url = base_url
-            .join(&self.path())
-            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
+        let url = join_url(base_url, &self.path())?;
 
         // Establish the event source stream directly
         // Note: Status code errors (including 429) will be surfaced as stream events

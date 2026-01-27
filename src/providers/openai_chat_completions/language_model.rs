@@ -65,10 +65,8 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         let mut options: client::ChatCompletionsOptions = options.into();
         options.model = self.options.model.clone();
         options.stream = Some(true);
-        options.stream_options = Some(types::StreamOptions {
-            include_usage: Some(true),
-            include_obfuscation: Some(false),
-        });
+        // Note: stream_options is not sent to maintain compatibility with
+        // OpenAI-compatible providers that don't support this field (e.g., Z.ai)
         self.options = options;
 
         let stream = self.send_and_stream(&self.settings.base_url).await?;
@@ -83,6 +81,15 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
                 let mut results = Vec::new();
 
                 for choice in chunk.choices {
+                    // Reasoning delta (for reasoning models like o1, DeepSeek R1)
+                    if let Some(reasoning) = choice.delta.reasoning_content
+                        && !reasoning.is_empty()
+                    {
+                        results.push(LanguageModelStreamChunk::Delta(
+                            LanguageModelStreamChunkType::Reasoning(reasoning),
+                        ));
+                    }
+
                     // Text delta
                     if let Some(content) = choice.delta.content
                         && !content.is_empty()
