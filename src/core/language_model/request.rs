@@ -484,6 +484,22 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
+    /// Sets additional HTTP headers to be sent with the request.
+    ///
+    /// Only applicable for HTTP-based providers.
+    ///
+    /// # Parameters
+    ///
+    /// * `headers` - A map of header names to values.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the headers set.
+    pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+        self.headers = Some(headers);
+        self
+    }
+
     /// Builds the `LanguageModelRequest`.
     ///
     /// This method consumes the builder and returns the configured request.

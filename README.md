@@ -138,6 +138,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Custom HTTP Headers
+
+Pass custom HTTP headers to providers for authentication, tracking, or other purposes:
+
+```rust
+use std::collections::HashMap;
+use aisdk::core::LanguageModelRequest;
+use aisdk::providers::OpenAI;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut headers = HashMap::new();
+    headers.insert("X-Custom-Header".to_string(), "my-value".to_string());
+
+    let result = LanguageModelRequest::builder()
+        .model(OpenAI::gpt_4o())
+        .prompt("Hello!")
+        .headers(headers)
+        .build()
+        .generate_text()
+        .await?;
+
+    println!("Response: {:?}", result.text());
+    Ok(())
+}
+```
+
 ### Prompts
 
 The AISDK prompt feature provides a powerful, file-based template system for managing AI prompts using the Tera template engine. It allows you to create reusable prompt templates with variable substitution, conditionals, loops, and template inclusion. See [Examples](https://aisdk.rs/docs/concepts/prompt) for more template examples. Enable with ```cargo add aisdk --features prompt```

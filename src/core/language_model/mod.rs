@@ -20,11 +20,13 @@ use crate::error::{Error, Result};
 use async_trait::async_trait;
 use derive_builder::Builder;
 use futures::Stream;
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use schemars::Schema;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::Add;
 use std::pin::Pin;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 use tokio::sync::mpsc::{self, UnboundedReceiver, UnboundedSender};
@@ -227,6 +229,11 @@ pub struct LanguageModelOptions {
     /// Level of reasoning effort for the model.
     pub reasoning_effort: Option<ReasoningEffort>,
 
+    /// Additional HTTP headers to be sent with the request.
+    ///
+    /// Only applicable for HTTP-based providers.
+    pub headers: Option<HashMap<String, String>>,
+
     /// List of tools to use.
     pub(crate) tools: Option<ToolList>,
 
@@ -255,6 +262,7 @@ impl Debug for LanguageModelOptions {
             .field("stop_sequences", &self.stop_sequences)
             .field("presence_penalty", &self.presence_penalty)
             .field("frequency_penalty", &self.frequency_penalty)
+            .field("headers", &self.headers)
             .field("tools", &self.tools)
             .field("current_step_id", &self.current_step_id)
             .field("stop_when", &self.stop_when.is_some())
@@ -273,6 +281,24 @@ impl LanguageModelOptions {
     /// Returns a vector of all messages in the conversation.
     pub fn messages(&self) -> Messages {
         self.messages.iter().map(|m| m.message.clone()).collect()
+    }
+
+    /// Converts the headers HashMap to a reqwest HeaderMap.
+    ///
+    /// This method is used internally by providers to merge user-provided
+    /// headers with the provider's default headers.
+    pub fn headers_as_header_map(&self) -> HeaderMap {
+        let mut header_map = HeaderMap::new();
+        if let Some(headers) = &self.headers {
+            for (key, value) in headers {
+                if let (Ok(name), Ok(val)) =
+                    (HeaderName::from_str(key), HeaderValue::from_str(value))
+                {
+                    header_map.insert(name, val);
+                }
+            }
+        }
+        header_map
     }
 
     /// Executes a tool call and adds the result to the message history.

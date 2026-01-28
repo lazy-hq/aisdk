@@ -24,11 +24,21 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut options: client::ChatCompletionsOptions = options.into();
-        options.model = self.options.model.clone();
-        self.options = options;
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
 
-        let response: types::ChatCompletionsResponse = self.send(&self.settings.base_url).await?;
+        let mut chat_options: client::ChatCompletionsOptions = options.into();
+        chat_options.model = self.options.model.clone();
+        self.options = chat_options;
+
+        let response: types::ChatCompletionsResponse = self
+            .send(&self.settings.base_url, additional_headers)
+            .await?;
 
         // Convert choices to LanguageModelResponse
         let mut contents = Vec::new();
@@ -62,16 +72,26 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut options: client::ChatCompletionsOptions = options.into();
-        options.model = self.options.model.clone();
-        options.stream = Some(true);
-        options.stream_options = Some(types::StreamOptions {
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
+
+        let mut chat_options: client::ChatCompletionsOptions = options.into();
+        chat_options.model = self.options.model.clone();
+        chat_options.stream = Some(true);
+        chat_options.stream_options = Some(types::StreamOptions {
             include_usage: Some(true),
             include_obfuscation: Some(false),
         });
-        self.options = options;
+        self.options = chat_options;
 
-        let stream = self.send_and_stream(&self.settings.base_url).await?;
+        let stream = self
+            .send_and_stream(&self.settings.base_url, additional_headers)
+            .await?;
 
         // State for accumulating tool calls across chunks
         use std::collections::HashMap;

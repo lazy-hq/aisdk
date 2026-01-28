@@ -16,6 +16,11 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+- Added `headers` parameter to `LanguageModelOptions` for additional HTTP headers
+  - `headers()` method on request builder to set custom HTTP headers per request
+  - Headers are passed through to all HTTP-based providers (OpenAI, Anthropic, Google, etc.)
+
 ## [0.4.0] - 2026-01-24
 
 ### Added
