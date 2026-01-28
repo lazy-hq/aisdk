@@ -3,6 +3,7 @@
 pub mod capabilities;
 pub mod client;
 pub mod conversions;
+pub mod embedding_model;
 pub mod language_model;
 pub mod settings;
 
@@ -10,7 +11,7 @@ use crate::core::DynamicModel;
 use crate::core::capabilities::ModelName;
 use crate::core::utils::validate_base_url;
 use crate::error::Error;
-use crate::providers::openai::client::OpenAIOptions;
+use crate::providers::openai::client::{OpenAIEmbeddingOptions, OpenAILanguageModelOptions};
 use crate::providers::openai::settings::OpenAIProviderSettings;
 
 /// The OpenAI provider.
@@ -18,8 +19,11 @@ use crate::providers::openai::settings::OpenAIProviderSettings;
 pub struct OpenAI<M: ModelName> {
     /// Configuration settings for the OpenAI provider.
     pub settings: OpenAIProviderSettings,
-    options: OpenAIOptions,
-    _phantom: std::marker::PhantomData<M>,
+    /// Options for Language Model
+    pub(crate) lm_options: OpenAILanguageModelOptions,
+    /// Options for Embedding Model
+    pub(crate) embedding_options: OpenAIEmbeddingOptions,
+    pub(crate) _phantom: std::marker::PhantomData<M>,
 }
 
 impl<M: ModelName> OpenAI<M> {
@@ -33,14 +37,23 @@ impl<M: ModelName> Default for OpenAI<M> {
     /// Creates a new OpenAI provider with default settings.
     fn default() -> Self {
         let settings = OpenAIProviderSettings::default();
-        let options = OpenAIOptions::builder()
+        let lm_options = OpenAILanguageModelOptions::builder()
             .model(M::MODEL_NAME.to_string())
             .build()
             .unwrap();
 
+        let embedding_options = OpenAIEmbeddingOptions {
+            input: vec![],
+            model: M::MODEL_NAME.to_string(),
+            user: None,
+            dimensions: None,
+            encoding_format: None,
+        };
+
         Self {
             settings,
-            options,
+            lm_options,
+            embedding_options,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -68,11 +81,23 @@ impl OpenAI<DynamicModel> {
     /// A configured `OpenAI<DynamicModel>` provider instance with default settings.
     pub fn model_name(name: impl Into<String>) -> Self {
         let settings = OpenAIProviderSettings::default();
-        let options = OpenAIOptions::builder().model(name.into()).build().unwrap();
+        let model_name = name.into();
+        let lm_options = OpenAILanguageModelOptions::builder()
+            .model(model_name.clone())
+            .build()
+            .unwrap();
+        let embedding_options = OpenAIEmbeddingOptions {
+            input: vec![],
+            model: model_name,
+            user: None,
+            dimensions: None,
+            encoding_format: None,
+        };
 
         OpenAI {
             settings,
-            options,
+            lm_options,
+            embedding_options,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -81,7 +106,7 @@ impl OpenAI<DynamicModel> {
 /// OpenAI Provider Builder
 pub struct OpenAIBuilder<M: ModelName> {
     settings: OpenAIProviderSettings,
-    options: OpenAIOptions,
+    options: OpenAILanguageModelOptions,
     _phantom: std::marker::PhantomData<M>,
 }
 
@@ -113,7 +138,7 @@ impl<M: ModelName> Default for OpenAIBuilder<M> {
         let settings = OpenAIProviderSettings::default();
 
         // Initialize options with the static model name
-        let options = OpenAIOptions::builder()
+        let options = OpenAILanguageModelOptions::builder()
             .model(M::MODEL_NAME.to_string())
             .build()
             .unwrap();
@@ -185,12 +210,26 @@ impl<M: ModelName> OpenAIBuilder<M> {
             return Err(Error::MissingField("api_key".to_string()));
         }
 
+        let lm_options = OpenAILanguageModelOptions::builder()
+            .model(M::MODEL_NAME.to_string())
+            .build()
+            .unwrap();
+
+        let embedding_options = OpenAIEmbeddingOptions {
+            input: vec![],
+            model: M::MODEL_NAME.to_string(),
+            user: None,
+            dimensions: None,
+            encoding_format: None,
+        };
+
         Ok(OpenAI {
             settings: OpenAIProviderSettings {
                 base_url,
                 ..self.settings
             },
-            options: self.options,
+            lm_options,
+            embedding_options,
             _phantom: std::marker::PhantomData,
         })
     }

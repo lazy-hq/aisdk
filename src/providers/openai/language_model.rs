@@ -1,13 +1,13 @@
 //! Language model implementation for the OpenAI provider.
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::Client;
+use crate::core::client::LanguageModelClient;
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream, Usage,
 };
 use crate::core::messages::AssistantMessage;
-use crate::providers::openai::client::{OpenAIOptions, types};
+use crate::providers::openai::client::{OpenAILanguageModelOptions, types};
 use crate::providers::openai::{OpenAI, client};
 use crate::{
     core::{language_model::LanguageModel, tools::ToolCallInfo},
@@ -20,7 +20,7 @@ use futures::StreamExt;
 impl<M: ModelName> LanguageModel for OpenAI<M> {
     /// Returns the name of the model.
     fn name(&self) -> String {
-        self.options.model.clone()
+        self.lm_options.model.clone()
     }
 
     /// Generates text using the OpenAI provider.
@@ -28,12 +28,13 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut options: OpenAIOptions = options.into();
-        options.model = self.options.model.clone();
+        let mut options: OpenAILanguageModelOptions = options.into();
 
-        self.options = options;
+        options.model = self.lm_options.model.clone();
 
-        let response: client::OpenAiResponse = self.send(&self.settings.base_url).await?;
+        self.lm_options = options;
+
+        let response: client::OpenAIResponse = self.send(&self.settings.base_url).await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -69,11 +70,12 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
     /// Streams text using the OpenAI provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut options: OpenAIOptions = options.into();
-        options.model = self.options.model.to_string();
+        let mut options: OpenAILanguageModelOptions = options.into();
+
+        options.model = self.lm_options.model.to_string();
         options.stream = Some(true);
 
-        self.options = options;
+        self.lm_options = options;
 
         // Retry logic for rate limiting
         let max_retries = 5;

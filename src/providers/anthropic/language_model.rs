@@ -1,7 +1,7 @@
 //! Language model implementation for the Anthropic provider.
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::Client;
+use crate::core::client::LanguageModelClient;
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, ProviderStream,

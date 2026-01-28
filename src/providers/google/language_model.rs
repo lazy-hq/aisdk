@@ -1,6 +1,6 @@
 //! Language model implementation for the Google provider.
 use crate::core::capabilities::ModelName;
-use crate::core::client::Client;
+use crate::core::client::LanguageModelClient;
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream, Usage,
@@ -17,7 +17,7 @@ use futures::StreamExt;
 #[async_trait]
 impl<M: ModelName> LanguageModel for Google<M> {
     fn name(&self) -> String {
-        self.options.model.clone()
+        self.lm_options.model.clone()
     }
 
     async fn generate_text(
@@ -25,8 +25,8 @@ impl<M: ModelName> LanguageModel for Google<M> {
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
         let request: types::GenerateContentRequest = options.into();
-        self.options.request = Some(request);
-        self.options.streaming = false;
+        self.lm_options.request = Some(request);
+        self.lm_options.streaming = false;
 
         let response: types::GenerateContentResponse = self.send(&self.settings.base_url).await?;
 
@@ -60,8 +60,8 @@ impl<M: ModelName> LanguageModel for Google<M> {
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let request: types::GenerateContentRequest = options.into();
-        self.options.request = Some(request);
-        self.options.streaming = true;
+        self.lm_options.request = Some(request);
+        self.lm_options.streaming = true;
 
         // Retry logic for rate limiting
         let max_retries = 5;

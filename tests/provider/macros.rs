@@ -1,7 +1,7 @@
 /// Main macro to generate all language model provider integration tests.
 ///
 /// This macro generates a comprehensive suite of tests for a language model provider,
-/// including basic functionality, streaming, tools, structured output, and error handling.
+/// including basic functionality, streaming, tools, structured output, error handling, and embeddings.
 ///
 /// # Parameters
 ///
@@ -12,10 +12,12 @@
 /// * `tool_model: $tool_model:expr` - Expression for the model instance used in tool tests
 /// * `structured_output_model: $structured_output_model:expr` - Expression for the model instance used in structured output tests
 /// * `reasoning_model: $reasoning_model:expr` - Expression for the model instance used in reasoning tests
+/// * `embedding_model: $embedding_model:expr` - Expression for the model instance used in embedding tests
 /// * `skip_reasoning: $skip_reasoning:tt` - Bool literal to skip reasoning tests at compile time
 /// * `skip_tool: $skip_tool:tt` - Bool literal to skip tool tests at compile time
 /// * `skip_structured_output: $skip_structured_output:tt` - Bool literal to skip structured output tests at compile time
 /// * `skip_streaming: $skip_streaming:tt` - Bool literal to skip streaming tests at compile time
+/// * `skip_embedding: $skip_embedding:tt` - Bool literal to skip embedding tests at compile time
 ///
 /// # Example
 ///
@@ -28,10 +30,12 @@
 ///     tool_model: OpenAI::gpt_5_nano(),
 ///     structured_output_model: OpenAI::gpt_5_nano(),
 ///     reasoning_model: OpenAI::gpt_5_nano(),
+///     embedding_model: OpenAI::text_embedding_3_small(),
 ///     skip_reasoning: true,
 ///     skip_tool: false,
 ///     skip_structured_output: false,
-///     skip_streaming: false
+///     skip_streaming: false,
+///     skip_embedding: false
 /// );
 ///
 macro_rules! generate_language_model_tests {
@@ -43,10 +47,12 @@ macro_rules! generate_language_model_tests {
         tool_model: $tool_model:expr,
         structured_output_model: $structured_output_model:expr,
         reasoning_model: $reasoning_model:expr,
+        embedding_model: $embedding_model:expr,
         skip_reasoning: $skip_reasoning:tt,
         skip_tool: $skip_tool:tt,
         skip_structured_output: $skip_structured_output:tt,
-        skip_streaming: $skip_streaming:tt
+        skip_streaming: $skip_streaming:tt,
+        skip_embedding: $skip_embedding:tt
     ) => {
         use aisdk::core::tools::ToolExecute;
         use aisdk::core::{
@@ -82,6 +88,7 @@ macro_rules! generate_language_model_tests {
         generate_language_model_tool_tests!($tool_model, $skip_tool);
         generate_language_model_schema_tests!($structured_output_model, $skip_structured_output);
         generate_language_model_reasoning_tests!($reasoning_model, $skip_reasoning);
+        generate_embedding_tests!($embedding_model, $skip_embedding);
     };
 }
 
@@ -1059,6 +1066,7 @@ macro_rules! generate_language_model_step_id_tests {
 
             let result = LanguageModelRequest::builder()
                 .model($default_model)
+                .system("Do the exact instructions you are told")
                 .prompt("Respond with exactly 'test' in lowercase.")
                 .build()
                 .generate_text()
@@ -1109,6 +1117,7 @@ macro_rules! generate_language_model_step_id_tests {
 
             let response = LanguageModelRequest::builder()
                 .model($default_model)
+                .system("Do the exact instructions you are told")
                 .prompt("Respond with 'stream test'")
                 .build()
                 .stream_text()
@@ -1147,6 +1156,92 @@ macro_rules! generate_language_model_reasoning_tests {
             .map(|future| tokio::runtime::Handle::current().block_on(future));
 
             assert!(result.is_err());
+        }
+    };
+}
+
+/// Generate embedding tests
+macro_rules! generate_embedding_tests {
+    ($embedding_model:expr, true) => {
+        // Skipping embedding tests: provider doesn't support embeddings
+    };
+    ($embedding_model:expr, false) => {
+        use aisdk::core::embedding_model::EmbeddingModelRequest;
+
+        #[tokio::test]
+        async fn test_single_embedding_request() {
+            skip_if_no_api_key!();
+
+            let result = EmbeddingModelRequest::builder()
+                .model($embedding_model)
+                .input(vec!["Hello, world!".to_string()])
+                .dimensions(100)
+                .build()
+                .embed()
+                .await
+                .expect("Embedding request failed");
+
+            // Check that we got back at least one embedding
+            assert!(!result.is_empty(), "Expected at least one embedding");
+
+            // Check that the first embedding is a vector of floats
+            assert!(
+                !result[0].is_empty(),
+                "Expected embedding vector to be non-empty"
+            );
+            assert_eq!(dbg!(result.len()), 1);
+
+            // Check that all values are valid floats (not NaN or infinity)
+            for value in &result[0] {
+                assert!(
+                    value.is_finite(),
+                    "Embedding values should be finite floats"
+                );
+            }
+        }
+
+        #[tokio::test]
+        async fn test_embedding_with_multiple_inputs() {
+            skip_if_no_api_key!();
+
+            let inputs = vec![
+                "Hello, world!".to_string(),
+                "This is a test".to_string(),
+                "Multiple embeddings".to_string(),
+            ];
+
+            let result = EmbeddingModelRequest::builder()
+                .model($embedding_model)
+                .input(inputs.clone())
+                .build()
+                .embed()
+                .await
+                .expect("Embedding request failed");
+
+            dbg!(&result);
+
+            // Check that we got back embeddings for all inputs
+            assert_eq!(
+                result.len(),
+                inputs.len(),
+                "Expected {} embeddings, got {}",
+                inputs.len(),
+                result.len()
+            );
+
+            // Check that each embedding is a valid vector of floats
+            for (i, embedding) in result.iter().enumerate() {
+                assert!(!embedding.is_empty(), "Embedding {} should not be empty", i);
+
+                for (j, value) in embedding.iter().enumerate() {
+                    assert!(
+                        value.is_finite(),
+                        "Embedding {} value {} should be a finite float",
+                        i,
+                        j
+                    );
+                }
+            }
         }
     };
 }

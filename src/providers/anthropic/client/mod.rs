@@ -10,7 +10,7 @@ use reqwest_eventsource::Event;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    core::client::Client,
+    core::client::LanguageModelClient,
     providers::anthropic::{ANTHROPIC_API_VERSION, Anthropic},
 };
 
@@ -54,7 +54,7 @@ impl AnthropicOptions {
     }
 }
 
-impl<M: ModelName> Client for Anthropic<M> {
+impl<M: ModelName> LanguageModelClient for Anthropic<M> {
     type Response = AnthropicMessageResponse;
     type StreamEvent = AnthropicStreamEvent;
 

@@ -6,52 +6,14 @@ pub(crate) mod types;
 
 pub(crate) use types::*;
 
-use crate::core::client::Client;
+use crate::core::client::{EmbeddingClient, LanguageModelClient};
 use crate::error::Error;
 use crate::providers::openai::{ModelName, OpenAI};
-use derive_builder::Builder;
 use reqwest::header::CONTENT_TYPE;
 use reqwest_eventsource::Event;
-use serde::{Deserialize, Serialize};
 
-/// Configuration options for OpenAI API requests.
-#[derive(Debug, Default, Clone, Serialize, Deserialize, Builder)]
-#[builder(setter(into), build_fn(error = "Error"))]
-pub(crate) struct OpenAIOptions {
-    pub(crate) model: String,
-    #[builder(default)]
-    pub(crate) input: Option<Input>, // open ai requires input to be set
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) text: Option<types::TextConfig>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) reasoning: Option<types::ReasoningConfig>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) temperature: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) max_output_tokens: Option<usize>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) stream: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) top_p: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[builder(default)]
-    pub(crate) tools: Option<Vec<ToolParams>>,
-}
-
-impl OpenAIOptions {
-    pub(crate) fn builder() -> OpenAIOptionsBuilder {
-        OpenAIOptionsBuilder::default()
-    }
-}
-
-impl<M: ModelName> Client for OpenAI<M> {
-    type Response = types::OpenAiResponse;
+impl<M: ModelName> LanguageModelClient for OpenAI<M> {
+    type Response = types::OpenAIResponse;
     type StreamEvent = types::OpenAiStreamEvent;
 
     fn path(&self) -> String {
@@ -82,7 +44,7 @@ impl<M: ModelName> Client for OpenAI<M> {
     }
 
     fn body(&self) -> reqwest::Body {
-        let body = serde_json::to_string(&self.options).unwrap();
+        let body = serde_json::to_string(&self.lm_options).unwrap();
         reqwest::Body::from(body)
     }
 
@@ -125,5 +87,41 @@ impl<M: ModelName> Client for OpenAI<M> {
         matches!(event, types::OpenAiStreamEvent::ResponseCompleted { .. })
             || matches!(event, types::OpenAiStreamEvent::NotSupported(json) if json == "[END]")
             || matches!(event, types::OpenAiStreamEvent::ResponseError { .. })
+    }
+}
+
+impl<M: ModelName> EmbeddingClient for OpenAI<M> {
+    type Response = types::EmbeddingResponse;
+
+    fn path(&self) -> String {
+        "/v1/embeddings".to_string()
+    }
+
+    fn method(&self) -> reqwest::Method {
+        reqwest::Method::POST
+    }
+
+    fn headers(&self) -> reqwest::header::HeaderMap {
+        // Default headers
+        let mut default_headers = reqwest::header::HeaderMap::new();
+        default_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+        // Authorization
+        default_headers.insert(
+            "Authorization",
+            format!("Bearer {}", self.settings.api_key.clone())
+                .parse()
+                .unwrap(),
+        );
+
+        default_headers
+    }
+
+    fn query_params(&self) -> Vec<(&str, &str)> {
+        Vec::new()
+    }
+
+    fn body(&self) -> reqwest::Body {
+        let body = serde_json::to_string(&self.embedding_options).unwrap();
+        reqwest::Body::from(body)
     }
 }

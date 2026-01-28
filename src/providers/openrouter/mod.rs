@@ -1,6 +1,7 @@
 //! This module provides the OpenRouter provider, wrapping OpenAI Chat Completions for OpenRouter requests.
 
 pub mod capabilities;
+pub mod embedding_model;
 pub mod language_model;
 pub mod settings;
 

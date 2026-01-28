@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: Groq::qwen_qwen3_32b(),
     structured_output_model: Groq::qwen_qwen3_32b(),
     reasoning_model: Groq::openai_gpt_oss_120b(),
+    embedding_model: Groq::qwen_qwen3_32b(),
     skip_reasoning: true,
     skip_tool: false,
     skip_structured_output: true,
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

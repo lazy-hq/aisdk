@@ -1,6 +1,7 @@
 //! This module provides the Vercel provider, wrapping OpenAI Chat Completions for Vercel requests.
 
 pub mod capabilities;
+pub mod embedding_model;
 pub mod language_model;
 pub mod settings;
 

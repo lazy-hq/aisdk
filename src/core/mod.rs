@@ -9,6 +9,7 @@
 
 pub mod capabilities;
 pub mod client;
+pub mod embedding_model;
 pub mod language_model;
 pub mod messages;
 pub mod provider;
@@ -21,6 +22,8 @@ pub use language_model::{
     LanguageModel, LanguageModelStreamChunkType, generate_text::GenerateTextResponse,
     request::LanguageModelRequest, stream_text::StreamTextResponse,
 };
+
+pub use embedding_model::EmbeddingModel;
 
 pub use messages::{AssistantMessage, Message, Messages, Role, SystemMessage, UserMessage};
 pub use provider::Provider;

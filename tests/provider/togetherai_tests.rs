@@ -13,8 +13,10 @@ generate_language_model_tests!(
     tool_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
     structured_output_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
     reasoning_model: TogetherAI::deepseek_ai_deepseek_r1(),
+    embedding_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
     skip_reasoning: false,
     skip_tool: false,
     skip_structured_output: true,  // Together AI doesn't seem to have structured output models
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: true
 );

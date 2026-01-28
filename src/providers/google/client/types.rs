@@ -327,3 +327,34 @@ pub(crate) enum GoogleStreamEvent {
     Response(GenerateContentResponse),
     NotSupported(String),
 }
+
+// Embedding types
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct BatchEmbedContentsRequest {
+    pub(crate) requests: Vec<EmbedContentRequest>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct EmbedContentRequest {
+    pub(crate) model: String,
+    pub(crate) content: Content,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) task_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) output_dimensionality: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct BatchEmbedContentsResponse {
+    pub(crate) embeddings: Vec<ContentEmbedding>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct ContentEmbedding {
+    pub(crate) values: Vec<f32>,
+}

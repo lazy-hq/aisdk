@@ -1,7 +1,9 @@
 //! Conversions between types used by the Google provider and the types used by the core library.
+use crate::core::embedding_model::EmbeddingModelOptions;
 use crate::core::language_model::{LanguageModelOptions, LanguageModelResponseContentType, Usage};
 use crate::core::messages::{Message, TaggedMessage};
 use crate::core::tools::Tool;
+use crate::providers::google::client::GoogleEmbeddingOptions;
 use crate::providers::google::client::types::{
     self, Content, FunctionDeclaration, GenerateContentRequest, Part, Role,
 };
@@ -171,6 +173,33 @@ impl From<types::UsageMetadata> for Usage {
             output_tokens: Some(value.candidates_token_count as usize),
             reasoning_tokens: None, // Gemini doesn't separate reasoning tokens in UsageMetadata v1beta
             cached_tokens: None,
+        }
+    }
+}
+
+impl From<EmbeddingModelOptions> for GoogleEmbeddingOptions {
+    fn from(value: EmbeddingModelOptions) -> Self {
+        let requests = value
+            .input
+            .into_iter()
+            .map(|text| types::EmbedContentRequest {
+                model: String::new(), // will be set in embedding_model.rs
+                content: Content {
+                    role: Role::User,
+                    parts: vec![Part {
+                        text: Some(text),
+                        ..Default::default()
+                    }],
+                },
+                task_type: None,
+                title: None,
+                output_dimensionality: None,
+            })
+            .collect();
+
+        GoogleEmbeddingOptions {
+            model: String::new(), // will be set in embedding_model.rs
+            requests,
         }
     }
 }

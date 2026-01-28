@@ -11,7 +11,7 @@ use serde::de::DeserializeOwned;
 use std::pin::Pin;
 
 #[allow(dead_code)]
-pub(crate) trait Client {
+pub(crate) trait LanguageModelClient {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
     type StreamEvent: DeserializeOwned + std::fmt::Debug + Clone;
 
@@ -137,5 +137,73 @@ pub(crate) trait Client {
         });
 
         Ok(Box::pin(stream))
+    }
+}
+
+/// Trait for embedding model clients to interact with embedding APIs.
+#[allow(dead_code)]
+pub(crate) trait EmbeddingClient {
+    type Response: DeserializeOwned + std::fmt::Debug + Clone;
+
+    fn path(&self) -> String;
+    fn method(&self) -> reqwest::Method;
+    fn query_params(&self) -> Vec<(&str, &str)>;
+    fn body(&self) -> reqwest::Body;
+    fn headers(&self) -> reqwest::header::HeaderMap;
+
+    async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
+        let client = reqwest::Client::new();
+
+        let base_url = base_url
+            .into_url()
+            .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
+
+        let url = base_url
+            .join(&self.path())
+            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
+
+        let max_retries = 5;
+        let mut retry_count = 0;
+        let mut wait_time = std::time::Duration::from_secs(1);
+
+        loop {
+            let resp = client
+                .request(self.method(), url.clone())
+                .headers(self.headers())
+                .query(&self.query_params())
+                .body(self.body())
+                .send()
+                .await
+                .map_err(|e| Error::ApiError {
+                    status_code: e.status(),
+                    details: e.to_string(),
+                })?;
+
+            let status = resp.status();
+            let resp_text = resp.text().await.map_err(|e| Error::ApiError {
+                status_code: e.status(),
+                details: format!("Failed to read response: {}", e),
+            })?;
+
+            if status.is_success() {
+                return serde_json::from_str(&resp_text).map_err(|e| Error::ApiError {
+                    status_code: Some(status),
+                    details: format!("Failed to parse response: {}", e),
+                });
+            }
+
+            // Check for 429 rate limit error and retry
+            if status == reqwest::StatusCode::TOO_MANY_REQUESTS && retry_count < max_retries {
+                retry_count += 1;
+                tokio::time::sleep(wait_time).await;
+                wait_time *= 2; // Exponential backoff
+                continue;
+            }
+
+            return Err(Error::ApiError {
+                status_code: Some(status),
+                details: resp_text,
+            });
+        }
     }
 }

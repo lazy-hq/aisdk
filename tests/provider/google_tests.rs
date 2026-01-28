@@ -14,8 +14,10 @@ generate_language_model_tests!(
     tool_model:  Google::gemini_3_flash_preview(),
     structured_output_model:  Google::gemini_3_flash_preview(),
     reasoning_model: Google::gemini_3_flash_preview(),
+    embedding_model: Google::gemini_embedding_001(),
     skip_reasoning: true,
     skip_tool: false,
     skip_structured_output: false,
-    skip_streaming: false
+    skip_streaming: false,
+    skip_embedding: false
 );

@@ -1,6 +1,7 @@
 //! This module provides the Together AI provider, wrapping OpenAI Chat Completions for Together AI requests.
 
 pub mod capabilities;
+pub mod embedding_model;
 pub mod language_model;
 pub mod settings;
 

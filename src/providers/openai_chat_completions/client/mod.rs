@@ -5,14 +5,14 @@ pub(crate) mod types;
 pub(crate) use types::ChatCompletionsOptions;
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::Client;
+use crate::core::client::LanguageModelClient;
 use crate::error::Error;
 use crate::providers::openai_chat_completions::OpenAIChatCompletions;
 use reqwest::header::CONTENT_TYPE;
 use reqwest_eventsource::Event;
 use types::*;
 
-impl<M: ModelName> Client for OpenAIChatCompletions<M> {
+impl<M: ModelName> LanguageModelClient for OpenAIChatCompletions<M> {
     type Response = ChatCompletionsResponse;
     type StreamEvent = ChatCompletionsStreamEvent;
 
