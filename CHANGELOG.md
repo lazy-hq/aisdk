@@ -25,6 +25,9 @@ Changelog entries are grouped by type, with the following types:
 - Added embedding support to `OpenRouter` provider (delegates to OpenAI)
 - Added embedding support to `TogetherAI` provider (delegates to OpenAI)
 - Added embedding support to `Vercel` provider (delegates to OpenAI)
+- Added `openai_compatible` provider. (#76) by @Blankeos
+
+### Changed
 
 ## [0.4.0] - 2026-01-24
 

@@ -21,7 +21,7 @@ impl Default for OpenRouterProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "OpenRouter".to_string(),
-            base_url: "https://openrouter.ai/api/".to_string(),
+            base_url: "https://openrouter.ai/api/v1".to_string(),
             api_key: std::env::var("OPENROUTER_API_KEY").unwrap_or_default(),
         }
     }

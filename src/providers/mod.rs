@@ -6,6 +6,16 @@ pub mod openai;
 #[cfg(feature = "openai")]
 pub use openai::OpenAI;
 
+// Internal module for OpenAI Chat Completions API compatible providers
+#[cfg(feature = "openaichatcompletions")]
+pub(crate) mod openai_chat_completions;
+
+// Public OpenAI-compatible provider
+#[cfg(feature = "openaichatcompletions")]
+pub mod openai_compatible;
+#[cfg(feature = "openaichatcompletions")]
+pub use openai_compatible::OpenAICompatible;
+
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
 #[cfg(feature = "anthropic")]
@@ -50,7 +60,3 @@ pub use togetherai::TogetherAI;
 pub mod xai;
 #[cfg(feature = "xai")]
 pub use xai::XAI;
-
-// Internal module for OpenAI Chat Completions API compatible providers
-#[cfg(feature = "openaichatcompletions")]
-pub(crate) mod openai_chat_completions;

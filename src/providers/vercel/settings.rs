@@ -21,7 +21,7 @@ impl Default for VercelProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "Vercel".to_string(),
-            base_url: "https://ai-gateway.vercel.sh/".to_string(),
+            base_url: "https://ai-gateway.vercel.sh/v1".to_string(),
             api_key: std::env::var("AI_GATEWAY_API_KEY").unwrap_or_default(),
         }
     }

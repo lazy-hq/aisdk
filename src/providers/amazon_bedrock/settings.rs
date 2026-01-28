@@ -22,7 +22,7 @@ impl Default for AmazonBedrockProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "AmazonBedrock".to_string(),
-            base_url: "https://bedrock-runtime.us-east-1.amazonaws.com/openai/".to_string(),
+            base_url: "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1".to_string(),
             api_key: std::env::var("BEDROCK_API_KEY").unwrap_or_default(),
         }
     }

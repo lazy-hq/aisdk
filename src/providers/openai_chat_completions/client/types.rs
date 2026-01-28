@@ -294,6 +294,10 @@ pub(crate) struct Delta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
 
+    /// Reasoning content for reasoning models (e.g., OpenAI o1, DeepSeek R1)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_content: Option<String>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_calls: Option<Vec<DeltaToolCall>>,
 }

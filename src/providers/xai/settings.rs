@@ -21,7 +21,7 @@ impl Default for XAISettings {
     fn default() -> Self {
         Self {
             provider_name: "xAI".to_string(),
-            base_url: "https://api.x.ai/".to_string(),
+            base_url: "https://api.x.ai/v1".to_string(),
             api_key: std::env::var("XAI_API_KEY").unwrap_or_default(),
         }
     }

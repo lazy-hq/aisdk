@@ -23,7 +23,7 @@ impl Default for OpenAIChatCompletionsSettings {
     fn default() -> Self {
         Self {
             provider_name: "openai-chat".to_string(),
-            base_url: "https://api.openai.com".to_string(),
+            base_url: "https://api.openai.com/v1".to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
         }
     }

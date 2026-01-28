@@ -17,7 +17,7 @@ impl<M: ModelName> LanguageModelClient for OpenAIChatCompletions<M> {
     type StreamEvent = ChatCompletionsStreamEvent;
 
     fn path(&self) -> String {
-        "v1/chat/completions".to_string()
+        "chat/completions".to_string()
     }
 
     fn method(&self) -> reqwest::Method {

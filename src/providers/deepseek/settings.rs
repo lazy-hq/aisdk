@@ -21,7 +21,7 @@ impl Default for DeepSeekProviderSettings {
     fn default() -> Self {
         Self {
             provider_name: "DeepSeek".to_string(),
-            base_url: "https://api.deepseek.com/v1/".to_string(),
+            base_url: "https://api.deepseek.com/v1".to_string(),
             api_key: std::env::var("DEEPSEEK_API_KEY").unwrap_or_default(),
         }
     }
