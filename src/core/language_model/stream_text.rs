@@ -7,13 +7,81 @@ use crate::core::{
         LanguageModel, LanguageModelOptions, LanguageModelResponseContentType, LanguageModelStream,
         LanguageModelStreamChunk, Step, StopReason, Usage, request::LanguageModelRequest,
     },
-    messages::TaggedMessage,
+    messages::{TaggedMessage, TaggedMessageHelpers},
+    tools::{ToolApprovalRequest, ToolApprovalResponse},
     utils::resolve_message,
 };
 use crate::error::Result;
 use futures::StreamExt;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+
+// ============================================================================
+// Section: Tool Approval Helpers (mirrored from generate_text.rs)
+// ============================================================================
+
+/// Result of collecting tool approvals from messages.
+#[derive(Debug, Default)]
+struct CollectedApprovals {
+    /// Tool calls that were approved and should be executed.
+    approved: Vec<(ToolApprovalRequest, ToolApprovalResponse)>,
+    /// Tool calls that were denied and should not be executed.
+    denied: Vec<(ToolApprovalRequest, ToolApprovalResponse)>,
+}
+
+/// Collects tool approval responses from messages and matches them with pending requests.
+fn collect_tool_approvals(messages: &[TaggedMessage]) -> CollectedApprovals {
+    let mut result = CollectedApprovals::default();
+
+    // Find all pending approval requests
+    let pending_requests: Vec<ToolApprovalRequest> = messages
+        .extract_tool_approval_requests()
+        .unwrap_or_default();
+
+    // Find all approval responses
+    let responses: Vec<ToolApprovalResponse> = messages
+        .extract_tool_approval_responses()
+        .unwrap_or_default();
+
+    // Build a map of approval_id -> response for quick lookup
+    let response_map: HashMap<String, ToolApprovalResponse> = responses
+        .into_iter()
+        .map(|r| (r.approval_id.clone(), r))
+        .collect();
+
+    // Match requests with responses
+    for request in pending_requests {
+        if let Some(response) = response_map.get(&request.approval_id) {
+            if response.approved {
+                result.approved.push((request, response.clone()));
+            } else {
+                result.denied.push((request, response.clone()));
+            }
+        }
+    }
+
+    result
+}
+
+/// Checks if there are any pending approval requests that haven't been responded to.
+fn has_pending_approval_requests(messages: &[TaggedMessage]) -> bool {
+    let pending_requests: Vec<ToolApprovalRequest> = messages
+        .extract_tool_approval_requests()
+        .unwrap_or_default();
+
+    let responses: Vec<ToolApprovalResponse> = messages
+        .extract_tool_approval_responses()
+        .unwrap_or_default();
+
+    let response_ids: std::collections::HashSet<_> =
+        responses.iter().map(|r| &r.approval_id).collect();
+
+    // Check if any request doesn't have a matching response
+    pending_requests
+        .iter()
+        .any(|req| !response_ids.contains(&req.approval_id))
+}
 
 impl<M: LanguageModel> LanguageModelRequest<M> {
     /// Streams text generation and tool execution using the language model.
@@ -89,6 +157,45 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
 
         let thread_options = options.clone();
         tokio::spawn(async move {
+            // Process any pending tool approvals at the start
+            {
+                let mut options = thread_options.lock().await;
+                let collected = collect_tool_approvals(&options.messages);
+
+                // Execute approved tools
+                for (request, _response) in collected.approved {
+                    options.handle_tool_call(&request.tool_call).await;
+                }
+
+                // Add denial info for denied tools
+                for (request, response) in collected.denied {
+                    let denial_message = response
+                        .reason
+                        .unwrap_or_else(|| "Tool execution was denied by user".to_string());
+                    let mut tool_result = ToolResultInfo::new(&request.tool_call.tool.name);
+                    tool_result.id(&request.tool_call.tool.id);
+                    tool_result.output = Ok(serde_json::Value::String(format!(
+                        "Tool execution denied: {}",
+                        denial_message
+                    )));
+                    let step_id = options.current_step_id;
+                    options
+                        .messages
+                        .push(TaggedMessage::new(step_id, Message::Tool(tool_result)));
+                }
+
+                // Check if there are still pending approvals
+                if has_pending_approval_requests(&options.messages) {
+                    options.stop_reason =
+                        Some(StopReason::Other("Waiting for tool approval".to_string()));
+                    let _ = tx.send(LanguageModelStreamChunkType::Incomplete(
+                        "Waiting for tool approval".to_string(),
+                    ));
+                    drop(tx);
+                    return Ok(());
+                }
+            }
+
             loop {
                 let mut options = thread_options.lock().await;
                 // Update the current step
@@ -152,18 +259,62 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                             LanguageModelResponseContentType::ToolCall(
                                                 ref tool_info,
                                             ) => {
-                                                // add tool message
-                                                let usage = final_msg.usage.clone();
-                                                let _ = &options.messages.push(TaggedMessage::new(
-                                                    current_step_id.to_owned(),
-                                                    Message::Assistant(AssistantMessage::new(
-                                                        LanguageModelResponseContentType::ToolCall(
-                                                            tool_info.clone(),
+                                                // Check if this tool requires approval
+                                                let needs_approval = if let Some(tools) =
+                                                    &options.tools
+                                                {
+                                                    let current_messages: Vec<Message> = options
+                                                        .messages
+                                                        .iter()
+                                                        .map(|t| t.message.clone())
+                                                        .collect();
+                                                    tools.needs_approval(
+                                                        tool_info,
+                                                        &current_messages,
+                                                    )
+                                                } else {
+                                                    false
+                                                };
+
+                                                if needs_approval {
+                                                    // Create approval request instead of executing
+                                                    let approval_request =
+                                                        ToolApprovalRequest::new(tool_info.clone());
+                                                    let usage = final_msg.usage.clone();
+                                                    options.messages.push(TaggedMessage::new(
+                                                        current_step_id,
+                                                        Message::Assistant(AssistantMessage::new(
+                                                            LanguageModelResponseContentType::ToolApprovalRequest(
+                                                                approval_request,
+                                                            ),
+                                                            usage,
+                                                        )),
+                                                    ));
+                                                    options.stop_reason = Some(StopReason::Other(
+                                                        "Waiting for tool approval".to_string(),
+                                                    ));
+                                                    let _ = tx.send(
+                                                        LanguageModelStreamChunkType::Incomplete(
+                                                            "Waiting for tool approval".to_string(),
                                                         ),
-                                                        usage,
-                                                    )),
-                                                ));
-                                                options.handle_tool_call(tool_info).await;
+                                                    );
+                                                } else {
+                                                    // Execute tool immediately (original behavior)
+                                                    let usage = final_msg.usage.clone();
+                                                    let _ =
+                                                        &options.messages.push(TaggedMessage::new(
+                                                            current_step_id.to_owned(),
+                                                            Message::Assistant(
+                                                                AssistantMessage::new(
+                                                                    LanguageModelResponseContentType::ToolCall(
+                                                                        tool_info.clone(),
+                                                                    ),
+                                                                    usage,
+                                                                ),
+                                                            ),
+                                                        ));
+                                                    options.handle_tool_call(tool_info).await;
+                                                }
                                             }
                                             _ => {}
                                         }
@@ -377,5 +528,29 @@ impl StreamTextResponse {
     /// An `Option<StopReason>` indicating the termination reason if available.
     pub async fn stop_reason(&self) -> Option<StopReason> {
         self.options.lock().await.stop_reason()
+    }
+
+    /// Returns any pending tool approval requests that need user response.
+    ///
+    /// These requests are generated when tools with `needs_approval` set to `Always`
+    /// or with a `Dynamic` function that returns `true` are called by the model.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<Vec<ToolApprovalRequest>>` containing the pending requests if any exist.
+    pub async fn pending_tool_approvals(&self) -> Option<Vec<ToolApprovalRequest>> {
+        self.options.lock().await.tool_approval_requests()
+    }
+
+    /// Checks if there are any pending tool approval requests.
+    ///
+    /// This is useful for determining if the response requires user interaction
+    /// before continuing the conversation.
+    ///
+    /// # Returns
+    ///
+    /// `true` if there are pending approval requests, `false` otherwise.
+    pub async fn has_pending_approvals(&self) -> bool {
+        has_pending_approval_requests(&self.options.lock().await.messages)
     }
 }

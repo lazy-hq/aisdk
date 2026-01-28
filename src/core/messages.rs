@@ -2,7 +2,7 @@
 
 use crate::core::{
     language_model::{LanguageModelResponseContentType, Usage},
-    tools::{ToolCallInfo, ToolResultInfo},
+    tools::{ToolApprovalResponse, ToolCallInfo, ToolResultInfo},
 };
 
 /// The role of a participant in a conversation.
@@ -27,6 +27,8 @@ pub enum Message {
     Assistant(AssistantMessage),
     /// A tool result message from executing a tool call.
     Tool(ToolResultInfo),
+    /// A tool approval response from the user.
+    ToolApproval(ToolApprovalResponse),
     /// A developer-specific message for advanced use cases.
     Developer(String),
 }
@@ -278,6 +280,23 @@ impl MessageBuilder<Conversation> {
             state: std::marker::PhantomData,
         }
     }
+
+    /// Adds a tool approval response to the conversation.
+    ///
+    /// # Parameters
+    ///
+    /// * `response` - The tool approval response.
+    ///
+    /// # Returns
+    ///
+    /// The builder with the message added.
+    pub fn tool_approval(mut self, response: ToolApprovalResponse) -> MessageBuilder<Conversation> {
+        self.messages.push(Message::ToolApproval(response));
+        MessageBuilder {
+            messages: self.messages,
+            state: std::marker::PhantomData,
+        }
+    }
 }
 
 /// A message tagged with its step id in a list of messages
@@ -315,10 +334,14 @@ impl From<TaggedMessage> for Message {
     }
 }
 
+use crate::core::tools::ToolApprovalRequest;
+
 /// Helper trait for extracting messages from TaggedMessage collections
 pub(crate) trait TaggedMessageHelpers {
     fn extract_tool_calls(&self) -> Option<Vec<ToolCallInfo>>;
     fn extract_tool_results(&self) -> Option<Vec<ToolResultInfo>>;
+    fn extract_tool_approval_requests(&self) -> Option<Vec<ToolApprovalRequest>>;
+    fn extract_tool_approval_responses(&self) -> Option<Vec<ToolApprovalResponse>>;
 }
 
 impl TaggedMessageHelpers for [TaggedMessage] {
@@ -348,6 +371,40 @@ impl TaggedMessageHelpers for [TaggedMessage] {
             None
         } else {
             Some(results)
+        }
+    }
+
+    fn extract_tool_approval_requests(&self) -> Option<Vec<ToolApprovalRequest>> {
+        let requests: Vec<ToolApprovalRequest> = self
+            .iter()
+            .filter_map(|msg| match msg.message {
+                Message::Assistant(AssistantMessage {
+                    content:
+                        LanguageModelResponseContentType::ToolApprovalRequest(ref approval_request),
+                    ..
+                }) => Some(approval_request.clone()),
+                _ => None,
+            })
+            .collect();
+        if requests.is_empty() {
+            None
+        } else {
+            Some(requests)
+        }
+    }
+
+    fn extract_tool_approval_responses(&self) -> Option<Vec<ToolApprovalResponse>> {
+        let responses: Vec<ToolApprovalResponse> = self
+            .iter()
+            .filter_map(|msg| match msg.message {
+                Message::ToolApproval(ref response) => Some(response.clone()),
+                _ => None,
+            })
+            .collect();
+        if responses.is_empty() {
+            None
+        } else {
+            Some(responses)
         }
     }
 }

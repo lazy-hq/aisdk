@@ -152,6 +152,8 @@ impl From<Message> for Option<types::InputItem> {
                     type_: "message".to_string(),
                 }))
             }
+            // Tool approval messages are handled internally by the SDK
+            Message::ToolApproval(_) => None,
         }
     }
 }

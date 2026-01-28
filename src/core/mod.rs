@@ -24,4 +24,7 @@ pub use language_model::{
 
 pub use messages::{AssistantMessage, Message, Messages, Role, SystemMessage, UserMessage};
 pub use provider::Provider;
-pub use tools::{Tool, ToolCallInfo, ToolResultInfo};
+pub use tools::{
+    NeedsApproval, NeedsApprovalContext, NeedsApprovalFn, Tool, ToolApprovalRequest,
+    ToolApprovalResponse, ToolCallInfo, ToolResultInfo,
+};

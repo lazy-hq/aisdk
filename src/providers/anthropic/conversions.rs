@@ -76,6 +76,8 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                         });
                     }
                     LanguageModelResponseContentType::NotSupported(_) => {}
+                    // Tool approval requests are handled internally by the SDK
+                    LanguageModelResponseContentType::ToolApprovalRequest(_) => {}
                 },
                 Message::Tool(tool) => {
                     messages.push(AnthropicMessageParam::User {
@@ -95,6 +97,8 @@ impl From<LanguageModelOptions> for AnthropicOptions {
                             ),
                     });
                 }
+                // Tool approval messages are handled internally by the SDK
+                Message::ToolApproval(_) => {}
             }
         }
         // update messages

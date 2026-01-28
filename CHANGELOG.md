@@ -16,6 +16,15 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+- Added tool approval feature for requiring user confirmation before tool execution
+  - `NeedsApproval` enum with `Always`, `Never`, and `Dynamic` variants
+  - `ToolApprovalRequest` and `ToolApprovalResponse` types for the approval flow
+  - `needs_approval` field on `Tool` struct and builder
+  - `pending_tool_approvals()` and `has_pending_approvals()` methods on response types
+  - `Message::ToolApproval` variant and `MessageBuilder::tool_approval()` method
+  - Non-blocking approval flow matching the Vercel AI SDK pattern
+
 ## [0.4.0] - 2026-01-24
 
 ### Added

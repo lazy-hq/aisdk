@@ -183,6 +183,14 @@ impl From<Message> for types::ChatMessage {
                 tool_calls: None,
                 tool_call_id: None,
             },
+            // Tool approval messages are handled internally by the SDK
+            Message::ToolApproval(_) => types::ChatMessage {
+                role: types::Role::User,
+                content: None,
+                name: None,
+                tool_calls: None,
+                tool_call_id: None,
+            },
         }
     }
 }
