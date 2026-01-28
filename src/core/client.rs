@@ -6,6 +6,7 @@ use futures::Stream;
 use futures::StreamExt;
 use reqwest;
 use reqwest::IntoUrl;
+use reqwest::header::HeaderMap;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 use serde::de::DeserializeOwned;
 use std::pin::Pin;
@@ -21,7 +22,11 @@ pub(crate) trait Client {
     fn body(&self) -> reqwest::Body;
     fn headers(&self) -> reqwest::header::HeaderMap;
 
-    async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
+    async fn send(
+        &self,
+        base_url: impl IntoUrl,
+        additional_headers: Option<HeaderMap>,
+    ) -> Result<Self::Response> {
         let client = reqwest::Client::new();
 
         let base_url = base_url
@@ -32,6 +37,12 @@ pub(crate) trait Client {
             .join(&self.path())
             .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
 
+        // Merge default headers with additional headers
+        let mut all_headers = self.headers();
+        if let Some(extra) = additional_headers {
+            all_headers.extend(extra);
+        }
+
         let max_retries = 5;
         let mut retry_count = 0;
         let mut wait_time = std::time::Duration::from_secs(1);
@@ -39,7 +50,7 @@ pub(crate) trait Client {
         loop {
             let resp = client
                 .request(self.method(), url.clone())
-                .headers(self.headers())
+                .headers(all_headers.clone())
                 .query(&self.query_params())
                 .body(self.body())
                 .send()
@@ -88,6 +99,7 @@ pub(crate) trait Client {
     async fn send_and_stream(
         &self,
         base_url: impl IntoUrl,
+        additional_headers: Option<HeaderMap>,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
@@ -103,12 +115,18 @@ pub(crate) trait Client {
             .join(&self.path())
             .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
 
+        // Merge default headers with additional headers
+        let mut all_headers = self.headers();
+        if let Some(extra) = additional_headers {
+            all_headers.extend(extra);
+        }
+
         // Establish the event source stream directly
         // Note: Status code errors (including 429) will be surfaced as stream events
         // and should be handled by retry logic in the provider's stream_text() method
         let events_stream = client
             .request(self.method(), url.clone())
-            .headers(self.headers())
+            .headers(all_headers)
             .query(&self.query_params())
             .body(self.body())
             .eventsource()

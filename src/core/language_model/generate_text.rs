@@ -75,6 +75,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             stop_when: self.options.stop_when.clone(),
             on_step_start: self.options.on_step_start.clone(),
             on_step_finish: self.options.on_step_finish.clone(),
+            headers: self.options.headers.clone(),
             stop_reason: None,
             ..self.options
         };

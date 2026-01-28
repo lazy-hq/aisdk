@@ -33,11 +33,21 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut options: AnthropicOptions = options.into();
-        options.model = self.options.model.clone();
-        self.options = options;
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
 
-        let response = self.send(self.settings.base_url.clone()).await?;
+        let mut anthropic_options: AnthropicOptions = options.into();
+        anthropic_options.model = self.options.model.clone();
+        self.options = anthropic_options;
+
+        let response = self
+            .send(self.settings.base_url.clone(), additional_headers)
+            .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -86,10 +96,18 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
 
     /// Streams text using the Anthropic provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut options: AnthropicOptions = options.into();
-        options.stream = Some(true);
-        options.model = self.options.model.clone();
-        self.options = options;
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
+
+        let mut anthropic_options: AnthropicOptions = options.into();
+        anthropic_options.stream = Some(true);
+        anthropic_options.model = self.options.model.clone();
+        self.options = anthropic_options;
 
         // Retry logic for rate limiting
         let max_retries = 5;
@@ -97,7 +115,10 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         let mut wait_time = std::time::Duration::from_secs(1);
 
         let response = loop {
-            match self.send_and_stream(self.settings.base_url.clone()).await {
+            match self
+                .send_and_stream(self.settings.base_url.clone(), additional_headers.clone())
+                .await
+            {
                 Ok(stream) => break stream,
                 Err(crate::error::Error::ApiError {
                     status_code: Some(status),

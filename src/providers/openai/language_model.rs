@@ -28,12 +28,22 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let mut options: OpenAIOptions = options.into();
-        options.model = self.options.model.clone();
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
 
-        self.options = options;
+        let mut openai_options: OpenAIOptions = options.into();
+        openai_options.model = self.options.model.clone();
 
-        let response: client::OpenAiResponse = self.send(&self.settings.base_url).await?;
+        self.options = openai_options;
+
+        let response: client::OpenAiResponse = self
+            .send(&self.settings.base_url, additional_headers)
+            .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -69,11 +79,19 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
     /// Streams text using the OpenAI provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let mut options: OpenAIOptions = options.into();
-        options.model = self.options.model.to_string();
-        options.stream = Some(true);
+        // Extract additional headers before converting options
+        let additional_headers = options.headers_as_header_map();
+        let additional_headers = if additional_headers.is_empty() {
+            None
+        } else {
+            Some(additional_headers)
+        };
 
-        self.options = options;
+        let mut openai_options: OpenAIOptions = options.into();
+        openai_options.model = self.options.model.to_string();
+        openai_options.stream = Some(true);
+
+        self.options = openai_options;
 
         // Retry logic for rate limiting
         let max_retries = 5;
@@ -81,7 +99,10 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         let mut wait_time = std::time::Duration::from_secs(1);
 
         let openai_stream = loop {
-            match self.send_and_stream(&self.settings.base_url).await {
+            match self
+                .send_and_stream(&self.settings.base_url, additional_headers.clone())
+                .await
+            {
                 Ok(stream) => break stream,
                 Err(crate::error::Error::ApiError {
                     status_code: Some(status),
