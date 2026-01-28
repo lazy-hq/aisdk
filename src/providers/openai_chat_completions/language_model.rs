@@ -67,6 +67,8 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         options.stream = Some(true);
         // Note: stream_options is not sent to maintain compatibility with
         // OpenAI-compatible providers that don't support this field (e.g., Z.ai)
+        // TODO: There should be a correct way to override options for different
+        // open ai compatible providers
         self.options = options;
 
         let stream = self.send_and_stream(&self.settings.base_url).await?;
