@@ -55,6 +55,14 @@ pub enum Error {
     #[error("Tool error: {0}")]
     ToolCallError(String),
 
+    /// An error indicating an invalid tool approval response.
+    #[error("Invalid tool approval: {0}")]
+    InvalidToolApproval(String),
+
+    /// An error indicating that a tool call was not found for the given approval.
+    #[error("Tool call not found for approval ID: {0}")]
+    ToolCallNotFoundForApproval(String),
+
     /// An error related to prompt template processing and rendering.
     #[error("Prompt error: {0}")]
     PromptError(String),
@@ -88,6 +96,10 @@ impl From<Error> for String {
             }
             Error::InvalidInput(error) => format!("Invalid input: {error}"),
             Error::ToolCallError(error) => format!("Tool error: {error}"),
+            Error::InvalidToolApproval(error) => format!("Invalid tool approval: {error}"),
+            Error::ToolCallNotFoundForApproval(id) => {
+                format!("Tool call not found for approval ID: {id}")
+            }
             Error::Other(error) => format!("Other error: {error}"),
             Error::ProviderError(error) => format!("Provider error: {error}"),
             Error::PromptError(error) => format!("Prompt error: {error}"),

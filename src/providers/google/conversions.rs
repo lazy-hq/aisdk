@@ -160,6 +160,11 @@ impl From<Message> for Content {
                     ..Default::default()
                 }],
             },
+            // Tool approval messages are handled internally by the SDK
+            Message::ToolApproval(_) => Content {
+                role: Role::User,
+                parts: vec![],
+            },
         }
     }
 }

@@ -13,7 +13,7 @@ use crate::core::messages::{AssistantMessage, TaggedMessage, TaggedMessageHelper
 use crate::core::tools::ToolList;
 use crate::core::{
     Message,
-    tools::{ToolCallInfo, ToolResultInfo},
+    tools::{ToolApprovalRequest, ToolCallInfo, ToolResultInfo},
 };
 use crate::core::{Messages, utils};
 use crate::error::{Error, Result};
@@ -398,6 +398,11 @@ impl LanguageModelOptions {
         self.messages.as_slice().extract_tool_calls()
     }
 
+    /// Extracts all pending tool approval requests from the conversation.
+    pub fn tool_approval_requests(&self) -> Option<Vec<ToolApprovalRequest>> {
+        self.messages.as_slice().extract_tool_approval_requests()
+    }
+
     /// Returns the reason why generation stopped.
     pub fn stop_reason(&self) -> Option<StopReason> {
         self.stop_reason.clone()
@@ -415,6 +420,8 @@ pub enum LanguageModelResponseContentType {
     Text(String),
     /// A tool call request.
     ToolCall(ToolCallInfo),
+    /// A request for user approval before executing a tool.
+    ToolApprovalRequest(ToolApprovalRequest),
     /// Reasoning or thinking content.
     Reasoning {
         /// The reasoning/thinking content

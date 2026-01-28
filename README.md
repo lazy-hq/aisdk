@@ -97,6 +97,61 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Tool Approval (Human-in-the-Loop)
+
+Require user confirmation before executing sensitive tools:
+
+```rust
+use std::sync::Arc;
+use aisdk::core::{LanguageModelRequest, Tool, NeedsApproval, Message};
+use aisdk::providers::OpenAI;
+
+// Tool that always requires approval
+let delete_tool = Tool::builder()
+    .name("delete_file")
+    .description("Delete a file from the system")
+    .needs_approval(NeedsApproval::Always)
+    // ...
+    .build()?;
+
+// Tool with dynamic approval based on input
+let payment_tool = Tool::builder()
+    .name("send_payment")
+    .description("Send a payment")
+    .needs_approval(NeedsApproval::Dynamic(Arc::new(|input, _ctx| {
+        // Require approval for payments over $1000
+        input["amount"].as_f64().unwrap_or(0.0) > 1000.0
+    })))
+    // ...
+    .build()?;
+```
+
+When a tool requires approval, the response will contain pending approval requests:
+
+```rust
+let response = request.generate_text().await?;
+
+if response.has_pending_approvals() {
+    for approval in response.pending_tool_approvals() {
+        println!("Tool '{}' wants to run with input: {:?}",
+            approval.tool_call.tool.name,
+            approval.tool_call.input);
+
+        // Get user confirmation, then continue with approval response
+        let approved = get_user_confirmation(); // your UI logic
+
+        // Continue the conversation with the approval decision
+        let continued = LanguageModelRequest::builder()
+            .model(openai)
+            .messages(response.messages())
+            .message(Message::tool_approval(approval.approval_id, approved))
+            .build()
+            .generate_text()
+            .await?;
+    }
+}
+```
+
 ### Structured Output
 
 Define your target output format.
