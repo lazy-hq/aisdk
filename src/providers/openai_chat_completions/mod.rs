@@ -8,6 +8,8 @@
 pub(crate) mod client;
 pub(crate) mod conversions;
 pub(crate) mod language_model;
+#[macro_use]
+pub mod macros;
 pub mod settings;
 
 use crate::core::DynamicModel;
