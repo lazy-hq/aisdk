@@ -15,7 +15,7 @@ keywords = ["ai", "sdk", "aisdk", "ai-sdk-rs", "openai"]
 categories = ["api-bindings", "asynchronous"]
 
 [features]
-full = ["prompt", "openai", "openaicompatible", "openaichatcompletions", "anthropic", "groq", "vercel", "google", "openrouter", "deepseek", "amazon-bedrock", "togetherai", "xai"]
+full = ["prompt", "openai", "openaicompatible", "openaichatcompletions", "anthropic", "groq", "vercel", "google", "openrouter", "deepseek", "amazon-bedrock", "togetherai", "xai", "mistral"]
 openai = []
 openaicompatible = ["openaichatcompletions"]
 openaichatcompletions = []
@@ -24,6 +24,7 @@ groq = ["openaichatcompletions"]
 vercel = ["openaichatcompletions"]
 openrouter = ["openaichatcompletions"]
 deepseek = ["openaichatcompletions"]
+mistral = ["openaichatcompletions"]
 amazon-bedrock = ["openaichatcompletions"]
 togetherai = ["openaichatcompletions"]
 xai = ["openaichatcompletions"]
@@ -105,6 +106,11 @@ required-features = ["openrouter", "test-access"]
 name = "deepseek_tests"
 path = "tests/provider/deepseek_tests.rs"
 required-features = ["deepseek", "test-access"]
+
+[[test]]
+name = "mistral_tests"
+path = "tests/provider/mistral_tests.rs"
+required-features = ["mistral", "test-access"]
 
 [[test]]
 name = "amazon_bedrock_tests"

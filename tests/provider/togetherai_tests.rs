@@ -1,5 +1,5 @@
 //! Together AI provider integration tests.
-use aisdk::providers::togetherai::{MetaLlamaLlama3370bInstructTurbo, TogetherAI};
+use aisdk::providers::togetherai::{DeepseekAiDeepseekR1, TogetherAI};
 
 // Include all macro definitions
 include!("macros.rs");
@@ -8,15 +8,15 @@ include!("macros.rs");
 generate_language_model_tests!(
     provider: TogetherAI,
     api_key_var: "TOGETHER_API_KEY",
-    model_struct: MetaLlamaLlama3370bInstructTurbo,
-    default_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
-    tool_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
-    structured_output_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
+    model_struct: DeepseekAiDeepseekR1,
+    default_model: TogetherAI::moonshotai_kimi_k2_instruct(),
+    tool_model: TogetherAI::moonshotai_kimi_k2_instruct(),
+    structured_output_model: TogetherAI::deepseek_ai_deepseek_v3(),
     reasoning_model: TogetherAI::deepseek_ai_deepseek_r1(),
-    embedding_model: TogetherAI::meta_llama_llama_3_3_70b_instruct_turbo(),
+    embedding_model: TogetherAI::deepseek_ai_deepseek_r1(),
     skip_reasoning: false,
     skip_tool: false,
-    skip_structured_output: true,  // Together AI doesn't seem to have structured output models
+    skip_structured_output: true,
     skip_streaming: false,
     skip_embedding: true
 );

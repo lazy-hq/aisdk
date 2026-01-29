@@ -59,7 +59,7 @@ impl<M: ModelName> LanguageModelClient for Anthropic<M> {
     type StreamEvent = AnthropicStreamEvent;
 
     fn path(&self) -> String {
-        "/v1/messages".to_string()
+        "/messages".to_string()
     }
 
     fn method(&self) -> reqwest::Method {

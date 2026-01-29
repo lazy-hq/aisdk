@@ -329,3 +329,58 @@ pub(crate) enum ChatCompletionsStreamEvent {
     Error(String),
     Open,
 }
+
+// ============================================================================
+// EMBEDDING TYPES
+// ============================================================================
+
+/// Request options for the OpenAI Embeddings API.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub(crate) struct EmbeddingOptions {
+    /// The input text(s) to embed.
+    pub input: Vec<String>,
+    /// The model to use for embeddings.
+    pub model: String,
+    /// Optional user identifier for abuse monitoring.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+    /// The number of dimensions for the embedding (for models that support it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimensions: Option<usize>,
+    /// The format to return embeddings in (default: "float").
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub encoding_format: Option<String>,
+}
+
+/// A single embedding vector.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub(crate) struct Embedding {
+    /// The embedding vector.
+    pub embedding: Vec<f32>,
+    /// The index of this embedding in the response.
+    pub index: usize,
+    /// The object type (always "embedding").
+    pub object: String,
+}
+
+/// Usage statistics for embedding requests.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub(crate) struct EmbeddingUsage {
+    /// Number of tokens in the input.
+    pub prompt_tokens: usize,
+    /// Total tokens used (same as prompt_tokens for embeddings).
+    pub total_tokens: usize,
+}
+
+/// Response from the OpenAI Embeddings API.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub(crate) struct EmbeddingResponse {
+    /// The object type (always "list").
+    pub object: Option<String>,
+    /// The list of embedding vectors.
+    pub data: Vec<Embedding>,
+    /// The model used.
+    pub model: Option<String>,
+    /// Usage statistics.
+    pub usage: Option<EmbeddingUsage>,
+}

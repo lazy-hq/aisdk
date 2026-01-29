@@ -1100,9 +1100,9 @@ macro_rules! generate_language_model_step_id_tests {
                 .await
                 .unwrap();
 
-            let step_ids = result.step_ids();
+            let step_ids = dbg!(&result).step_ids();
             // system (0), user (0), assistant tool call (1), tool result (1), assistant text (3)
-            assert!(step_ids.len() >= 5);
+            assert!(dbg!(&step_ids).len() >= 5);
             assert_eq!(step_ids[0], 0);
             assert_eq!(step_ids[1], 0);
             assert_eq!(step_ids[2], 1); // assistant tool call

@@ -106,7 +106,7 @@ impl From<LanguageModelOptions> for client::ChatCompletionsOptions {
                     types::StopSequences::Multiple(seqs.into_iter().take(4).collect())
                 }
             }),
-            stream: Some(false),
+            stream: None,
             stream_options: None,
             temperature: options.temperature.map(|t| t as f32 / 100.0),
             top_p: options.top_p.map(|t| t as f32 / 100.0),

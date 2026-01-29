@@ -42,6 +42,11 @@ pub mod deepseek;
 #[cfg(feature = "deepseek")]
 pub use deepseek::DeepSeek;
 
+#[cfg(feature = "mistral")]
+pub mod mistral;
+#[cfg(feature = "mistral")]
+pub use mistral::Mistral;
+
 #[cfg(feature = "amazon-bedrock")]
 pub mod amazon_bedrock;
 #[cfg(feature = "amazon-bedrock")]
