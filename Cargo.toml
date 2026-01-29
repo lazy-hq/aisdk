@@ -108,6 +108,11 @@ path = "tests/provider/deepseek_tests.rs"
 required-features = ["deepseek", "test-access"]
 
 [[test]]
+name = "mistral_tests"
+path = "tests/provider/mistral_tests.rs"
+required-features = ["mistral", "test-access"]
+
+[[test]]
 name = "amazon_bedrock_tests"
 path = "tests/provider/amazon_bedrock_tests.rs"
 required-features = ["amazon-bedrock", "test-access"]
