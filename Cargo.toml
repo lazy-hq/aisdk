@@ -72,6 +72,11 @@ path = "tests/provider/openai_tests.rs"
 required-features = ["openai", "test-access"]
 
 [[test]]
+name = "openai_compatible_tests"
+path = "tests/provider/openai_compatible_tests.rs"
+required-features = ["openaicompatible", "test-access"]
+
+[[test]]
 name = "anthropic_tests"
 path = "tests/provider/anthropic_tests.rs"
 required-features = ["anthropic", "test-access"]
