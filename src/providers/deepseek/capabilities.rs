@@ -5,10 +5,10 @@
 
 use crate::core::capabilities::*;
 use crate::model_capabilities;
-use crate::providers::deepseek::DeepSeek;
+use crate::providers::deepseek::Deepseek;
 
 model_capabilities! {
-    provider: DeepSeek,
+    provider: Deepseek,
     models: {
         DeepseekChat {
             model_name: "deepseek-chat",
