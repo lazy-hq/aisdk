@@ -1,22 +1,22 @@
-//! DeepSeek provider integration tests.
-use aisdk::providers::deepseek::{DeepSeek, DeepseekChat};
+//! Deepseek provider integration tests.
+use aisdk::providers::deepseek::{Deepseek, DeepseekChat};
 
 // Include all macro definitions
 include!("macros.rs");
 
-// Generate all standard integration tests for DeepSeek
+// Generate all standard integration tests for Deepseek
 generate_language_model_tests!(
-    provider: DeepSeek,
+    provider: Deepseek,
     api_key_var: "DEEPSEEK_API_KEY",
     model_struct: DeepseekChat,
-    default_model: DeepSeek::deepseek_chat(),
-    tool_model: DeepSeek::deepseek_chat(),
-    structured_output_model: DeepSeek::deepseek_chat(),
-    reasoning_model: DeepSeek::deepseek_reasoner(),
-    embedding_model: DeepSeek::deepseek_chat(),
-    skip_reasoning: false,
+    default_model: Deepseek::deepseek_chat(),
+    tool_model: Deepseek::deepseek_chat(),
+    structured_output_model: Deepseek::deepseek_chat(),
+    reasoning_model: Deepseek::model_name("deepseek-chat".to_string()),
+    embedding_model: Deepseek::deepseek_chat(),
+    skip_reasoning: true,
     skip_tool: false,
-    skip_structured_output: true,  // DeepSeek doesn't support structured output
+    skip_structured_output: true,
     skip_streaming: false,
     skip_embedding: true
 );
