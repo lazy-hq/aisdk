@@ -1,6 +1,8 @@
 //! This module provides the Together AI provider, wrapping OpenAI Chat Completions for Together AI requests.
 //!
-//! NOTE: Together AI might not be fully compatible with the OpenAI API. Please refer to the Together AI documentation for more information.
+
+// NOTE: Together AI might not be fully compatible with the OpenAI API. Please refer
+// to the Together AI documentation for more information.
 
 pub mod capabilities;
 

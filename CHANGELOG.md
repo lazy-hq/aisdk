@@ -35,10 +35,6 @@ Changelog entries are grouped by type, with the following types:
   - siliconflow-cn, stackit, stepfun, submodel, synthetic, togetherai, upstage, vercel, vultr, wandb
   - xai, xiaomi, zai, zai-coding-plan, zenmux, zhipuai, zhipuai-coding-plan
 
-### Fixed
-
-- **API Endpoints**: Updated endpoint URLs for OpenAI-compatible providers to use proper path suffix for correct OpenAI API compatibility:
-
 ## [0.4.0] - 2026-01-24
 
 ### Added

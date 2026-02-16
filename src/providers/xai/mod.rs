@@ -1,6 +1,8 @@
 //! This module provides the xAI provider, wrapping OpenAI Chat Completions for xAI requests.
 //!
-//! NOTE: xAI might not be fully compatible with the OpenAI API. Please refer to the xAI documentation for more information.
+
+// NOTE: xAI might not be fully compatible with the OpenAI API. Please refer to
+// the xAI documentation for more information.
 
 pub mod capabilities;
 

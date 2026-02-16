@@ -1,6 +1,8 @@
 //! This module provides the Amazon Bedrock provider, wrapping OpenAI Chat Completions for Bedrock requests.
 //!
-//! NOTE: Amazon Bedrock might not be fully compatible with the OpenAI API. Please refer to the Amazon Bedrock documentation for more information.
+
+// NOTE: Amazon Bedrock might not be fully compatible with the OpenAI API. Please
+// refer to the Amazon Bedrock documentation for more information.
 
 pub mod capabilities;
 

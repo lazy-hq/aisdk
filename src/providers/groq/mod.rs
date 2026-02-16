@@ -1,6 +1,8 @@
 //! This module provides the Groq provider, wrapping OpenAI Chat Completions for Groq requests.
 //!
-//! NOTE: Groq might not be fully compatible with the OpenAI API. Please refer to the Groq documentation for more information.
+
+// NOTE: Groq might not be fully compatible with the OpenAI API. Please refer to
+// the Groq documentation for more information.
 
 pub mod capabilities;
 
