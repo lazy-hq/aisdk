@@ -1,4 +1,8 @@
 //! This module provides the Amazon Bedrock provider, wrapping OpenAI Chat Completions for Bedrock requests.
+//!
+
+// NOTE: Amazon Bedrock might not be fully compatible with the OpenAI API. Please
+// refer to the Amazon Bedrock documentation for more information.
 
 pub mod capabilities;
 
@@ -7,7 +11,7 @@ crate::openai_compatible_settings!(
     AmazonBedrockProviderSettings,
     AmazonBedrockProviderSettingsBuilder,
     "AmazonBedrock",
-    "https://bedrock-runtime.us-east-1.amazonaws.com/openai/",
+    "https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1/",
     "BEDROCK_API_KEY"
 );
 

@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Zai,
-    ZaiBuilder,
-    ZaiProviderSettings,
-    "zai"
-);
+crate::openai_compatible_provider!(Zai, ZaiBuilder, ZaiProviderSettings, "zai");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Zai);

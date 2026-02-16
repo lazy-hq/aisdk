@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Morph,
-    MorphBuilder,
-    MorphProviderSettings,
-    "morph"
-);
+crate::openai_compatible_provider!(Morph, MorphBuilder, MorphProviderSettings, "morph");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Morph);

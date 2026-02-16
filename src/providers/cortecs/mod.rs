@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Cortecs,
-    CortecsBuilder,
-    CortecsProviderSettings,
-    "cortecs"
-);
+crate::openai_compatible_provider!(Cortecs, CortecsBuilder, CortecsProviderSettings, "cortecs");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Cortecs);

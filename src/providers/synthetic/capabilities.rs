@@ -142,16 +142,16 @@ model_capabilities! {
             display_name: "Kimi K2.5",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        HfNvidiaKimiK25Nvfp4 {
+            model_name: "hf:nvidia/Kimi-K2.5-NVFP4",
+            constructor_name: hf_nvidia_kimi_k2_5_nvfp4,
+            display_name: "Kimi K2.5 (NVFP4)",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         HfOpenaiGptOss120b {
             model_name: "hf:openai/gpt-oss-120b",
             constructor_name: hf_openai_gpt_oss_120b,
             display_name: "GPT OSS 120B",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        HfZaiOrgGlm45 {
-            model_name: "hf:zai-org/GLM-4.5",
-            constructor_name: hf_zai_org_glm_4_5,
-            display_name: "GLM 4.5",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         HfZaiOrgGlm46 {

@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Ai302,
-    Ai302Builder,
-    Ai302ProviderSettings,
-    "302ai"
-);
+crate::openai_compatible_provider!(Ai302, Ai302Builder, Ai302ProviderSettings, "302ai");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Ai302);

@@ -58,5 +58,11 @@ model_capabilities! {
             display_name: "GLM-4.7",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Glm5 {
+            model_name: "glm-5",
+            constructor_name: glm_5,
+            display_name: "GLM-5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
     }
 }

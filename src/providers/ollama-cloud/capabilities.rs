@@ -82,6 +82,12 @@ model_capabilities! {
             display_name: "glm-4.7",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Glm5 {
+            model_name: "glm-5",
+            constructor_name: glm_5,
+            display_name: "glm-5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GptOss120b {
             model_name: "gpt-oss:120b",
             constructor_name: gpt_oss_120b,
@@ -124,6 +130,12 @@ model_capabilities! {
             display_name: "minimax-m2.1",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MinimaxM25 {
+            model_name: "minimax-m2.5",
+            constructor_name: minimax_m2_5,
+            display_name: "minimax-m2.5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Ministral314b {
             model_name: "ministral-3:14b",
             constructor_name: ministral_3_14b,
@@ -153,6 +165,12 @@ model_capabilities! {
             constructor_name: nemotron_3_nano_30b,
             display_name: "nemotron-3-nano:30b",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3CoderNext {
+            model_name: "qwen3-coder-next",
+            constructor_name: qwen3_coder_next,
+            display_name: "qwen3-coder-next",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Qwen3Coder480b {
             model_name: "qwen3-coder:480b",

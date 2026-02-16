@@ -40,6 +40,12 @@ model_capabilities! {
             display_name: "Claude Opus 4.5",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ClaudeOpus46 {
+            model_name: "claude-opus-4-6",
+            constructor_name: claude_opus_4_6,
+            display_name: "Claude Opus 4.6",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ClaudeSonnet4 {
             model_name: "claude-sonnet-4",
             constructor_name: claude_sonnet_4,
@@ -76,10 +82,10 @@ model_capabilities! {
             display_name: "GLM-4.7",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Glm47Free {
-            model_name: "glm-4.7-free",
-            constructor_name: glm_4_7_free,
-            display_name: "GLM-4.7 Free",
+        Glm5 {
+            model_name: "glm-5",
+            constructor_name: glm_5,
+            display_name: "GLM-5",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5 {
@@ -166,23 +172,17 @@ model_capabilities! {
             display_name: "MiniMax M2.1",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MinimaxM21Free {
-            model_name: "minimax-m2.1-free",
-            constructor_name: minimax_m2_1_free,
-            display_name: "MiniMax M2.1 Free",
+        MinimaxM25 {
+            model_name: "minimax-m2.5",
+            constructor_name: minimax_m2_5,
+            display_name: "MiniMax M2.5",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Qwen3Coder {
-            model_name: "qwen3-coder",
-            constructor_name: qwen3_coder,
-            display_name: "Qwen3 Coder",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        TrinityLargePreviewFree {
-            model_name: "trinity-large-preview-free",
-            constructor_name: trinity_large_preview_free,
-            display_name: "Trinity Large Preview",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        MinimaxM25Free {
+            model_name: "minimax-m2.5-free",
+            constructor_name: minimax_m2_5_free,
+            display_name: "MiniMax M2.5 Free",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

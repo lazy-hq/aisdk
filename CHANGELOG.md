@@ -26,9 +26,14 @@ Changelog entries are grouped by type, with the following types:
 - Added embedding support to `TogetherAI` provider (delegates to OpenAI)
 - Added embedding support to `Vercel` provider (delegates to OpenAI)
 - Added `openai_compatible` provider.
-- Added 54 new OpenAI-compatible providers
-
-### Changed
+- Added 68 new OpenAI-compatible providers:
+  - 302ai, abacus, aihubmix, alibaba, alibaba-cn, amazon_bedrock, bailing, baseten, berget, chutes
+  - cloudflare-ai-gateway, cloudflare-workers-ai, cortecs, deepseek, fastrouter, fireworks-ai, firmware, friendli, github-copilot, github-models
+  - groq, helicone, huggingface, iflowcn, inception, inference, io-net, jiekou, kuae-cloud-coding-plan, llama, lmstudio
+  - lucidquery, mistral, moark, modelscope, moonshotai, moonshotai-cn, morph, nano-gpt, nebius, nova
+  - novita-ai, nvidia, ollama-cloud, opencode, openrouter, ovhcloud, poe, requesty, scaleway, siliconflow
+  - siliconflow-cn, stackit, stepfun, submodel, synthetic, togetherai, upstage, vercel, vultr, wandb
+  - xai, xiaomi, zai, zai-coding-plan, zenmux, zhipuai, zhipuai-coding-plan
 
 ## [0.4.0] - 2026-01-24
 

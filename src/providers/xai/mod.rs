@@ -1,4 +1,8 @@
 //! This module provides the xAI provider, wrapping OpenAI Chat Completions for xAI requests.
+//!
+
+// NOTE: xAI might not be fully compatible with the OpenAI API. Please refer to
+// the xAI documentation for more information.
 
 pub mod capabilities;
 
@@ -7,7 +11,7 @@ crate::openai_compatible_settings!(
     XAISettings,
     XAISettingsBuilder,
     "xAI",
-    "https://api.x.ai/",
+    "https://api.x.ai/v1/",
     "XAI_API_KEY"
 );
 

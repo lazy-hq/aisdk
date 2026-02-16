@@ -76,6 +76,18 @@ model_capabilities! {
             display_name: "DeepSeek V3.2 Exp",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        KimiK2Thinking {
+            model_name: "kimi-k2-thinking",
+            constructor_name: kimi_k2_thinking,
+            display_name: "Moonshot Kimi K2 Thinking",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KimiK25 {
+            model_name: "kimi-k2.5",
+            constructor_name: kimi_k2_5,
+            display_name: "Moonshot Kimi K2.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MoonshotKimiK2Instruct {
             model_name: "moonshot-kimi-k2-instruct",
             constructor_name: moonshot_kimi_k2_instruct,

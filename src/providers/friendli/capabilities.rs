@@ -52,5 +52,11 @@ model_capabilities! {
             display_name: "GLM 4.7",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ZaiOrgGlm5 {
+            model_name: "zai-org/GLM-5",
+            constructor_name: zai_org_glm_5,
+            display_name: "GLM 5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
     }
 }

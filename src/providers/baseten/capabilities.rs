@@ -34,6 +34,12 @@ model_capabilities! {
             display_name: "Kimi K2 Thinking",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MoonshotaiKimiK25 {
+            model_name: "moonshotai/Kimi-K2.5",
+            constructor_name: moonshotai_kimi_k2_5,
+            display_name: "Kimi K2.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ZaiOrgGlm46 {
             model_name: "zai-org/GLM-4.6",
             constructor_name: zai_org_glm_4_6,

@@ -1,4 +1,8 @@
 //! This module provides the Together AI provider, wrapping OpenAI Chat Completions for Together AI requests.
+//!
+
+// NOTE: Together AI might not be fully compatible with the OpenAI API. Please refer
+// to the Together AI documentation for more information.
 
 pub mod capabilities;
 
@@ -7,7 +11,7 @@ crate::openai_compatible_settings!(
     TogetherAIProviderSettings,
     TogetherAIProviderSettingsBuilder,
     "Together AI",
-    "https://api.together.xyz/",
+    "https://api.together.xyz/v1/",
     "TOGETHER_API_KEY"
 );
 

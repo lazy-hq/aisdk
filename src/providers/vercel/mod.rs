@@ -1,4 +1,8 @@
 //! This module provides the Vercel provider, wrapping OpenAI Chat Completions for Vercel requests.
+//!
+
+// NOTE: Vercel might not be fully compatible with the OpenAI API. Please refer to
+// the Vercel documentation for more information.
 
 pub mod capabilities;
 
@@ -7,7 +11,7 @@ crate::openai_compatible_settings!(
     VercelProviderSettings,
     VercelProviderSettingsBuilder,
     "Vercel",
-    "https://api.vercel.ai/",
+    "https://ai-gateway.vercel.sh/v1/",
     "VERCEL_API_KEY"
 );
 

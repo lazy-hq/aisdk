@@ -58,6 +58,12 @@ model_capabilities! {
             display_name: "DeepSeek-OCR",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
+        DeepseekDeepseekOcr2 {
+            model_name: "deepseek/deepseek-ocr-2",
+            constructor_name: deepseek_deepseek_ocr_2,
+            display_name: "deepseek/deepseek-ocr-2",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
         DeepseekDeepseekProverV2671b {
             model_name: "deepseek/deepseek-prover-v2-671b",
             constructor_name: deepseek_deepseek_prover_v2_671b,
@@ -202,6 +208,12 @@ model_capabilities! {
             display_name: "Minimax M2.1",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MinimaxMinimaxM25 {
+            model_name: "minimax/minimax-m2.5",
+            constructor_name: minimax_minimax_m2_5,
+            display_name: "MiniMax M2.5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MinimaxaiMinimaxM180k {
             model_name: "minimaxai/minimax-m1-80k",
             constructor_name: minimaxai_minimax_m1_80k,
@@ -338,6 +350,12 @@ model_capabilities! {
             model_name: "qwen/qwen3-coder-480b-a35b-instruct",
             constructor_name: qwen_qwen3_coder_480b_a35b_instruct,
             display_name: "Qwen3 Coder 480B A35B Instruct",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen3CoderNext {
+            model_name: "qwen/qwen3-coder-next",
+            constructor_name: qwen_qwen3_coder_next,
+            display_name: "Qwen3 Coder Next",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen3Max {
@@ -482,6 +500,12 @@ model_capabilities! {
             model_name: "zai-org/glm-4.7-flash",
             constructor_name: zai_org_glm_4_7_flash,
             display_name: "GLM-4.7-Flash",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5 {
+            model_name: "zai-org/glm-5",
+            constructor_name: zai_org_glm_5,
+            display_name: "GLM-5",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
