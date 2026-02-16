@@ -19,7 +19,7 @@ quote = "1.0"
 [dev-dependencies]
 serde_json = "1.0"
 tokio = { version = "1.46.1", features = ["full"]}
-aisdk = {path = "..", version = "0.4.0" }
+aisdk = {path = "..", version = "0.5.0" }
 
 [[test]]
 name = "test_tools"
