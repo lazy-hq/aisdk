@@ -22,6 +22,12 @@ model_capabilities! {
             display_name: "Claude Opus 4.5",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ClaudeOpus46 {
+            model_name: "claude-opus-4.6",
+            constructor_name: claude_opus_4_6,
+            display_name: "Claude Opus 4.6",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ClaudeOpus41 {
             model_name: "claude-opus-41",
             constructor_name: claude_opus_41,

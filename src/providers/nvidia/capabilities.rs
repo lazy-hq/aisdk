@@ -430,5 +430,11 @@ model_capabilities! {
             display_name: "GLM-4.7",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ZAiGlm5 {
+            model_name: "z-ai/glm5",
+            constructor_name: z_ai_glm5,
+            display_name: "GLM5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
     }
 }

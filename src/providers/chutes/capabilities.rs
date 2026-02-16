@@ -16,6 +16,12 @@ model_capabilities! {
             display_name: "MiniMax M2.1 TEE",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MinimaxaiMinimaxM25Tee {
+            model_name: "MiniMaxAI/MiniMax-M2.5-TEE",
+            constructor_name: minimaxai_minimax_m2_5_tee,
+            display_name: "MiniMax M2.5 TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         NousresearchDeephermes3Mistral24bPreview {
             model_name: "NousResearch/DeepHermes-3-Mistral-24B-Preview",
             constructor_name: nousresearch_deephermes_3_mistral_24b_preview,
@@ -122,6 +128,12 @@ model_capabilities! {
             model_name: "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8-TEE",
             constructor_name: qwen_qwen3_coder_480b_a35b_instruct_fp8_tee,
             display_name: "Qwen3 Coder 480B A35B Instruct FP8 TEE",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen3CoderNext {
+            model_name: "Qwen/Qwen3-Coder-Next",
+            constructor_name: qwen_qwen3_coder_next,
+            display_name: "Qwen3 Coder Next",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen3Next80bA3bInstruct {
@@ -298,6 +310,12 @@ model_capabilities! {
             display_name: "Llama 3.2 1B Instruct",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        UnslothLlama323bInstruct {
+            model_name: "unsloth/Llama-3.2-3B-Instruct",
+            constructor_name: unsloth_llama_3_2_3b_instruct,
+            display_name: "Llama 3.2 3B Instruct",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
         UnslothMistralNemoInstruct2407 {
             model_name: "unsloth/Mistral-Nemo-Instruct-2407",
             constructor_name: unsloth_mistral_nemo_instruct_2407,
@@ -380,6 +398,12 @@ model_capabilities! {
             model_name: "zai-org/GLM-4.7-TEE",
             constructor_name: zai_org_glm_4_7_tee,
             display_name: "GLM 4.7 TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5Tee {
+            model_name: "zai-org/GLM-5-TEE",
+            constructor_name: zai_org_glm_5_tee,
+            display_name: "GLM 5 TEE",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }

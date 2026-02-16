@@ -19,26 +19,20 @@ model_capabilities! {
         ClaudeOpus45 {
             model_name: "claude-opus-4-5",
             constructor_name: claude_opus_4_5,
-            display_name: "Claude Opus 4.5 (latest)",
+            display_name: "Claude Opus 4.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ClaudeOpus46 {
+            model_name: "claude-opus-4-6",
+            constructor_name: claude_opus_4_6,
+            display_name: "Claude Opus 4.6",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeSonnet45 {
             model_name: "claude-sonnet-4-5",
             constructor_name: claude_sonnet_4_5,
             display_name: "Claude Sonnet 4.5",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        DeepseekChat {
-            model_name: "deepseek-chat",
-            constructor_name: deepseek_chat,
-            display_name: "DeepSeek Chat",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        DeepseekReasoner {
-            model_name: "deepseek-reasoner",
-            constructor_name: deepseek_reasoner,
-            display_name: "DeepSeek Reasoner",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gemini25Flash {
             model_name: "gemini-2.5-flash",
@@ -100,47 +94,11 @@ model_capabilities! {
             display_name: "GPT OSS 120B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Grok4FastNonReasoning {
-            model_name: "grok-4-fast-non-reasoning",
-            constructor_name: grok_4_fast_non_reasoning,
-            display_name: "Grok 4 Fast (Non-Reasoning)",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Grok4FastReasoning {
-            model_name: "grok-4-fast-reasoning",
-            constructor_name: grok_4_fast_reasoning,
-            display_name: "Grok 4 Fast (Reasoning)",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        GrokCodeFast1 {
-            model_name: "grok-code-fast-1",
-            constructor_name: grok_code_fast_1,
-            display_name: "Grok Code Fast 1",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        KimiK2Thinking {
-            model_name: "kimi-k2-thinking",
-            constructor_name: kimi_k2_thinking,
-            display_name: "Kimi K2 Thinking",
+        GptOss20b {
+            model_name: "gpt-oss-20b",
+            constructor_name: gpt_oss_20b,
+            display_name: "GPT OSS 20B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        KimiK2ThinkingTurbo {
-            model_name: "kimi-k2-thinking-turbo",
-            constructor_name: kimi_k2_thinking_turbo,
-            display_name: "Kimi K2 Thinking Turbo",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        KimiK25 {
-            model_name: "kimi-k2.5",
-            constructor_name: kimi_k2_5,
-            display_name: "Kimi-K2.5",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        ZaiGlm47 {
-            model_name: "zai-glm-4.7",
-            constructor_name: zai_glm_4_7,
-            display_name: "Z.AI GLM-4.7",
-            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

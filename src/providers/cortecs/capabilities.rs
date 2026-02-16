@@ -46,6 +46,24 @@ model_capabilities! {
             display_name: "Gemini 2.5 Pro",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Glm4p5 {
+            model_name: "glm-4p5",
+            constructor_name: glm_4p5,
+            display_name: "GLM 4.5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Glm4p5Air {
+            model_name: "glm-4p5-air",
+            constructor_name: glm_4p5_air,
+            display_name: "GLM 4.5 Air",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Glm4p7 {
+            model_name: "glm-4p7",
+            constructor_name: glm_4p7,
+            display_name: "GLM 4.7",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt41 {
             model_name: "gpt-4.1",
             constructor_name: gpt_4_1,
@@ -81,6 +99,18 @@ model_capabilities! {
             constructor_name: llama_3_1_405b_instruct,
             display_name: "Llama 3.1 405B Instruct",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MinimaxM2 {
+            model_name: "minimax-m2",
+            constructor_name: minimax_m2,
+            display_name: "MiniMax-M2",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MinimaxM2p1 {
+            model_name: "minimax-m2p1",
+            constructor_name: minimax_m2p1,
+            display_name: "MiniMax-M2.1",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NovaProV1 {
             model_name: "nova-pro-v1",

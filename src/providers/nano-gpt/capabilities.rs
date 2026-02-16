@@ -40,6 +40,18 @@ model_capabilities! {
             display_name: "Minimax M2.1",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MinimaxMinimaxM25 {
+            model_name: "minimax/minimax-m2.5",
+            constructor_name: minimax_minimax_m2_5,
+            display_name: "MiniMax M2.5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MinimaxMinimaxM25Official {
+            model_name: "minimax/minimax-m2.5-official",
+            constructor_name: minimax_minimax_m2_5_official,
+            display_name: "MiniMax M2.5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MistralaiDevstral2123bInstruct2512 {
             model_name: "mistralai/devstral-2-123b-instruct-2512",
             constructor_name: mistralai_devstral_2_123b_instruct_2512,
@@ -69,6 +81,18 @@ model_capabilities! {
             constructor_name: moonshotai_kimi_k2_thinking,
             display_name: "Kimi K2 Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MoonshotaiKimiK25 {
+            model_name: "moonshotai/kimi-k2.5",
+            constructor_name: moonshotai_kimi_k2_5,
+            display_name: "Kimi K2.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MoonshotaiKimiK25Thinking {
+            model_name: "moonshotai/kimi-k2.5-thinking",
+            constructor_name: moonshotai_kimi_k2_5_thinking,
+            display_name: "Kimi K2.5 Thinking",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NousresearchHermes4405bThinking {
             model_name: "nousresearch/hermes-4-405b:thinking",
@@ -100,18 +124,6 @@ model_capabilities! {
             display_name: "Qwen3 Coder",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        ZAiGlm46 {
-            model_name: "z-ai/glm-4.6",
-            constructor_name: z_ai_glm_4_6,
-            display_name: "GLM 4.6",
-            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        ZAiGlm46Thinking {
-            model_name: "z-ai/glm-4.6:thinking",
-            constructor_name: z_ai_glm_4_6_thinking,
-            display_name: "GLM 4.6 Thinking",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         ZaiOrgGlm45Air {
             model_name: "zai-org/glm-4.5-air",
             constructor_name: zai_org_glm_4_5_air,
@@ -124,6 +136,18 @@ model_capabilities! {
             display_name: "GLM 4.5 Air Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ZaiOrgGlm46 {
+            model_name: "zai-org/glm-4.6",
+            constructor_name: zai_org_glm_4_6,
+            display_name: "GLM 4.6",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm46Thinking {
+            model_name: "zai-org/glm-4.6:thinking",
+            constructor_name: zai_org_glm_4_6_thinking,
+            display_name: "GLM 4.6 Thinking",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ZaiOrgGlm47 {
             model_name: "zai-org/glm-4.7",
             constructor_name: zai_org_glm_4_7,
@@ -134,6 +158,30 @@ model_capabilities! {
             model_name: "zai-org/glm-4.7:thinking",
             constructor_name: zai_org_glm_4_7_thinking,
             display_name: "GLM 4.7 Thinking",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5 {
+            model_name: "zai-org/glm-5",
+            constructor_name: zai_org_glm_5,
+            display_name: "GLM 5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5Original {
+            model_name: "zai-org/glm-5-original",
+            constructor_name: zai_org_glm_5_original,
+            display_name: "GLM 5 Original",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5OriginalThinking {
+            model_name: "zai-org/glm-5-original:thinking",
+            constructor_name: zai_org_glm_5_original_thinking,
+            display_name: "GLM 5 Original Thinking",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5Thinking {
+            model_name: "zai-org/glm-5:thinking",
+            constructor_name: zai_org_glm_5_thinking,
+            display_name: "GLM 5 Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }

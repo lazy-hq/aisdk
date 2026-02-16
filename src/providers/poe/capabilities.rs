@@ -22,52 +22,34 @@ model_capabilities! {
             display_name: "Claude-Haiku-3.5",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        AnthropicClaudeHaiku35Search {
-            model_name: "anthropic/claude-haiku-3.5-search",
-            constructor_name: anthropic_claude_haiku_3_5_search,
-            display_name: "Claude-Haiku-3.5-Search",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         AnthropicClaudeHaiku45 {
             model_name: "anthropic/claude-haiku-4.5",
             constructor_name: anthropic_claude_haiku_4_5,
-            display_name: "Claude Haiku 4.5",
+            display_name: "Claude-Haiku-4.5",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeOpus3 {
-            model_name: "anthropic/claude-opus-3",
-            constructor_name: anthropic_claude_opus_3,
-            display_name: "Claude-Opus-3",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeOpus4 {
             model_name: "anthropic/claude-opus-4",
             constructor_name: anthropic_claude_opus_4,
-            display_name: "Claude Opus 4",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeOpus4Reasoning {
-            model_name: "anthropic/claude-opus-4-reasoning",
-            constructor_name: anthropic_claude_opus_4_reasoning,
-            display_name: "Claude Opus 4 Reasoning",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeOpus4Search {
-            model_name: "anthropic/claude-opus-4-search",
-            constructor_name: anthropic_claude_opus_4_search,
-            display_name: "Claude Opus 4 Search",
+            display_name: "Claude-Opus-4",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeOpus41 {
             model_name: "anthropic/claude-opus-4.1",
             constructor_name: anthropic_claude_opus_4_1,
-            display_name: "Claude Opus 4.1",
+            display_name: "Claude-Opus-4.1",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeOpus45 {
             model_name: "anthropic/claude-opus-4.5",
             constructor_name: anthropic_claude_opus_4_5,
-            display_name: "claude-opus-4.5",
+            display_name: "Claude-Opus-4.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AnthropicClaudeOpus46 {
+            model_name: "anthropic/claude-opus-4.6",
+            constructor_name: anthropic_claude_opus_4_6,
+            display_name: "Claude-Opus-4.6",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeSonnet35 {
@@ -85,43 +67,19 @@ model_capabilities! {
         AnthropicClaudeSonnet37 {
             model_name: "anthropic/claude-sonnet-3.7",
             constructor_name: anthropic_claude_sonnet_3_7,
-            display_name: "Claude Sonnet 3.7",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeSonnet37Reasoning {
-            model_name: "anthropic/claude-sonnet-3.7-reasoning",
-            constructor_name: anthropic_claude_sonnet_3_7_reasoning,
-            display_name: "Claude Sonnet 3.7 Reasoning",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeSonnet37Search {
-            model_name: "anthropic/claude-sonnet-3.7-search",
-            constructor_name: anthropic_claude_sonnet_3_7_search,
-            display_name: "Claude Sonnet 3.7 Search",
+            display_name: "Claude-Sonnet-3.7",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeSonnet4 {
             model_name: "anthropic/claude-sonnet-4",
             constructor_name: anthropic_claude_sonnet_4,
-            display_name: "Claude Sonnet 4",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeSonnet4Reasoning {
-            model_name: "anthropic/claude-sonnet-4-reasoning",
-            constructor_name: anthropic_claude_sonnet_4_reasoning,
-            display_name: "Claude Sonnet 4 Reasoning",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        AnthropicClaudeSonnet4Search {
-            model_name: "anthropic/claude-sonnet-4-search",
-            constructor_name: anthropic_claude_sonnet_4_search,
-            display_name: "Claude Sonnet 4 Search",
+            display_name: "Claude-Sonnet-4",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AnthropicClaudeSonnet45 {
             model_name: "anthropic/claude-sonnet-4.5",
             constructor_name: anthropic_claude_sonnet_4_5,
-            display_name: "Claude Sonnet 4.5",
+            display_name: "Claude-Sonnet-4.5",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         CerebrasGptOss120bCs {
@@ -130,10 +88,28 @@ model_capabilities! {
             display_name: "gpt-oss-120b-cs",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        CerebrasZaiGlm46Cs {
-            model_name: "cerebras/zai-glm-4.6-cs",
-            constructor_name: cerebras_zai_glm_4_6_cs,
-            display_name: "zai-glm-4.6-cs",
+        CerebrasLlama318bCs {
+            model_name: "cerebras/llama-3.1-8b-cs",
+            constructor_name: cerebras_llama_3_1_8b_cs,
+            display_name: "llama-3.1-8b-cs",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        CerebrasLlama3370bCs {
+            model_name: "cerebras/llama-3.3-70b-cs",
+            constructor_name: cerebras_llama_3_3_70b_cs,
+            display_name: "llama-3.3-70b-cs",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
+        CerebrasQwen3235b2507Cs {
+            model_name: "cerebras/qwen3-235b-2507-cs",
+            constructor_name: cerebras_qwen3_235b_2507_cs,
+            display_name: "qwen3-235b-2507-cs",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        CerebrasQwen332bCs {
+            model_name: "cerebras/qwen3-32b-cs",
+            constructor_name: cerebras_qwen3_32b_cs,
+            display_name: "qwen3-32b-cs",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ElevenlabsElevenlabsMusic {
@@ -169,25 +145,25 @@ model_capabilities! {
         GoogleGemini25Flash {
             model_name: "google/gemini-2.5-flash",
             constructor_name: google_gemini_2_5_flash,
-            display_name: "Gemini 2.5 Flash",
+            display_name: "Gemini-2.5-Flash",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGemini25FlashLite {
             model_name: "google/gemini-2.5-flash-lite",
             constructor_name: google_gemini_2_5_flash_lite,
-            display_name: "Gemini 2.5 Flash Lite",
+            display_name: "Gemini-2.5-Flash-Lite",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGemini25Pro {
             model_name: "google/gemini-2.5-pro",
             constructor_name: google_gemini_2_5_pro,
-            display_name: "Gemini 2.5 Pro",
+            display_name: "Gemini-2.5-Pro",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGemini3Flash {
             model_name: "google/gemini-3-flash",
             constructor_name: google_gemini_3_flash,
-            display_name: "gemini-3-flash",
+            display_name: "Gemini-3-Flash",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGemini3Pro {
@@ -304,12 +280,6 @@ model_capabilities! {
             display_name: "Ideogram-v2a-Turbo",
             capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport, ToolCallSupport]
         },
-        LumalabsDreamMachine {
-            model_name: "lumalabs/dream-machine",
-            constructor_name: lumalabs_dream_machine,
-            display_name: "Dream-Machine",
-            capabilities: [ImageInputSupport, TextInputSupport, ToolCallSupport, VideoOutputSupport]
-        },
         LumalabsRay2 {
             model_name: "lumalabs/ray2",
             constructor_name: lumalabs_ray2,
@@ -334,17 +304,29 @@ model_capabilities! {
             display_name: "glm-4.7",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        NovitaKatCoderPro {
-            model_name: "novita/kat-coder-pro",
-            constructor_name: novita_kat_coder_pro,
-            display_name: "kat-coder-pro",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        NovitaGlm47Flash {
+            model_name: "novita/glm-4.7-flash",
+            constructor_name: novita_glm_4_7_flash,
+            display_name: "glm-4.7-flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NovitaGlm47N {
+            model_name: "novita/glm-4.7-n",
+            constructor_name: novita_glm_4_7_n,
+            display_name: "glm-4.7-n",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NovitaKimiK2Thinking {
             model_name: "novita/kimi-k2-thinking",
             constructor_name: novita_kimi_k2_thinking,
             display_name: "kimi-k2-thinking",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NovitaKimiK25 {
+            model_name: "novita/kimi-k2.5",
+            constructor_name: novita_kimi_k2_5,
+            display_name: "kimi-k2.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         NovitaMinimaxM21 {
             model_name: "novita/minimax-m2.1",
@@ -499,7 +481,7 @@ model_capabilities! {
         OpenaiGpt51CodexMax {
             model_name: "openai/gpt-5.1-codex-max",
             constructor_name: openai_gpt_5_1_codex_max,
-            display_name: "gpt-5.1-codex-max",
+            display_name: "GPT-5.1-Codex-Max",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt51CodexMini {
@@ -512,24 +494,30 @@ model_capabilities! {
             model_name: "openai/gpt-5.1-instant",
             constructor_name: openai_gpt_5_1_instant,
             display_name: "GPT-5.1-Instant",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt52 {
             model_name: "openai/gpt-5.2",
             constructor_name: openai_gpt_5_2,
-            display_name: "gpt-5.2",
+            display_name: "GPT-5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt52Codex {
+            model_name: "openai/gpt-5.2-codex",
+            constructor_name: openai_gpt_5_2_codex,
+            display_name: "GPT-5.2-Codex",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt52Instant {
             model_name: "openai/gpt-5.2-instant",
             constructor_name: openai_gpt_5_2_instant,
-            display_name: "gpt-5.2-instant",
+            display_name: "GPT-5.2-Instant",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt52Pro {
             model_name: "openai/gpt-5.2-pro",
             constructor_name: openai_gpt_5_2_pro,
-            display_name: "gpt-5.2-pro",
+            display_name: "GPT-5.2-Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGptImage1 {

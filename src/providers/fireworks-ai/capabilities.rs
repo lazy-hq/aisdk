@@ -58,6 +58,12 @@ model_capabilities! {
             display_name: "GLM 4.7",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ModelsGlm5 {
+            model_name: "accounts/fireworks/models/glm-5",
+            constructor_name: models_glm_5,
+            display_name: "GLM 5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ModelsGptOss120b {
             model_name: "accounts/fireworks/models/gpt-oss-120b",
             constructor_name: models_gpt_oss_120b,
@@ -98,6 +104,12 @@ model_capabilities! {
             model_name: "accounts/fireworks/models/minimax-m2p1",
             constructor_name: models_minimax_m2p1,
             display_name: "MiniMax-M2.1",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ModelsMinimaxM2p5 {
+            model_name: "accounts/fireworks/models/minimax-m2p5",
+            constructor_name: models_minimax_m2p5,
+            display_name: "MiniMax-M2.5",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ModelsQwen3235bA22b {

@@ -16,18 +16,6 @@ model_capabilities! {
             display_name: "ByteDance-Seed/Seed-OSS-36B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MinimaxaiMinimaxM180k {
-            model_name: "MiniMaxAI/MiniMax-M1-80k",
-            constructor_name: minimaxai_minimax_m1_80k,
-            display_name: "MiniMaxAI/MiniMax-M1-80k",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        MinimaxaiMinimaxM2 {
-            model_name: "MiniMaxAI/MiniMax-M2",
-            constructor_name: minimaxai_minimax_m2,
-            display_name: "MiniMaxAI/MiniMax-M2",
-            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         MinimaxaiMinimaxM21 {
             model_name: "MiniMaxAI/MiniMax-M2.1",
             constructor_name: minimaxai_minimax_m2_1,
@@ -117,12 +105,6 @@ model_capabilities! {
             constructor_name: qwen_qwen3_235b_a22b_thinking_2507,
             display_name: "Qwen/Qwen3-235B-A22B-Thinking-2507",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        QwenQwen330bA3b {
-            model_name: "Qwen/Qwen3-30B-A3B",
-            constructor_name: qwen_qwen3_30b_a3b,
-            display_name: "Qwen/Qwen3-30B-A3B",
-            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen330bA3bInstruct2507 {
             model_name: "Qwen/Qwen3-30B-A3B-Instruct-2507",
@@ -250,12 +232,6 @@ model_capabilities! {
             display_name: "THUDM/GLM-4-9B-0414",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        ThudmGlm41v9bThinking {
-            model_name: "THUDM/GLM-4.1V-9B-Thinking",
-            constructor_name: thudm_glm_4_1v_9b_thinking,
-            display_name: "THUDM/GLM-4.1V-9B-Thinking",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         ThudmGlmZ132b0414 {
             model_name: "THUDM/GLM-Z1-32B-0414",
             constructor_name: thudm_glm_z1_32b_0414,
@@ -290,12 +266,6 @@ model_capabilities! {
             model_name: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
             constructor_name: deepseek_ai_deepseek_r1_distill_qwen_32b,
             display_name: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        DeepseekAiDeepseekR1DistillQwen7b {
-            model_name: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-            constructor_name: deepseek_ai_deepseek_r1_distill_qwen_7b,
-            display_name: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         DeepseekAiDeepseekV3 {
@@ -358,12 +328,6 @@ model_capabilities! {
             display_name: "meta-llama/Meta-Llama-3.1-8B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MoonshotaiKimiDev72b {
-            model_name: "moonshotai/Kimi-Dev-72B",
-            constructor_name: moonshotai_kimi_dev_72b,
-            display_name: "moonshotai/Kimi-Dev-72B",
-            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         MoonshotaiKimiK2Instruct {
             model_name: "moonshotai/Kimi-K2-Instruct",
             constructor_name: moonshotai_kimi_k2_instruct,
@@ -381,6 +345,12 @@ model_capabilities! {
             constructor_name: moonshotai_kimi_k2_thinking,
             display_name: "moonshotai/Kimi-K2-Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MoonshotaiKimiK25 {
+            model_name: "moonshotai/Kimi-K2.5",
+            constructor_name: moonshotai_kimi_k2_5,
+            display_name: "moonshotai/Kimi-K2.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NexAgiDeepseekV31NexN1 {
             model_name: "nex-agi/DeepSeek-V3.1-Nex-N1",
@@ -400,11 +370,11 @@ model_capabilities! {
             display_name: "openai/gpt-oss-20b",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        StepfunAiStep3 {
-            model_name: "stepfun-ai/step3",
-            constructor_name: stepfun_ai_step3,
-            display_name: "stepfun-ai/step3",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        StepfunAiStep35Flash {
+            model_name: "stepfun-ai/Step-3.5-Flash",
+            constructor_name: stepfun_ai_step_3_5_flash,
+            display_name: "stepfun-ai/Step-3.5-Flash",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHunyuanA13bInstruct {
             model_name: "tencent/Hunyuan-A13B-Instruct",
@@ -452,7 +422,13 @@ model_capabilities! {
             model_name: "zai-org/GLM-4.7",
             constructor_name: zai_org_glm_4_7,
             display_name: "zai-org/GLM-4.7",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm5 {
+            model_name: "zai-org/GLM-5",
+            constructor_name: zai_org_glm_5,
+            display_name: "zai-org/GLM-5",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

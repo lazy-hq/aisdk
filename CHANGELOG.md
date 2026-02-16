@@ -26,7 +26,7 @@ Changelog entries are grouped by type, with the following types:
 - Added embedding support to `TogetherAI` provider (delegates to OpenAI)
 - Added embedding support to `Vercel` provider (delegates to OpenAI)
 - Added `openai_compatible` provider.
-- Added 54 new OpenAI-compatible providers
+- Added 54+ new OpenAI-compatible providers
 
 ### Changed
 
