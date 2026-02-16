@@ -35,6 +35,16 @@ Changelog entries are grouped by type, with the following types:
   - siliconflow-cn, stackit, stepfun, submodel, synthetic, togetherai, upstage, vercel, vultr, wandb
   - xai, xiaomi, zai, zai-coding-plan, zenmux, zhipuai, zhipuai-coding-plan
 
+### Changed
+
+- **Breaking:** `OpenRouter` provider type renamed to `Openrouter` (`OpenRouterProviderSettings` → `OpenrouterProviderSettings`)
+- **Breaking:** `DeepSeek` provider type renamed to `Deepseek` (`DeepSeekProviderSettings` → `DeepseekProviderSettings`)
+
+### Fixed
+
+- Fixed `EmbeddingClient` URL construction using `join_url()` helper to handle base URLs with path components correctly
+- Fixed duplicate `/v1` in embedding endpoint path for OpenAI-compatible providers
+
 ## [0.4.0] - 2026-01-24
 
 ### Added
