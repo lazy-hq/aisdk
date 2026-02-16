@@ -6,9 +6,23 @@
 [![Issues](https://img.shields.io/github/issues/lazy-hq/aisdk)](https://github.com/lazy-hq/aisdk/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/lazy-hq/aisdk/pulls)
 
-An open-source, provider-agnostic Rust library for building AI-powered applications, inspired by the Vercel AI SDK. It provides a type-safe interface for interacting with Large Language Models (LLMs) and offers seamless support for Rust backend frameworks as well as popular UI frameworks like React, Solid, Vue, Svelte, and more.
+
+An open-source, **provider-agnostic** Rust library for building AI-powered applications, inspired by the Vercel AI SDK. Type-safe, framework-friendly, and ready to connect with **70+ AI providers**.
+
+If you want, I can also draft an **ultra-hooky one-line version** for the very top of the README that immediately grabs attention. Do you want me to do that?
+
 
 To learn more about how to use the AI SDK, check out our [Documentation](https://aisdk.rs) and [API Reference](https://docs.rs/aisdk/latest).
+
+
+## Features
+* Agents & Tool Execution
+* Prompt Templating
+* Text Generation & Streaming
+* Structured Output (JSON Schema)
+* Embedding Model Support
+* Compatible with [Vercel AI SDK UI](https://ai-sdk.dev/docs/ai-sdk-ui/overview) (React, Solid, Vue, Svelte, …)
+* Supports 73+ providers, including Anthropic, Google, OpenAI, OpenRouter, xAI
 
 ## Installation
 
@@ -97,74 +111,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Structured Output
-
-Define your target output format.
-
-```rust
-use serde::Deserialize;
-use schemars::JsonSchema;
-
-#[derive(JsonSchema, Deserialize, Debug)]
-struct User {
-    name: String,
-    age: u32,
-    email: Option<String>,
-}
-```
-
-Use the `schema` attribute to infer the structure of the output.
-
-```rust
-use aisdk::core::LanguageModelRequest;
-use aisdk::providers::OpenAI;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-    let user: User = LanguageModelRequest::builder()
-        .model(OpenAI::gpt_5())
-        .prompt("Generate a random user")
-        .schema::<User>()
-        .build()
-        .generate_text()
-        .await?
-        .into_schema()?;
-
-    println!("Name: {}", user.name);
-    println!("Age: {}", user.age);
-    println!("Email: {}", user.email.unwrap_or_default());
-    Ok(())
-}
-```
-
 ### Prompts
 
 The AISDK prompt feature provides, file-based template system for managing AI prompts using the Tera template engine. It allows you to create reusable prompt templates with variable substitution, conditionals, loops, and template inclusion. See [Examples](https://aisdk.rs/docs/concepts/prompt) for more template examples. Enable with `cargo add aisdk --features prompt`
 
 ### Roadmap
 
-- [x] Agents
-- [x] Tool Execution
-- [x] Prompt Templating
-- [x] Structured Output (JSON Schema)
-- [x] Language Model Request Support (Text Generation, Streaming)
-- [x] Compatible with [Vercel AI SDK UI](https://ai-sdk.dev/docs/ai-sdk-ui/overview) (React, Solid, Vue, Svelte, …)
-- [x] Embedding Model Request Support
 - [ ] Image Model Request Support
 - [ ] Voice Model Request Support
-- [ ] Additional Providers
-  - [x] Anthropic
-  - [x] Amazon Bedrock
-  - [x] DeepSeek
-  - [x] Google
-  - [x] Groq
-  - [x] OpenAI
-  - [x] OpenRouter
-  - [x] TogetherAI
-  - [x] Vercel
-  - [x] xAI (Grok)
-  - [x] and 54+ OpenAI compatible providers
+- [ ] Observability & OpenTelemetry (OTel) Support
 
 ## Contributing
 
