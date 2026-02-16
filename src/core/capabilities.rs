@@ -59,7 +59,7 @@ pub trait ImageOutputSupport {}
 /// - Supporting custom or fine-tuned models
 /// - Forward compatibility with future models not yet defined in the SDK
 #[derive(Debug, Clone)]
-pub struct DynamicModel {}
+pub struct DynamicModel;
 
 impl ModelName for DynamicModel {
     const MODEL_NAME: &'static str = ""; // model name injected at runtime
