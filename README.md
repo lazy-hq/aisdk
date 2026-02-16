@@ -9,11 +9,7 @@
 
 An open-source, **provider-agnostic** Rust library for building AI-powered applications, inspired by the Vercel AI SDK. Type-safe, framework-friendly, and ready to connect with **70+ AI providers**.
 
-If you want, I can also draft an **ultra-hooky one-line version** for the very top of the README that immediately grabs attention. Do you want me to do that?
-
-
 To learn more about how to use the AI SDK, check out our [Documentation](https://aisdk.rs) and [API Reference](https://docs.rs/aisdk/latest).
-
 
 ## Features
 * Agents & Tool Execution
