@@ -18,7 +18,7 @@ impl<M: ModelName> EmbeddingClient for OpenAIChatCompletions<M> {
     type Response = EmbeddingResponse;
 
     fn path(&self) -> String {
-        "v1/embeddings".to_string()
+        "embeddings".to_string()
     }
 
     fn method(&self) -> reqwest::Method {
@@ -44,7 +44,7 @@ impl<M: ModelName> EmbeddingClient for OpenAIChatCompletions<M> {
 
     fn body(&self) -> reqwest::Body {
         // This will be set when embedding is called
-        reqwest::Body::from("{}") // Placeholder, will be replaced
+        reqwest::Body::from("") // Placeholder, will be replaced
     }
 }
 
@@ -87,7 +87,7 @@ impl EmbeddingClient for EmbeddingClientWrapper {
     type Response = EmbeddingResponse;
 
     fn path(&self) -> String {
-        "v1/embeddings".to_string()
+        "embeddings".to_string()
     }
 
     fn method(&self) -> reqwest::Method {

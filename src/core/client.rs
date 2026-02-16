@@ -322,9 +322,7 @@ pub(crate) trait EmbeddingClient {
             .into_url()
             .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
 
-        let url = base_url
-            .join(&self.path())
-            .map_err(|_| Error::InvalidInput("Failed to join base URL and path".into()))?;
+        let url = join_url(base_url, &self.path())?;
 
         // Serialize body once to avoid consumption issues on retries
         let body_bytes = {

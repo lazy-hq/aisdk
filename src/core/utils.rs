@@ -24,6 +24,7 @@ use crate::{
 /// # Examples
 ///
 /// ```rust,no_run
+/// # #[cfg(feature = "language-model-request")]
 /// use aisdk::core::{LanguageModelRequest, utils::step_count_is};
 /// // use aisdk::providers::OpenAI; // Requires "openai" feature
 ///
