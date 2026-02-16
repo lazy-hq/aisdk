@@ -5,8 +5,11 @@
 //! underlying implementation details of different AI providers, offering a
 //! unified interface for various operations like text generation or streaming.
 
+#[cfg(feature = "language-model-request")]
 pub mod generate_text;
+#[cfg(feature = "language-model-request")]
 pub mod request;
+#[cfg(feature = "language-model-request")]
 pub mod stream_text;
 
 use crate::core::messages::{AssistantMessage, TaggedMessage, TaggedMessageHelpers};

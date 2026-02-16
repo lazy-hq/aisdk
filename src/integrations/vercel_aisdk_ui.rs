@@ -1,11 +1,15 @@
 //! Integration with Vercel's AI SDK UI.
 
+#[cfg(feature = "language-model-request")]
 use futures::Stream;
+#[cfg(feature = "language-model-request")]
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+#[cfg(feature = "language-model-request")]
 use uuid;
 
+#[cfg(feature = "language-model-request")]
 use crate::core::LanguageModelStreamChunkType;
 
 /// Vercel's ai-sdk UI message chunk types.
@@ -213,6 +217,7 @@ impl<C, T> VercelUIStreamBuilder<C, T> {
     }
 }
 
+#[cfg(feature = "language-model-request")]
 impl crate::core::StreamTextResponse {
     /// Converts this `StreamTextResponse` into a stream of `VercelUIStream` chunks.
     ///

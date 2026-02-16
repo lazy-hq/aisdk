@@ -2,12 +2,14 @@
 //! TODO: add more doc
 
 /// Embedding request builder and related types.
+#[cfg(feature = "embedding-model-request")]
 pub mod request;
 
 use crate::error::Result;
 use async_trait::async_trait;
 
 use derive_builder::Builder;
+#[cfg(feature = "embedding-model-request")]
 pub use request::EmbeddingModelRequest;
 
 /// The options for embedding requests.
