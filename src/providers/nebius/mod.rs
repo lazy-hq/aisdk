@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Nebius,
-    NebiusBuilder,
-    NebiusProviderSettings,
-    "nebius"
-);
+crate::openai_compatible_provider!(Nebius, NebiusBuilder, NebiusProviderSettings, "nebius");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Nebius);

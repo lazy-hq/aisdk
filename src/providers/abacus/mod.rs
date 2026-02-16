@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Abacus,
-    AbacusBuilder,
-    AbacusProviderSettings,
-    "abacus"
-);
+crate::openai_compatible_provider!(Abacus, AbacusBuilder, AbacusProviderSettings, "abacus");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Abacus);

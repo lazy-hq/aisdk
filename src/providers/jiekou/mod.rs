@@ -12,12 +12,7 @@ crate::openai_compatible_settings!(
 );
 
 // Generate the provider struct and builder
-crate::openai_compatible_provider!(
-    Jiekou,
-    JiekouBuilder,
-    JiekouProviderSettings,
-    "jiekou"
-);
+crate::openai_compatible_provider!(Jiekou, JiekouBuilder, JiekouProviderSettings, "jiekou");
 
 // Generate the language model implementation
 crate::openai_compatible_language_model!(Jiekou);

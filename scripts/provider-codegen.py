@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 /// script
-/// dependencies = ["typer", "requests"]
+/// dependencies = ["typer", "requests", "tomlkit"]
 /// python-version = "3.13"
 
 AI SDK Provider Code Generator
@@ -23,6 +23,7 @@ import requests
 from pathlib import Path
 from typing import Any, Optional, Literal, Annotated
 from dataclasses import dataclass
+import tomlkit
 import typer
 
 # ============================================================================
@@ -157,7 +158,6 @@ def get_project_root() -> Path:
         RuntimeError: If Cargo.toml is not found
     """
     root = Path(__file__).resolve().parent.parent
-    print("Root: ", root)
     if not (root / "Cargo.toml").exists():
         raise RuntimeError("Could not find project root (missing Cargo.toml)")
     return root
@@ -361,6 +361,169 @@ def batch_write_files(
 
 
 # ============================================================================
+# CARGO.TOML AND MOD.RS UPDATES
+# ============================================================================
+
+# Providers that are manually managed in src/providers/mod.rs
+# (declared above the // [codegen] block). These are excluded from codegen.
+MANUALLY_MANAGED_MODULES = {
+    "openai",
+    "openai_compatible",
+    "openai_chat_completions",
+    "anthropic",
+    "groq",
+    "google",
+    "vercel",
+    "openrouter",
+    "mistral",
+    "amazon_bedrock",
+    "togetherai",
+    "xai",
+}
+
+
+def update_cargo_toml(provider_ids: list[str], root: Path | None = None):
+    """
+    Add feature entries for new providers to Cargo.toml (additive only).
+
+    For each provider_id, this ensures:
+    1. A feature entry `provider-id = ["openaichatcompletions"]` exists
+    2. The provider is listed in the `full` feature array
+
+    Uses tomlkit for style-preserving TOML manipulation.
+
+    Args:
+        provider_ids: List of provider identifiers (kebab-case from models.dev)
+        root: Optional project root (defaults to auto-detected root)
+    """
+    if root is None:
+        root = get_project_root()
+
+    cargo_path = root / "Cargo.toml"
+    with open(cargo_path, "r", encoding="utf-8") as f:
+        doc = tomlkit.load(f)
+
+    features = doc["features"]
+    full_feature = features["full"]
+    modified = False
+
+    for provider_id in sorted(provider_ids):
+        # Add individual feature entry if not present
+        if provider_id not in features:
+            features[provider_id] = ["openaichatcompletions"]
+            log(f"Added feature '{provider_id}' to Cargo.toml")
+            modified = True
+
+        # Add to 'full' feature list if not present
+        if provider_id not in full_feature:
+            full_feature.append(provider_id)
+            log(f"Added '{provider_id}' to 'full' feature list")
+            modified = True
+
+    if modified:
+        with open(cargo_path, "w", encoding="utf-8") as f:
+            tomlkit.dump(doc, f)
+        log("Updated Cargo.toml")
+    else:
+        log("Cargo.toml already up to date")
+
+
+def get_codegen_provider_dirs(root: Path) -> list[str]:
+    """
+    Scan src/providers/ for directories that should be managed by codegen.
+
+    Excludes manually-managed providers and non-directory entries.
+
+    Args:
+        root: Project root directory
+
+    Returns:
+        Sorted list of provider directory names (as they appear on disk)
+    """
+    providers_dir = root / "src" / "providers"
+    codegen_dirs = []
+
+    for entry in sorted(providers_dir.iterdir()):
+        if not entry.is_dir():
+            continue
+        dir_name = entry.name
+        # Normalize to check against manually-managed set
+        # (dirs may use hyphens or underscores)
+        normalized = dir_name.replace("-", "_")
+        if normalized in MANUALLY_MANAGED_MODULES:
+            continue
+        codegen_dirs.append(dir_name)
+
+    return codegen_dirs
+
+
+def update_providers_mod_rs(root: Path | None = None):
+    """
+    Regenerate the codegen block in src/providers/mod.rs.
+
+    Scans all provider directories and generates module declarations
+    and re-exports between the // [codegen] and // [end-codegen] markers.
+
+    For providers with hyphens in the directory name, a #[path] attribute
+    is used since Rust module names cannot contain hyphens.
+
+    Args:
+        root: Optional project root (defaults to auto-detected root)
+    """
+    if root is None:
+        root = get_project_root()
+
+    mod_rs_path = root / "src" / "providers" / "mod.rs"
+    content = mod_rs_path.read_text(encoding="utf-8")
+
+    # Find the codegen markers
+    start_marker = "// [codegen]"
+    end_marker = "// [end-codegen]"
+
+    start_idx = content.find(start_marker)
+    end_idx = content.find(end_marker)
+
+    if start_idx == -1 or end_idx == -1:
+        raise RuntimeError(
+            f"Could not find codegen markers in {mod_rs_path}. "
+            f"Expected '{start_marker}' and '{end_marker}'"
+        )
+
+    # Get all codegen-managed provider directories
+    provider_dirs = get_codegen_provider_dirs(root)
+
+    # Generate the codegen block content
+    lines = []
+    for dir_name in provider_dirs:
+        module_name = provider_id_to_snake_case(dir_name)
+        struct_name = to_pascal_case(dir_name)
+        # Feature names use the provider ID as-is (kebab-case)
+        feature_name = dir_name
+        # Use #[path] when directory name differs from module name
+        # (e.g., hyphens in dir name, or leading digits like "302ai" -> "ai_302")
+        needs_path_attr = dir_name != module_name
+
+        lines.append(f'#[cfg(feature = "{feature_name}")]')
+        if needs_path_attr:
+            lines.append(f'#[path = "{dir_name}/mod.rs"]')
+        lines.append(f"pub mod {module_name};")
+        lines.append(f'#[cfg(feature = "{feature_name}")]')
+        lines.append(f"pub use {module_name}::{struct_name};")
+        lines.append("")
+
+    # Build the new content between markers
+    codegen_content = "\n".join(lines)
+    new_block = f"{start_marker}\n{codegen_content}{end_marker}"
+
+    # Replace the codegen block
+    new_content = content[:start_idx] + new_block + \
+        content[end_idx + len(end_marker):]
+
+    mod_rs_path.write_text(new_content, encoding="utf-8")
+    log(f"Updated {mod_rs_path} with {len(provider_dirs)} codegen providers")
+
+
+# ============================================================================
 # CAPABILITIES GENERATION
 # ============================================================================
 
@@ -379,9 +542,7 @@ def get_model_display_name(model_id: str, model_data: dict[str, Any]) -> str:
     return model_data.get("name", model_id)
 
 
-def get_model_constructor_name(
-    model_id: str, folder_prefix: str | None = None
-) -> str:
+def get_model_constructor_name(model_id: str, folder_prefix: str | None = None) -> str:
     """
     Get the constructor name for a model with optional folder prefix.
 
@@ -393,17 +554,11 @@ def get_model_constructor_name(
         Constructor name in snake_case
     """
     if folder_prefix:
-        return (
-            to_constructor_name(folder_prefix)
-            + "_"
-            + to_constructor_name(model_id)
-        )
+        return to_constructor_name(folder_prefix) + "_" + to_constructor_name(model_id)
     return to_constructor_name(model_id)
 
 
-def get_model_type_name(
-    model_id: str, folder_prefix: str | None = None
-) -> str:
+def get_model_type_name(model_id: str, folder_prefix: str | None = None) -> str:
     """
     Get the type name (PascalCase) for a model with optional folder prefix.
 
@@ -435,9 +590,11 @@ def parse_model_id(model_id: str) -> tuple[str, str | None]:
             return parts[1], parts[0]
         elif len(parts) > 2:
             # Only support 1 level of nesting
-            log(f"Warning: Model ID '{
-                model_id
-            }' has more than 1 level of nesting. Using only first level.")
+            log(
+                f"Warning: Model ID '{
+                    model_id
+                }' has more than 1 level of nesting. Using only first level."
+            )
             return parts[-1], parts[-2]
 
     return model_id, None
@@ -555,8 +712,7 @@ def prepare_provider_capabilities(
         root = get_project_root()
 
     content = generate_provider_capabilities_content(
-        provider_id, provider_data
-    )
+        provider_id, provider_data)
     if content is None:
         return None
 
@@ -682,15 +838,13 @@ def prepare_openai_compatible_provider(
 
     # Prepare mod.rs
     mod_content = generate_openai_compatible_content(
-        provider_id, provider_data
-    )
+        provider_id, provider_data)
     pending.append(create_pending_write(provider_id, mod_content, "mod", root))
 
     # Optionally prepare capabilities.rs
     if with_capabilities:
         cap_write = prepare_provider_capabilities(
-            provider_id, provider_data, root
-        )
+            provider_id, provider_data, root)
         if cap_write:
             pending.append(cap_write)
 
@@ -765,9 +919,8 @@ def openai_compatible(
     ] = None,
     with_capabilities: Annotated[
         bool,
-        typer.Option(
-            "--with-capabilities", "-c", help="Also generate capabilities.rs"
-        ),
+        typer.Option("--with-capabilities", "-c",
+                     help="Also generate capabilities.rs"),
     ] = False,
 ):
     """
@@ -815,7 +968,19 @@ def openai_compatible(
         # PHASE 2: Write all files atomically
         written_files = batch_write_files(pending_writes)
 
-        # PHASE 3: Format
+        # PHASE 3: Update Cargo.toml and mod.rs
+        # Collect provider IDs from written files
+        generated_provider_ids = []
+        if provider_id:
+            generated_provider_ids = [provider_id]
+        else:
+            generated_provider_ids = list(
+                filter_openai_compatible_providers(all_providers).keys()
+            )
+        update_cargo_toml(generated_provider_ids)
+        update_providers_mod_rs()
+
+        # PHASE 4: Format
         run_cargo_fmt()
 
         # Report success
@@ -856,8 +1021,7 @@ def capabilities(
 
             provider_data = all_providers[provider_id]
             cap_write = prepare_provider_capabilities(
-                provider_id, provider_data
-            )
+                provider_id, provider_data)
             pending_writes = [cap_write] if cap_write else []
 
             if not pending_writes:
@@ -870,7 +1034,10 @@ def capabilities(
         # PHASE 2: Write all files atomically
         written_files = batch_write_files(pending_writes)
 
-        # PHASE 3: Format
+        # PHASE 3: Sync mod.rs codegen block
+        update_providers_mod_rs()
+
+        # PHASE 4: Format
         run_cargo_fmt()
 
         # Report success
