@@ -46,8 +46,7 @@ def fetch_models_dev_json() -> dict[str, Any]:
     log("Fetching models.dev API data...")
     response = requests.get("https://models.dev/api.json")
     if response.status_code != 200:
-        raise Exception(f"Failed to fetch models.dev JSON: {
-                        response.status_code}")
+        raise Exception(f"Failed to fetch models.dev JSON: {response.status_code}")
 
     log("Successfully fetched models.dev data")
     return response.json()
@@ -516,8 +515,7 @@ def update_providers_mod_rs(root: Path | None = None):
     new_block = f"{start_marker}\n{codegen_content}{end_marker}"
 
     # Replace the codegen block
-    new_content = content[:start_idx] + new_block + \
-        content[end_idx + len(end_marker):]
+    new_content = content[:start_idx] + new_block + content[end_idx + len(end_marker) :]
 
     mod_rs_path.write_text(new_content, encoding="utf-8")
     log(f"Updated {mod_rs_path} with {len(provider_dirs)} codegen providers")
@@ -546,15 +544,20 @@ def get_model_constructor_name(model_id: str, folder_prefix: str | None = None) 
     """
     Get the constructor name for a model with optional folder prefix.
 
+    Handles multi-segment prefixes (e.g., "Pro/deepseek-ai") by converting
+    each segment to snake_case and joining with underscores.
+
     Args:
         model_id: Model identifier
-        folder_prefix: Optional folder prefix for nested models
+        folder_prefix: Optional folder prefix for nested models (may contain "/")
 
     Returns:
         Constructor name in snake_case
     """
     if folder_prefix:
-        return to_constructor_name(folder_prefix) + "_" + to_constructor_name(model_id)
+        prefix_parts = folder_prefix.split("/")
+        prefix = "_".join(to_constructor_name(p) for p in prefix_parts)
+        return prefix + "_" + to_constructor_name(model_id)
     return to_constructor_name(model_id)
 
 
@@ -562,15 +565,20 @@ def get_model_type_name(model_id: str, folder_prefix: str | None = None) -> str:
     """
     Get the type name (PascalCase) for a model with optional folder prefix.
 
+    Handles multi-segment prefixes (e.g., "Pro/deepseek-ai") by converting
+    each segment to PascalCase and concatenating them.
+
     Args:
         model_id: Model identifier
-        folder_prefix: Optional folder prefix for nested models
+        folder_prefix: Optional folder prefix for nested models (may contain "/")
 
     Returns:
         Type name in PascalCase
     """
     if folder_prefix:
-        return to_pascal_case(folder_prefix) + to_pascal_case(model_id)
+        prefix_parts = folder_prefix.split("/")
+        prefix = "".join(to_pascal_case(p) for p in prefix_parts)
+        return prefix + to_pascal_case(model_id)
     return to_pascal_case(model_id)
 
 
@@ -589,13 +597,9 @@ def parse_model_id(model_id: str) -> tuple[str, str | None]:
         if len(parts) == 2:
             return parts[1], parts[0]
         elif len(parts) > 2:
-            # Only support 1 level of nesting
-            log(
-                f"Warning: Model ID '{
-                    model_id
-                }' has more than 1 level of nesting. Using only first level."
-            )
-            return parts[-1], parts[-2]
+            # Join all prefix segments to preserve uniqueness
+            # e.g., "Pro/deepseek-ai/DeepSeek-R1" -> base="DeepSeek-R1", prefix="Pro/deepseek-ai"
+            return parts[-1], "/".join(parts[:-1])
 
     return model_id, None
 
@@ -639,12 +643,26 @@ def generate_capabilities_rs(provider_id: str, models: dict[str, Any]) -> str:
         if model_data.get("status") != "deprecated"
     }
 
+    # Track seen type names to skip duplicates (e.g., "claude-3-5-haiku" and
+    # "claude-3.5-haiku" both produce "AnthropicClaude35Haiku")
+    seen_type_names: set[str] = set()
+
     for model_id, model_data in sorted(active_models.items()):
         # Parse model ID for folder structure
         base_name, folder_prefix = parse_model_id(model_id)
 
         # Get model components
         model_type_name = get_model_type_name(base_name, folder_prefix)
+
+        # Skip duplicate PascalCase type names — these are the same model
+        # listed under different naming conventions (e.g., dots vs hyphens)
+        if model_type_name in seen_type_names:
+            log(
+                f"Skipping duplicate type name '{model_type_name}' for model '{model_id}'"
+            )
+            continue
+        seen_type_names.add(model_type_name)
+
         model_name = model_id  # Use full model ID as the model name
         constructor_name = get_model_constructor_name(base_name, folder_prefix)
         display_name = get_model_display_name(model_id, model_data)
@@ -689,8 +707,7 @@ def generate_provider_capabilities_content(
         log(f"Warning: No models found for provider '{provider_id}'")
         return None
 
-    log(f"Preparing capabilities for '{
-        provider_id}' with {len(models)} models")
+    log(f"Preparing capabilities for '{provider_id}' with {len(models)} models")
     return generate_capabilities_rs(provider_id, models)
 
 
@@ -711,8 +728,7 @@ def prepare_provider_capabilities(
     if root is None:
         root = get_project_root()
 
-    content = generate_provider_capabilities_content(
-        provider_id, provider_data)
+    content = generate_provider_capabilities_content(provider_id, provider_data)
     if content is None:
         return None
 
@@ -837,14 +853,12 @@ def prepare_openai_compatible_provider(
     pending = []
 
     # Prepare mod.rs
-    mod_content = generate_openai_compatible_content(
-        provider_id, provider_data)
+    mod_content = generate_openai_compatible_content(provider_id, provider_data)
     pending.append(create_pending_write(provider_id, mod_content, "mod", root))
 
     # Optionally prepare capabilities.rs
     if with_capabilities:
-        cap_write = prepare_provider_capabilities(
-            provider_id, provider_data, root)
+        cap_write = prepare_provider_capabilities(provider_id, provider_data, root)
         if cap_write:
             pending.append(cap_write)
 
@@ -877,8 +891,7 @@ def prepare_all_openai_compatible_providers(
             )
             pending_writes.extend(provider_writes)
         except Exception as e:
-            log(f"Error preparing OpenAI-compatible provider '{
-                provider_id}': {e}")
+            log(f"Error preparing OpenAI-compatible provider '{provider_id}': {e}")
 
     return pending_writes
 
@@ -919,8 +932,7 @@ def openai_compatible(
     ] = None,
     with_capabilities: Annotated[
         bool,
-        typer.Option("--with-capabilities", "-c",
-                     help="Also generate capabilities.rs"),
+        typer.Option("--with-capabilities", "-c", help="Also generate capabilities.rs"),
     ] = False,
 ):
     """
@@ -947,8 +959,7 @@ def openai_compatible(
 
             # Check if it's OpenAI-compatible
             if provider_data.get("npm") != "@ai-sdk/openai-compatible":
-                log(f"Error: Provider '{
-                    provider_id}' is not OpenAI-compatible")
+                log(f"Error: Provider '{provider_id}' is not OpenAI-compatible")
                 log(
                     f"Use 'capabilities {
                         provider_id
@@ -1020,13 +1031,11 @@ def capabilities(
                 raise typer.Exit(code=1)
 
             provider_data = all_providers[provider_id]
-            cap_write = prepare_provider_capabilities(
-                provider_id, provider_data)
+            cap_write = prepare_provider_capabilities(provider_id, provider_data)
             pending_writes = [cap_write] if cap_write else []
 
             if not pending_writes:
-                log(f"Warning: No capabilities to generate for '{
-                    provider_id}'")
+                log(f"Warning: No capabilities to generate for '{provider_id}'")
         else:
             # Prepare all provider capabilities
             pending_writes = prepare_all_capabilities(all_providers)

@@ -22,63 +22,63 @@ model_capabilities! {
             display_name: "Kwaipilot/KAT-Dev",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MinimaxaiMinimaxM21 {
+        ProMinimaxaiMinimaxM21 {
             model_name: "Pro/MiniMaxAI/MiniMax-M2.1",
-            constructor_name: minimaxai_minimax_m2_1,
+            constructor_name: pro_minimaxai_minimax_m2_1,
             display_name: "Pro/MiniMaxAI/MiniMax-M2.1",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        DeepseekAiDeepseekR1 {
+        ProDeepseekAiDeepseekR1 {
             model_name: "Pro/deepseek-ai/DeepSeek-R1",
-            constructor_name: deepseek_ai_deepseek_r1,
+            constructor_name: pro_deepseek_ai_deepseek_r1,
             display_name: "Pro/deepseek-ai/DeepSeek-R1",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        DeepseekAiDeepseekV3 {
+        ProDeepseekAiDeepseekV3 {
             model_name: "Pro/deepseek-ai/DeepSeek-V3",
-            constructor_name: deepseek_ai_deepseek_v3,
+            constructor_name: pro_deepseek_ai_deepseek_v3,
             display_name: "Pro/deepseek-ai/DeepSeek-V3",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        DeepseekAiDeepseekV31Terminus {
+        ProDeepseekAiDeepseekV31Terminus {
             model_name: "Pro/deepseek-ai/DeepSeek-V3.1-Terminus",
-            constructor_name: deepseek_ai_deepseek_v3_1_terminus,
+            constructor_name: pro_deepseek_ai_deepseek_v3_1_terminus,
             display_name: "Pro/deepseek-ai/DeepSeek-V3.1-Terminus",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        DeepseekAiDeepseekV32 {
+        ProDeepseekAiDeepseekV32 {
             model_name: "Pro/deepseek-ai/DeepSeek-V3.2",
-            constructor_name: deepseek_ai_deepseek_v3_2,
+            constructor_name: pro_deepseek_ai_deepseek_v3_2,
             display_name: "Pro/deepseek-ai/DeepSeek-V3.2",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MoonshotaiKimiK2Instruct0905 {
+        ProMoonshotaiKimiK2Instruct0905 {
             model_name: "Pro/moonshotai/Kimi-K2-Instruct-0905",
-            constructor_name: moonshotai_kimi_k2_instruct_0905,
+            constructor_name: pro_moonshotai_kimi_k2_instruct_0905,
             display_name: "Pro/moonshotai/Kimi-K2-Instruct-0905",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MoonshotaiKimiK2Thinking {
+        ProMoonshotaiKimiK2Thinking {
             model_name: "Pro/moonshotai/Kimi-K2-Thinking",
-            constructor_name: moonshotai_kimi_k2_thinking,
+            constructor_name: pro_moonshotai_kimi_k2_thinking,
             display_name: "Pro/moonshotai/Kimi-K2-Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        MoonshotaiKimiK25 {
+        ProMoonshotaiKimiK25 {
             model_name: "Pro/moonshotai/Kimi-K2.5",
-            constructor_name: moonshotai_kimi_k2_5,
+            constructor_name: pro_moonshotai_kimi_k2_5,
             display_name: "Pro/moonshotai/Kimi-K2.5",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        ZaiOrgGlm47 {
+        ProZaiOrgGlm47 {
             model_name: "Pro/zai-org/GLM-4.7",
-            constructor_name: zai_org_glm_4_7,
+            constructor_name: pro_zai_org_glm_4_7,
             display_name: "Pro/zai-org/GLM-4.7",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        ZaiOrgGlm5 {
+        ProZaiOrgGlm5 {
             model_name: "Pro/zai-org/GLM-5",
-            constructor_name: zai_org_glm_5,
+            constructor_name: pro_zai_org_glm_5,
             display_name: "Pro/zai-org/GLM-5",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
