@@ -17,6 +17,10 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+
+- Fixed `DynamicModel` builder bug where `.model_name(...)` was overwritten on `.build()`, causing empty model IDs.
+
 ## [0.5.1] - 2026-02-16
 
 ## [0.5.0] - 2026-02-16
