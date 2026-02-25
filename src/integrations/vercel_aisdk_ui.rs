@@ -298,7 +298,7 @@ impl crate::core::StreamTextResponse {
 }
 
 /// Represents a part of a UI message from Vercel's useChat hook.
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct VercelUIMessagePart {
     /// The text content of the part.
     pub text: String,
@@ -308,7 +308,7 @@ pub struct VercelUIMessagePart {
 }
 
 /// Represents a UI message from Vercel's useChat hook.
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct VercelUIMessage {
     /// Unique identifier for the message.
     pub id: String,
@@ -319,14 +319,14 @@ pub struct VercelUIMessage {
 }
 
 /// Represents a request body from Vercel's useChat hook.
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VercelUIRequest {
     /// Unique identifier for the chat session.
     pub id: String,
     /// Array of UI messages from the frontend.
     pub messages: Vec<VercelUIMessage>,
     /// Trigger indicating the action (e.g., "submit-message").
-    pub trigger: String,
+    pub trigger: String, // TODO: can't this be an enum?
 }
 
 impl crate::core::Message {
