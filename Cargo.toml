@@ -22,6 +22,7 @@ embedding-model-request = []
 test-access = []
 prompt = ["tera", "glob"]
 axum = ["dep:axum"]
+dioxus = ["dep:dioxus"]
 openai = []
 anthropic = []
 google = []
@@ -113,6 +114,7 @@ reqwest = { version = "0.12", features = ["json", "stream"] }
 reqwest-eventsource = "0.6.0"
 uuid = { version = "1.0", features = ["v4"] }
 axum = { version = ">=0.7, <0.9", optional = true }
+dioxus = { version = "0.7.0", optional = true }
 parking_lot = "0.12.5"
 aisdk-macros = { version = "0.3.0", path = "./macros" }
 
