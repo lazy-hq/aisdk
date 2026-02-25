@@ -56,7 +56,7 @@ macro_rules! generate_language_model_tests {
     ) => {
         use aisdk::core::tools::ToolExecute;
         use aisdk::core::{
-            language_model::{LanguageModelResponseContentType, StopReason},
+            language_model::{LanguageModel, LanguageModelResponseContentType, StopReason},
             tools::Tool,
             DynamicModel, LanguageModelRequest, LanguageModelStreamChunkType, Message,
         };
@@ -152,9 +152,14 @@ macro_rules! generate_provider_has_default_interface {
             let _provider_dynamic = $provider_type::model_name("test-model".to_string());
 
             // should have model_name() on dynamic model builder
-            let _provider_dynamic_builder = $provider_type::<DynamicModel>::builder()
+            let provider_dynamic_builder = $provider_type::<DynamicModel>::builder()
                 .model_name("test-model".to_string())
-                .build();
+                .api_key("test-api-key")
+                .base_url("http://localhost:8080")
+                .build()
+                .unwrap();
+
+            assert_eq!(provider_dynamic_builder.name(), "test-model");
         }
     };
 }

@@ -216,14 +216,12 @@ impl<M: ModelName> OpenAIBuilder<M> {
             return Err(Error::MissingField("api_key".to_string()));
         }
 
-        let lm_options = OpenAILanguageModelOptions::builder()
-            .model(M::MODEL_NAME.to_string())
-            .build()
-            .unwrap();
+        let lm_options = self.options;
+        let model_name = lm_options.model.clone();
 
         let embedding_options = OpenAIEmbeddingOptions {
             input: vec![],
-            model: M::MODEL_NAME.to_string(),
+            model: model_name,
             user: None,
             dimensions: None,
             encoding_format: None,
