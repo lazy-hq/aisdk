@@ -2,4 +2,6 @@
 
 #[cfg(feature = "axum")]
 pub mod axum;
+#[cfg(feature = "dioxus")]
+pub mod dioxus;
 pub mod vercel_aisdk_ui;
