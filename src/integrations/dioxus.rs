@@ -187,9 +187,15 @@ pub mod hooks {
                             }
                         }
                         Err(_) => {
-                            // Stream closed or network error
-                            if !matches!(*status.read(), DioxusChatStatus::Error) {
-                                *status.write() = DioxusChatStatus::Ready;
+                            // A stream error before we ever received Event::Open means
+                            // the connection itself failed — treat as Error.
+                            // An error after streaming started is a normal close.
+                            let mut s = status.write();
+                            if !matches!(*s, DioxusChatStatus::Error | DioxusChatStatus::Streaming)
+                            {
+                                *s = DioxusChatStatus::Error;
+                            } else if matches!(*s, DioxusChatStatus::Streaming) {
+                                *s = DioxusChatStatus::Ready;
                             }
                             break;
                         }
