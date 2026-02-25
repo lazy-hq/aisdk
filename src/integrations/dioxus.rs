@@ -284,3 +284,56 @@ impl<M: ModelName> ChatBuilder<M, WithName> {
 }
 
 mod hooks {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::capabilities::DynamicModel;
+
+    #[test]
+    #[should_panic(expected = "empty model name")]
+    fn chat_builder() {
+        // --- Concrete model ---
+        // Model name is derived from M::MODEL_NAME at compile time.
+        #[derive(Debug, Clone)]
+        struct MyModel;
+        impl ModelName for MyModel {
+            const MODEL_NAME: &'static str = "my-model-v1";
+        }
+
+        let chat = ChatBuilder::new(MyModel, "/api/chat").build();
+        assert_eq!(chat.model_name, "my-model-v1");
+        assert_eq!(chat.api, "/api/chat");
+        assert_eq!(chat.status, ChatStatus::Ready);
+        assert!(chat.messages.is_empty());
+        assert!(!chat.id.is_empty());
+
+        // All fluent setters are available in both builder states.
+        let chat = ChatBuilder::new(MyModel, "/api/chat")
+            .id("session-123")
+            .status(ChatStatus::Submitted)
+            .build();
+        assert_eq!(chat.id, "session-123");
+        assert_eq!(chat.status, ChatStatus::Submitted);
+
+        // .model_name() overrides the compile-time constant for any M.
+        let chat = ChatBuilder::new(MyModel, "/api/chat")
+            .model_name("my-model-v2-finetuned")
+            .build();
+        assert_eq!(chat.model_name, "my-model-v2-finetuned");
+
+        // --- DynamicModel ---
+        // M::MODEL_NAME is "" so .model_name() must be called to transition
+        // from WithoutName to WithName before .build() is safe.
+        let chat = ChatBuilder::new(DynamicModel, "/api/chat")
+            .id("my-session")
+            .model_name("gpt-4o") // WithoutName → WithName; .build() is now infallible
+            .status(ChatStatus::Ready)
+            .build();
+        assert_eq!(chat.id, "my-session");
+        assert_eq!(chat.model_name, "gpt-4o");
+
+        // Skipping .model_name() on DynamicModel compiles but panics at runtime.
+        ChatBuilder::new(DynamicModel, "/api/chat").build();
+    }
+}
