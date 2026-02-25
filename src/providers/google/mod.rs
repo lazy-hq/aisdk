@@ -176,12 +176,10 @@ impl<M: ModelName> GoogleBuilder<M> {
             return Err(Error::MissingField("api_key".to_string()));
         }
 
-        let options = GoogleOptions::builder()
-            .model(M::MODEL_NAME.to_string())
-            .build()
-            .unwrap();
+        let options = self.options;
+        let model_name = options.model.clone();
         let embedding_options = GoogleEmbeddingOptions {
-            model: M::MODEL_NAME.to_string(),
+            model: model_name,
             requests: Vec::new(),
         };
 
