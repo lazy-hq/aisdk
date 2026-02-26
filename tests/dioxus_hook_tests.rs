@@ -137,9 +137,7 @@ impl PartialEq for TestProps {
 /// snapshots current signal values into `shared` so the test can assert on them.
 #[component]
 fn TestChatComponent(props: TestProps) -> Element {
-    let options = DioxusUseChatOptions {
-        api: props.api.clone(),
-    };
+    let options = DioxusUseChatOptions::new().api(props.api.clone());
 
     let DioxusChatSignal {
         messages,
@@ -319,9 +317,7 @@ async fn test_guard_when_not_ready() {
 
     #[component]
     fn TwoSendComponent(props: TwoSendProps) -> Element {
-        let options = DioxusUseChatOptions {
-            api: props.api.clone(),
-        };
+        let options = DioxusUseChatOptions::new().api(props.api.clone());
 
         let chat_signal = use_chat(options);
         let messages = chat_signal.messages;
