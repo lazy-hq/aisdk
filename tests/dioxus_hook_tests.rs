@@ -50,7 +50,7 @@ fn status_str(s: &DioxusChatStatus) -> &'static str {
         DioxusChatStatus::Ready => "Ready",
         DioxusChatStatus::Submitted => "Submitted",
         DioxusChatStatus::Streaming => "Streaming",
-        DioxusChatStatus::Error => "Error",
+        DioxusChatStatus::Error(_) => "Error",
     }
 }
 

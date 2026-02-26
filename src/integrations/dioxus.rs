@@ -28,16 +28,8 @@ pub mod types {
         /// The stream has been fully processed, ready for new requests
         Ready,
         /// An error has occurred, ready for new request or regeneration
-        Error, // Add body for details
+        Error(String), // Add body for details
     }
-
-    // The reactive chat state managed by the `use_chat` hook.
-    // pub struct _DioxusChatSignal {
-    //     /// Chat messages
-    //     pub messages: Vec<VercelUIMessage>,
-    //     /// Chat state
-    //     pub status: DioxusChatStatus,
-    // }
 
     /// The value returned by the `use_chat` hook.
     pub struct DioxusChatSignal {
@@ -122,8 +114,10 @@ pub mod hooks {
 
                 let body = match serde_json::to_string(&request) {
                     Ok(b) => b,
-                    Err(_) => {
-                        *status.write() = DioxusChatStatus::Error;
+                    Err(e) => {
+                        log::error!("Failed to serialize request: {}", e);
+                        *status.write() =
+                            DioxusChatStatus::Error(String::from("Failed to serialize request"));
                         return;
                     }
                 };
@@ -136,8 +130,10 @@ pub mod hooks {
                     .eventsource()
                 {
                     Ok(es) => es,
-                    Err(_) => {
-                        *status.write() = DioxusChatStatus::Error;
+                    Err(e) => {
+                        log::error!("Failed to open stream: {}", e);
+                        *status.write() =
+                            DioxusChatStatus::Error(String::from("Failed to open stream"));
                         return;
                     }
                 };
@@ -178,24 +174,33 @@ pub mod hooks {
                                         part.text.push_str(&delta);
                                     } // TODO: handle if assistant_idx is not set by Event::Open
                                 }
-                                VercelUIStream::Error { .. }
-                                | VercelUIStream::NotSupported { .. } => {
-                                    *status.write() = DioxusChatStatus::Error;
+                                VercelUIStream::Error { error_text } => {
+                                    *status.write() = DioxusChatStatus::Error(error_text);
+                                    break;
+                                }
+                                VercelUIStream::NotSupported { .. } => {
+                                    *status.write() = DioxusChatStatus::Error(String::from(
+                                        "Stream chunk not supported",
+                                    ));
                                     break;
                                 }
                                 _ => {}
                             }
                         }
-                        Err(_) => {
+                        Err(e) => {
                             // A stream error before we ever received Event::Open means
                             // the connection itself failed — treat as Error.
                             // An error after streaming started is a normal close.
                             let mut s = status.write();
-                            if !matches!(*s, DioxusChatStatus::Error | DioxusChatStatus::Streaming)
-                            {
-                                *s = DioxusChatStatus::Error;
-                            } else if matches!(*s, DioxusChatStatus::Streaming) {
-                                *s = DioxusChatStatus::Ready;
+                            match *s {
+                                DioxusChatStatus::Streaming => *s = DioxusChatStatus::Ready,
+                                DioxusChatStatus::Error(_) => { /* already error, leave it */ }
+                                _ => {
+                                    *s = DioxusChatStatus::Error(format!(
+                                        "Error opening stream, {}",
+                                        e
+                                    ))
+                                }
                             }
                             break;
                         }
