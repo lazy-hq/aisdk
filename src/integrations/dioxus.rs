@@ -1,12 +1,27 @@
 //! Integration with Dioxus. WIP.
 
+/// Generates a unique ID using a random UUID (simple/hyphen-free format).
+///
+/// This is the default ID generator used for chat messages and requests when
+/// no custom [`DioxusTransportOptions::generate_id`] is provided.
+pub fn default_generate_id() -> String {
+    uuid::Uuid::new_v4().simple().to_string()
+}
+
 /// Types for the Dioxus integration.
 pub mod types {
     use crate::integrations::vercel_aisdk_ui::VercelUIMessage;
     use dioxus::{prelude::Callback, signals::ReadSignal};
     use std::collections::HashMap;
+    use std::sync::Arc;
 
     // ── DioxusTransportOptions ────────────────────────────────────────────────
+
+    /// A thread-safe, cloneable ID generator function.
+    ///
+    /// The function is called once per generated ID (user message, assistant
+    /// message, and request). It must return a non-empty unique string.
+    pub type GenerateIdFn = Arc<dyn Fn() -> String + Send + Sync>;
 
     /// Transport-level options that control how HTTP requests are made to the
     /// chat API endpoint.
@@ -15,26 +30,33 @@ pub mod types {
     /// and configure via the builder methods.
     ///
     /// # Example
-    /// ```rust,ignore
+    /// ```rust, ignore
     /// let transport = DioxusTransportOptions::new()
     ///     .header("Authorization", "Bearer my-token")
-    ///     .body(serde_json::json!({ "model": "gpt-4o" }));
+    ///     .body(serde_json::json!({ "model": "gpt-4o" }))
+    ///     .generate_id(|| format!("msg-{}", rand::random::<u32>()));
     /// ```
-    #[derive(Clone, Debug)]
+    #[derive(Clone)]
     pub struct DioxusTransportOptions {
         /// Extra HTTP headers sent with every request.
         pub(crate) headers: HashMap<String, String>,
 
         /// Extra fields merged into the top-level JSON request body.
         pub(crate) body: Option<serde_json::Value>,
+
+        /// Function used to generate IDs for messages and requests.
+        /// Defaults to [`default_generate_id`](super::default_generate_id).
+        pub(crate) generate_id: GenerateIdFn,
     }
 
     impl DioxusTransportOptions {
-        /// Create a new [`DioxusTransportOptions`] with no headers and no extra body.
+        /// Create a new [`DioxusTransportOptions`] with no headers, no extra
+        /// body, and the default UUID-based ID generator.
         pub fn new() -> Self {
             Self {
                 headers: HashMap::new(),
                 body: None,
+                generate_id: Arc::new(super::default_generate_id),
             }
         }
 
@@ -80,6 +102,29 @@ pub mod types {
         /// ```
         pub fn body<T: serde::Serialize>(mut self, body: T) -> Self {
             self.body = serde_json::to_value(body).ok();
+            self
+        }
+
+        /// Override the ID generator used for message and request IDs.
+        ///
+        /// The function is called once per generated ID (user message id,
+        /// request id, and assistant message id). It must return a non-empty
+        /// unique string on every invocation.
+        ///
+        /// # Example
+        /// ```rust,ignore
+        /// use std::sync::atomic::{AtomicU64, Ordering};
+        /// use std::sync::Arc;
+        ///
+        /// let counter = Arc::new(AtomicU64::new(0));
+        /// let transport = DioxusTransportOptions::new()
+        ///     .generate_id(move || counter.fetch_add(1, Ordering::Relaxed).to_string());
+        /// ```
+        pub fn generate_id<F>(mut self, f: F) -> Self
+        where
+            F: Fn() -> String + Send + Sync + 'static,
+        {
+            self.generate_id = Arc::new(f);
             self
         }
     }
@@ -216,10 +261,8 @@ pub mod hooks {
 
             // Append the user message and transition to Submitted
             {
-                // let mut write_msg = messages.write();
-                // let mut write_status = status.write();
                 messages.write().push(VercelUIMessage {
-                    id: uuid::Uuid::new_v4().simple().to_string(),
+                    id: (transport.generate_id)(),
                     role: "user".to_string(),
                     parts: vec![VercelUIMessagePart {
                         text: message,
@@ -234,7 +277,7 @@ pub mod hooks {
 
             spawn(async move {
                 let request = VercelUIRequest {
-                    id: uuid::Uuid::new_v4().simple().to_string(),
+                    id: (transport.generate_id)(),
                     messages: messages(),
                     trigger: "submit-message".to_string(),
                 };
@@ -301,8 +344,7 @@ pub mod hooks {
                             // Connection established — push an empty assistant message and start streaming
                             *status.write() = DioxusChatStatus::Streaming;
                             messages.write().push(VercelUIMessage {
-                                // TODO: use a generator for id
-                                id: uuid::Uuid::new_v4().simple().to_string(),
+                                id: (transport.generate_id)(),
                                 role: "assistant".to_string(),
                                 parts: vec![VercelUIMessagePart {
                                     text: String::new(),
@@ -373,5 +415,57 @@ pub mod hooks {
             status: status.into(),
             send_message,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::default_generate_id;
+    use super::types::DioxusTransportOptions;
+
+    #[test]
+    fn default_generate_id_returns_unique_ids() {
+        // Calling the function twice must produce two distinct values.
+        let a = default_generate_id();
+        let b = default_generate_id();
+        assert!(
+            !a.is_empty() && !b.is_empty(),
+            "default_generate_id must return non-empty IDs"
+        );
+        assert_ne!(
+            a, b,
+            "successive default_generate_id calls must return unique IDs"
+        );
+    }
+
+    #[test]
+    fn transport_default_uses_default_generate_id() {
+        // The default transport should produce non-empty IDs via the built-in generator.
+        let transport = DioxusTransportOptions::new();
+        let id = (transport.generate_id)();
+        assert!(
+            !id.is_empty(),
+            "default transport generator must return a non-empty ID"
+        );
+    }
+
+    #[test]
+    fn transport_generate_id_builder_with_stateful_closure() {
+        // Verify that a stateful closure (counter) works correctly and increments
+        // on each call — exercising the Arc<dyn Fn> wrapping path.
+        use std::sync::{Arc, Mutex};
+        let counter = Arc::new(Mutex::new(0u32));
+        let counter_clone = Arc::clone(&counter);
+
+        let transport = DioxusTransportOptions::new().generate_id(move || {
+            let mut n = counter_clone.lock().unwrap();
+            let id = format!("id-{n}");
+            *n += 1;
+            id
+        });
+
+        assert_eq!((transport.generate_id)(), "id-0");
+        assert_eq!((transport.generate_id)(), "id-1");
+        assert_eq!((transport.generate_id)(), "id-2");
     }
 }
