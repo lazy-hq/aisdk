@@ -506,6 +506,10 @@ pub enum LanguageModelStreamChunkType {
     Reasoning(String),
     /// Tool call argument chunk
     ToolCall(String),
+    /// Tool call info emitted before tool execution
+    ToolCallStart(ToolCallInfo),
+    /// Tool result emitted after tool execution
+    ToolResult(ToolResultInfo),
     /// Successful completion of generation.
     End(AssistantMessage),
     /// Generation failed with an error message.
