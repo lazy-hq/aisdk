@@ -16,46 +16,80 @@ use std::time::Duration;
 /// Configuration for retry behavior on API requests.
 #[derive(Debug, Clone)]
 struct RetryConfig {
-    /// Maximum number of retry attempts (default: 5)
+    /// Maximum number of retry attempts (default: 3).
     max_retries: u32,
-    /// Initial wait time before first retry (default: 1 second)
+
+    /// Initial wait time before first retry (default: 500ms).
     initial_wait: Duration,
-    /// Maximum wait time between retries (default: 30 seconds)
+
+    /// Maximum wait time between retries (default: 20 seconds).
     max_wait: Duration,
-    /// Whether to add jitter to backoff (default: true)
+    /// Whether to add jitter to backoff (default: true).
+
+    #[allow(dead_code)]
+    /// Wether to add jitter to backoff (default: false).
+    /// requires the `jitter` feature (pulls in `fastrand`).
     use_jitter: bool,
 }
 
 impl Default for RetryConfig {
     fn default() -> Self {
         Self {
-            max_retries: 5,
-            initial_wait: Duration::from_secs(1),
-            max_wait: Duration::from_secs(30),
-            use_jitter: true,
+            max_retries: 3,
+            initial_wait: Duration::from_millis(500),
+            max_wait: Duration::from_secs(20),
+            use_jitter: false,
         }
     }
 }
 
-/// A single shared `reqwest::Client` instance reused across all requests.
+/// Shared `reqwest::Client` for non-streaming requests (has a 180s response timeout).
+#[allow(dead_code)]
 static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
-/// Returns a reference to the shared HTTP client, initializing it on first call.
+/// Shared `reqwest::Client` for streaming requests (no response timeout).
+#[allow(dead_code)]
+static HTTP_STREAMING_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+/// Returns the shared HTTP client for non-streaming requests.
+#[allow(dead_code)]
 #[cfg(not(feature = "test-access"))]
 fn get_client() -> &'static reqwest::Client {
     HTTP_CLIENT.get_or_init(|| {
         reqwest::Client::builder()
-            .pool_max_idle_per_host(10)
-            .pool_idle_timeout(Duration::from_secs(90))
-            .tcp_keepalive(Duration::from_secs(60))
-            .connect_timeout(Duration::from_secs(10))
+            .pool_max_idle_per_host(32)
+            .pool_idle_timeout(Duration::from_secs(120))
+            .tcp_keepalive(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(180))
             .build()
             .expect("Failed to build shared HTTP client")
     })
 }
 
+/// Returns the shared HTTP client for streaming requests.
+/// Identical to [`get_client`] except `.timeout()` is intentionally omitted for streaming.
+#[allow(dead_code)]
+#[cfg(not(feature = "test-access"))]
+fn get_streaming_client() -> &'static reqwest::Client {
+    HTTP_STREAMING_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .pool_max_idle_per_host(32)
+            .pool_idle_timeout(Duration::from_secs(120))
+            .tcp_keepalive(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(5))
+            .build()
+            .expect("Failed to build shared HTTP streaming client")
+    })
+}
+
 #[cfg(feature = "test-access")]
 fn get_client() -> reqwest::Client {
+    reqwest::Client::new()
+}
+
+#[cfg(feature = "test-access")]
+fn get_streaming_client() -> reqwest::Client {
     reqwest::Client::new()
 }
 
@@ -285,7 +319,7 @@ pub(crate) trait LanguageModelClient {
         Self::StreamEvent: Send + 'static,
         Self: Sync,
     {
-        let client = get_client();
+        let client = get_streaming_client();
 
         let url = join_url(base_url, &self.path())?;
 
