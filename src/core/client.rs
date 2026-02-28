@@ -10,6 +10,7 @@ use reqwest::IntoUrl;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 use serde::de::DeserializeOwned;
 use std::pin::Pin;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 /// Configuration for retry behavior on API requests.
@@ -34,6 +35,28 @@ impl Default for RetryConfig {
             use_jitter: true,
         }
     }
+}
+
+/// A single shared `reqwest::Client` instance reused across all requests.
+static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+/// Returns a reference to the shared HTTP client, initializing it on first call.
+#[cfg(not(feature = "test-access"))]
+fn get_client() -> &'static reqwest::Client {
+    HTTP_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .pool_max_idle_per_host(10)
+            .pool_idle_timeout(Duration::from_secs(90))
+            .tcp_keepalive(Duration::from_secs(60))
+            .connect_timeout(Duration::from_secs(10))
+            .build()
+            .expect("Failed to build shared HTTP client")
+    })
+}
+
+#[cfg(feature = "test-access")]
+fn get_client() -> reqwest::Client {
+    reqwest::Client::new()
 }
 
 /// Checks if a status code is retryable.
@@ -117,7 +140,7 @@ where
     F: Fn() -> reqwest::Body,
     T: DeserializeOwned + std::fmt::Debug,
 {
-    let client = reqwest::Client::new();
+    let client = get_client();
     let mut retry_count = 0;
 
     loop {
@@ -266,7 +289,7 @@ pub(crate) trait LanguageModelClient {
         Self::StreamEvent: Send + 'static,
         Self: Sync,
     {
-        let client = reqwest::Client::new();
+        let client = get_client();
 
         let url = join_url(base_url, &self.path())?;
 
