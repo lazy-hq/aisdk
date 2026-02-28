@@ -21,6 +21,7 @@ dependencies = [
  "cargo-husky",
  "derive_builder",
  "dotenv",
+ "fastrand",
  "futures",
  "glob",
  "log",
