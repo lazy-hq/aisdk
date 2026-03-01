@@ -190,3 +190,8 @@ required-features = ["togetherai", "test-access"]
 name = "xai_tests"
 path = "tests/provider/xai_tests.rs"
 required-features = ["xai", "test-access"]
+
+[[test]]
+name = "inception_tests"
+path = "tests/provider/inception_tests.rs"
+required-features = ["inception", "test-access"]
