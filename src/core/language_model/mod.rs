@@ -578,6 +578,8 @@ pub enum StopReason {
 /// Levels of reasoning effort for language models that support it.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum ReasoningEffort {
+    /// Instant/no reasoning — near-realtime responses.
+    Instant,
     /// Low reasoning effort.
     #[default]
     Low,

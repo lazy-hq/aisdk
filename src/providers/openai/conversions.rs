@@ -171,7 +171,8 @@ impl From<types::ResponseUsage> for Usage {
 impl From<ReasoningEffort> for types::ReasoningEffort {
     fn from(value: ReasoningEffort) -> Self {
         match value {
-            ReasoningEffort::Low => client::ReasoningEffort::Minimal,
+            ReasoningEffort::Instant => client::ReasoningEffort::None,
+            ReasoningEffort::Low => client::ReasoningEffort::Low,
             ReasoningEffort::Medium => client::ReasoningEffort::Medium,
             ReasoningEffort::High => client::ReasoningEffort::High,
         }
@@ -215,10 +216,17 @@ mod tests {
     };
 
     #[test]
+    fn test_reasoning_effort_conversion_instant() {
+        let effort = LMReasoningEffort::Instant;
+        let openai_effort: ReasoningEffort = effort.into();
+        assert_eq!(openai_effort, ReasoningEffort::None);
+    }
+
+    #[test]
     fn test_reasoning_effort_conversion_low() {
         let effort = LMReasoningEffort::Low;
         let openai_effort: ReasoningEffort = effort.into();
-        assert_eq!(openai_effort, ReasoningEffort::Minimal);
+        assert_eq!(openai_effort, ReasoningEffort::Low);
         let _ = openai_effort;
     }
 
@@ -237,6 +245,19 @@ mod tests {
     }
 
     #[test]
+    fn test_language_model_options_to_create_response_with_reasoning_effort_instant() {
+        let options = LanguageModelOptions {
+            reasoning_effort: Some(LMReasoningEffort::Instant),
+            ..Default::default()
+        };
+        let lm_options: OpenAILanguageModelOptions = options.into();
+        assert!(lm_options.reasoning.is_some());
+        let reasoning = lm_options.reasoning.unwrap();
+        assert_eq!(reasoning.effort, Some(ReasoningEffort::None));
+        assert_eq!(reasoning.summary, Some(SummaryType::Auto));
+    }
+
+    #[test]
     fn test_language_model_options_to_create_response_with_reasoning_effort_low() {
         let options = LanguageModelOptions {
             reasoning_effort: Some(LMReasoningEffort::Low),
@@ -245,7 +266,7 @@ mod tests {
         let lm_options: OpenAILanguageModelOptions = options.into();
         assert!(lm_options.reasoning.is_some());
         let reasoning = lm_options.reasoning.unwrap();
-        assert_eq!(reasoning.effort, Some(ReasoningEffort::Minimal));
+        assert_eq!(reasoning.effort, Some(ReasoningEffort::Low));
         assert_eq!(reasoning.summary, Some(SummaryType::Auto));
     }
 
