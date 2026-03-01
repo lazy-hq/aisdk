@@ -22,5 +22,17 @@ model_capabilities! {
             display_name: "Mercury Coder",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Mercury2 {
+            model_name: "mercury-2",
+            constructor_name: mercury_2,
+            display_name: "Mercury 2",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport, StructuredOutputSupport, ReasoningSupport]
+        },
+        MercuryEdit {
+            model_name: "mercury-edit",
+            constructor_name: mercury_edit,
+            display_name: "Mercury Edit",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
     }
 }
