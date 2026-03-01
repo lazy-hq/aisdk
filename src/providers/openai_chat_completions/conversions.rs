@@ -72,6 +72,7 @@ impl From<LanguageModelOptions> for client::ChatCompletionsOptions {
 
         let reasoning_effort = options.reasoning_effort.map(|effort| {
             match effort {
+                ReasoningEffort::Instant => "instant",
                 ReasoningEffort::Low => "low",
                 ReasoningEffort::Medium => "medium",
                 ReasoningEffort::High => "high",
