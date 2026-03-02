@@ -116,6 +116,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                 while let Some(ref chunk) = response.next().await {
                     match chunk {
                         Ok(chunk) => {
+                            let mut had_tool_call = false;
                             for output in chunk {
                                 match output {
                                     LanguageModelStreamChunk::Done(final_msg) => {
@@ -164,6 +165,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                     )),
                                                 ));
                                                 options.handle_tool_call(tool_info).await;
+                                                had_tool_call = true;
                                             }
                                             _ => {}
                                         }
@@ -194,6 +196,15 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                         _ => {}
                                     },
                                 }
+                            }
+                            // When both text and tool_use blocks arrive in a
+                            // single MessageStop event, Done(Text) sets
+                            // stop_reason = Finish before Done(ToolCall) is
+                            // processed. Clear stop_reason so the agentic loop
+                            // continues and makes the follow-up API call with
+                            // the tool result.
+                            if had_tool_call {
+                                options.stop_reason = None;
                             }
                         }
                         Err(e) => {
