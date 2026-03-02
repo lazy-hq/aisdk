@@ -33,11 +33,14 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
+        let additional_headers = options.headers.clone();
         let mut options: AnthropicOptions = options.into();
         options.model = self.options.model.clone();
         self.options = options;
 
-        let response = self.send(self.settings.base_url.clone()).await?;
+        let response = self
+            .send(self.settings.base_url.clone(), additional_headers)
+            .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -86,6 +89,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
 
     /// Streams text using the Anthropic provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
+        let additional_headers = options.headers.clone();
         let mut options: AnthropicOptions = options.into();
         options.stream = Some(true);
         options.model = self.options.model.clone();
@@ -97,7 +101,10 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         let mut wait_time = std::time::Duration::from_secs(1);
 
         let response = loop {
-            match self.send_and_stream(self.settings.base_url.clone()).await {
+            match self
+                .send_and_stream(self.settings.base_url.clone(), additional_headers.clone())
+                .await
+            {
                 Ok(stream) => break stream,
                 Err(crate::error::Error::ApiError {
                     status_code: Some(status),

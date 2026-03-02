@@ -28,13 +28,16 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
+        let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.clone();
 
         self.lm_options = options;
 
-        let response: client::OpenAIResponse = self.send(&self.settings.base_url).await?;
+        let response: client::OpenAIResponse = self
+            .send(&self.settings.base_url, additional_headers)
+            .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
 
@@ -70,6 +73,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
     /// Streams text using the OpenAI provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
+        let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.to_string();
@@ -83,7 +87,10 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         let mut wait_time = std::time::Duration::from_secs(1);
 
         let openai_stream = loop {
-            match self.send_and_stream(&self.settings.base_url).await {
+            match self
+                .send_and_stream(&self.settings.base_url, additional_headers.clone())
+                .await
+            {
                 Ok(stream) => break stream,
                 Err(crate::error::Error::ApiError {
                     status_code: Some(status),

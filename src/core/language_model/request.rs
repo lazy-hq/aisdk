@@ -9,6 +9,7 @@ use crate::core::capabilities::*;
 use crate::core::language_model::{LanguageModel, LanguageModelOptions};
 use crate::core::tools::Tool;
 use schemars::{JsonSchema, schema_for};
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
@@ -481,6 +482,20 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         M: ReasoningSupport,
     {
         self.reasoning_effort = Some(reasoning_effort.into());
+        self
+    }
+
+    /// Sets custom HTTP headers for the request.
+    ///
+    /// These headers will be merged with the provider's default headers.
+    /// If a header key conflicts with a default header, the custom value takes precedence.
+    ///
+    /// # Parameters
+    ///
+    /// * `headers` - A map of header names to values.
+    ///
+    pub fn headers(mut self, headers: HashMap<String, String>) -> Self {
+        self.options.headers = Some(headers);
         self
     }
 

@@ -24,11 +24,14 @@ impl<M: ModelName> LanguageModel for Google<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
+        let additional_headers = options.headers.clone();
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = false;
 
-        let response: types::GenerateContentResponse = self.send(&self.settings.base_url).await?;
+        let response: types::GenerateContentResponse = self
+            .send(&self.settings.base_url, additional_headers)
+            .await?;
 
         let mut collected = Vec::new();
         let usage = response.usage_metadata.map(|u| u.into());
@@ -59,6 +62,7 @@ impl<M: ModelName> LanguageModel for Google<M> {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
+        let additional_headers = options.headers.clone();
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = true;
@@ -69,7 +73,10 @@ impl<M: ModelName> LanguageModel for Google<M> {
         let mut wait_time = std::time::Duration::from_secs(1);
 
         let google_stream = loop {
-            match self.send_and_stream(&self.settings.base_url).await {
+            match self
+                .send_and_stream(&self.settings.base_url, additional_headers.clone())
+                .await
+            {
                 Ok(stream) => break stream,
                 Err(crate::error::Error::ApiError {
                     status_code: Some(status),
