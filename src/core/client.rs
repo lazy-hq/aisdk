@@ -215,7 +215,11 @@ pub(crate) trait LanguageModelClient {
     fn body(&self) -> reqwest::Body;
     fn headers(&self) -> reqwest::header::HeaderMap;
 
-    async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
+    async fn send(
+        &self,
+        base_url: impl IntoUrl,
+        additional_headers: Option<reqwest::header::HeaderMap>,
+    ) -> Result<Self::Response> {
         let url = join_url(base_url, &self.path())?;
 
         // Serialize body once to avoid consumption issues on retries
@@ -235,7 +239,10 @@ pub(crate) trait LanguageModelClient {
         };
 
         let method = self.method();
-        let headers = self.headers();
+        let mut headers = self.headers();
+        if let Some(extra) = additional_headers {
+            headers.extend(extra);
+        }
         let query_params = self.query_params();
         let config = RetryConfig::default();
 
@@ -261,6 +268,7 @@ pub(crate) trait LanguageModelClient {
     async fn send_and_stream(
         &self,
         base_url: impl IntoUrl,
+        additional_headers: Option<reqwest::header::HeaderMap>,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
@@ -270,12 +278,17 @@ pub(crate) trait LanguageModelClient {
 
         let url = join_url(base_url, &self.path())?;
 
+        let mut all_headers = self.headers();
+        if let Some(extra) = additional_headers {
+            all_headers.extend(extra);
+        }
+
         // Establish the event source stream directly
         // Note: Status code errors (including 429) will be surfaced as stream events
         // and should be handled by retry logic in the provider's stream_text() method
         let events_stream = client
             .request(self.method(), url.clone())
-            .headers(self.headers())
+            .headers(all_headers)
             .query(&self.query_params())
             .body(self.body())
             .eventsource()

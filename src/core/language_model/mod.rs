@@ -241,6 +241,9 @@ pub struct LanguageModelOptions {
 
     /// The reason why generation stopped.
     pub(crate) stop_reason: Option<StopReason>,
+
+    /// Custom HTTP headers to include in the request.
+    pub headers: Option<HashMap<String, String>>,
 }
 
 impl Debug for LanguageModelOptions {
@@ -263,6 +266,7 @@ impl Debug for LanguageModelOptions {
             .field("stop_when", &self.stop_when.is_some())
             .field("on_step_start", &self.on_step_start.is_some())
             .field("on_step_finish", &self.on_step_finish.is_some())
+            .field("headers", &self.headers)
             .finish()
     }
 }
@@ -404,6 +408,22 @@ impl LanguageModelOptions {
     /// Returns the reason why generation stopped.
     pub fn stop_reason(&self) -> Option<StopReason> {
         self.stop_reason.clone()
+    }
+
+    /// Converts the custom headers to a reqwest HeaderMap.
+    pub fn headers_as_header_map(&self) -> Option<reqwest::header::HeaderMap> {
+        self.headers.as_ref().map(|h| {
+            let mut header_map = reqwest::header::HeaderMap::new();
+            for (key, value) in h {
+                if let (Ok(name), Ok(val)) = (
+                    reqwest::header::HeaderName::from_bytes(key.as_bytes()),
+                    reqwest::header::HeaderValue::from_str(value),
+                ) {
+                    header_map.insert(name, val);
+                }
+            }
+            header_map
+        })
     }
 }
 
