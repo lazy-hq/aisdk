@@ -241,10 +241,10 @@ pub(crate) trait LanguageModelClient {
 
         let method = self.method();
         let mut headers = self.headers();
-        if let Some(ref extra) = additional_headers {
-            if let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra) {
-                headers.extend(extra_map);
-            }
+        if let Some(ref extra) = additional_headers
+            && let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra)
+        {
+            headers.extend(extra_map);
         }
         let query_params = self.query_params();
         let config = RetryConfig::default();
@@ -282,10 +282,10 @@ pub(crate) trait LanguageModelClient {
         let url = join_url(base_url, &self.path())?;
 
         let mut all_headers = self.headers();
-        if let Some(ref extra) = additional_headers {
-            if let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra) {
-                all_headers.extend(extra_map);
-            }
+        if let Some(ref extra) = additional_headers
+            && let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra)
+        {
+            all_headers.extend(extra_map);
         }
 
         // Establish the event source stream directly
