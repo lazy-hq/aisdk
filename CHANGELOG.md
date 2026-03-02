@@ -17,6 +17,10 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- Added support for custom HTTP headers in `LanguageModelRequest`, allowing request header injection and overriding provider default headers. by [@gaki2](https://github.com/gaki2)
+
 ## [0.5.2] - 2026-02-25
 
 ### Fixed
