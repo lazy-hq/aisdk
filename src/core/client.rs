@@ -9,6 +9,7 @@ use reqwest;
 use reqwest::IntoUrl;
 use reqwest_eventsource::{Event, RequestBuilderExt};
 use serde::de::DeserializeOwned;
+use std::collections::HashMap;
 use std::pin::Pin;
 use std::time::Duration;
 
@@ -218,7 +219,7 @@ pub(crate) trait LanguageModelClient {
     async fn send(
         &self,
         base_url: impl IntoUrl,
-        additional_headers: Option<reqwest::header::HeaderMap>,
+        additional_headers: Option<HashMap<String, String>>,
     ) -> Result<Self::Response> {
         let url = join_url(base_url, &self.path())?;
 
@@ -240,8 +241,10 @@ pub(crate) trait LanguageModelClient {
 
         let method = self.method();
         let mut headers = self.headers();
-        if let Some(extra) = additional_headers {
-            headers.extend(extra);
+        if let Some(ref extra) = additional_headers {
+            if let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra) {
+                headers.extend(extra_map);
+            }
         }
         let query_params = self.query_params();
         let config = RetryConfig::default();
@@ -268,7 +271,7 @@ pub(crate) trait LanguageModelClient {
     async fn send_and_stream(
         &self,
         base_url: impl IntoUrl,
-        additional_headers: Option<reqwest::header::HeaderMap>,
+        additional_headers: Option<HashMap<String, String>>,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
@@ -279,8 +282,10 @@ pub(crate) trait LanguageModelClient {
         let url = join_url(base_url, &self.path())?;
 
         let mut all_headers = self.headers();
-        if let Some(extra) = additional_headers {
-            all_headers.extend(extra);
+        if let Some(ref extra) = additional_headers {
+            if let Ok(extra_map) = reqwest::header::HeaderMap::try_from(extra) {
+                all_headers.extend(extra_map);
+            }
         }
 
         // Establish the event source stream directly

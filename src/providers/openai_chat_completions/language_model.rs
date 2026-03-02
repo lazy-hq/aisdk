@@ -24,7 +24,7 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: client::ChatCompletionsOptions = options.into();
         options.model = self.options.model.clone();
         self.options = options;
@@ -65,7 +65,7 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: client::ChatCompletionsOptions = options.into();
         options.model = self.options.model.clone();
         options.stream = Some(true);

@@ -24,7 +24,7 @@ impl<M: ModelName> LanguageModel for Google<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = false;
@@ -62,7 +62,7 @@ impl<M: ModelName> LanguageModel for Google<M> {
     }
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = true;

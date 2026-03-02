@@ -409,22 +409,6 @@ impl LanguageModelOptions {
     pub fn stop_reason(&self) -> Option<StopReason> {
         self.stop_reason.clone()
     }
-
-    /// Converts the custom headers to a reqwest HeaderMap.
-    pub fn headers_as_header_map(&self) -> Option<reqwest::header::HeaderMap> {
-        self.headers.as_ref().map(|h| {
-            let mut header_map = reqwest::header::HeaderMap::new();
-            for (key, value) in h {
-                if let (Ok(name), Ok(val)) = (
-                    reqwest::header::HeaderName::from_bytes(key.as_bytes()),
-                    reqwest::header::HeaderValue::from_str(value),
-                ) {
-                    header_map.insert(name, val);
-                }
-            }
-            header_map
-        })
-    }
 }
 
 // ============================================================================

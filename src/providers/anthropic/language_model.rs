@@ -33,7 +33,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: AnthropicOptions = options.into();
         options.model = self.options.model.clone();
         self.options = options;
@@ -89,7 +89,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
 
     /// Streams text using the Anthropic provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: AnthropicOptions = options.into();
         options.stream = Some(true);
         options.model = self.options.model.clone();

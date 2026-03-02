@@ -28,7 +28,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.clone();
@@ -73,7 +73,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
     /// Streams text using the OpenAI provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
-        let additional_headers = options.headers_as_header_map();
+        let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.to_string();
