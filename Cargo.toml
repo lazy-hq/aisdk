@@ -20,6 +20,7 @@ full = ["language-model-request", "embedding-model-request", "prompt", "openai",
 language-model-request = []
 embedding-model-request = []
 test-access = []
+jitter = ["dep:fastrand"]
 prompt = ["tera", "glob"]
 axum = ["dep:axum"]
 openai = []
@@ -109,10 +110,11 @@ thiserror = "2.0.12"
 derive_builder = "0.20.2"
 futures = "0.3"
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
 reqwest-eventsource = "0.6.0"
 uuid = { version = "1.0", features = ["v4"] }
 axum = { version = ">=0.7, <0.9", optional = true }
+fastrand = { version = "2", optional = true }
 parking_lot = "0.12.5"
 aisdk-macros = { version = "0.3.0", path = "./macros" }
 
