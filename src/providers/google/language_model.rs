@@ -98,6 +98,8 @@ impl<M: ModelName> LanguageModel for Google<M> {
             accumulated_text: String,
             accumulated_tool_call: Option<ToolCallInfo>,
             usage: Option<Usage>,
+            active_tool_call_id: Option<String>,
+            next_tool_call_index: usize,
         }
 
         let stream = google_stream.scan(StreamState::default(), |state, evt_res| {
@@ -118,7 +120,20 @@ impl<M: ModelName> LanguageModel for Google<M> {
                                 ));
                             }
                             if let Some(fc) = &part.function_call {
+                                let tool_call_id = if let Some(existing_id) =
+                                    &state.active_tool_call_id
+                                {
+                                    existing_id.clone()
+                                } else {
+                                    let new_id =
+                                        format!("google-tool-call-{}", state.next_tool_call_index);
+                                    state.next_tool_call_index += 1;
+                                    state.active_tool_call_id = Some(new_id.clone());
+                                    new_id
+                                };
+
                                 let mut tool_info = ToolCallInfo::new(fc.name.clone());
+                                tool_info.id(tool_call_id.clone());
                                 tool_info.input(fc.args.clone());
                                 if let Some(sig) = &part.thought_signature {
                                     tool_info
@@ -129,15 +144,18 @@ impl<M: ModelName> LanguageModel for Google<M> {
                                 state.accumulated_tool_call = Some(tool_info);
 
                                 chunks.push(LanguageModelStreamChunk::Delta(
-                                    LanguageModelStreamChunkType::ToolCall(
-                                        serde_json::to_string(&fc).unwrap_or_default(),
-                                    ),
+                                    LanguageModelStreamChunkType::ToolCallDelta {
+                                        tool_call_id,
+                                        tool_name: fc.name.clone(),
+                                        delta: serde_json::to_string(&fc.args).unwrap_or_default(),
+                                    },
                                 ));
                             }
                         }
 
                         if candidate.finish_reason.is_some() {
                             let content = if let Some(tc) = state.accumulated_tool_call.take() {
+                                state.active_tool_call_id = None;
                                 LanguageModelResponseContentType::ToolCall(tc)
                             } else {
                                 let text = std::mem::take(&mut state.accumulated_text);

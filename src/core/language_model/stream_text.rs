@@ -164,7 +164,25 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                         usage,
                                                     )),
                                                 ));
+                                                // Emit tool call info BEFORE execution
+                                                let _ = tx.send(
+                                                    LanguageModelStreamChunkType::ToolCallStart(
+                                                        tool_info.clone(),
+                                                    ),
+                                                );
                                                 options.handle_tool_call(tool_info).await;
+                                                // Emit tool result AFTER execution (last message is the result)
+                                                if let Some(TaggedMessage {
+                                                    message: Message::Tool(result_info),
+                                                    ..
+                                                }) = options.messages.last()
+                                                {
+                                                    let _ = tx.send(
+                                                        LanguageModelStreamChunkType::ToolResult(
+                                                            result_info.clone(),
+                                                        ),
+                                                    );
+                                                }
                                                 had_tool_call = true;
                                             }
                                             _ => {}
@@ -190,7 +208,8 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                     LanguageModelStreamChunk::Delta(other) => match other {
                                         // Propagate text and reasoning chunks
                                         LanguageModelStreamChunkType::Text(_)
-                                        | LanguageModelStreamChunkType::Reasoning(_) => {
+                                        | LanguageModelStreamChunkType::Reasoning(_)
+                                        | LanguageModelStreamChunkType::ToolCallDelta { .. } => {
                                             let _ = tx.send(other.clone());
                                         }
                                         _ => {}
