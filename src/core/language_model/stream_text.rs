@@ -202,7 +202,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                             // processed. Clear stop_reason so the agentic loop
                             // continues and makes the follow-up API call with
                             // the tool result.
-                            if had_tool_call {
+                            if had_tool_call && matches!(options.stop_reason, Some(StopReason::Finish)) {
                                 options.stop_reason = None;
                             }
                         }
