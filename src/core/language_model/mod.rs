@@ -508,8 +508,15 @@ pub enum LanguageModelStreamChunkType {
     Text(String),
     /// Reasoning summary text chunk (content delta only)
     Reasoning(String),
-    /// Tool call argument chunk
-    ToolCall(String),
+    /// Tool call argument chunk with metadata
+    ToolCallDelta {
+        /// Provider/tool-call unique identifier for correlating streamed deltas.
+        tool_call_id: String,
+        /// Tool name associated with this streamed argument delta.
+        tool_name: String,
+        /// Incremental argument JSON fragment.
+        delta: String,
+    },
     /// Tool call info emitted before tool execution
     ToolCallStart(ToolCallInfo),
     /// Tool result emitted after tool execution

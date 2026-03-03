@@ -208,7 +208,8 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                     LanguageModelStreamChunk::Delta(other) => match other {
                                         // Propagate text and reasoning chunks
                                         LanguageModelStreamChunkType::Text(_)
-                                        | LanguageModelStreamChunkType::Reasoning(_) => {
+                                        | LanguageModelStreamChunkType::Reasoning(_)
+                                        | LanguageModelStreamChunkType::ToolCallDelta { .. } => {
                                             let _ = tx.send(other.clone());
                                         }
                                         _ => {}

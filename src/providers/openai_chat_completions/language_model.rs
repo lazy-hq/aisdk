@@ -110,7 +110,8 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
                     // Accumulate tool call deltas
                     if let Some(tool_calls) = choice.delta.tool_calls {
                         for tool_call in tool_calls {
-                            let entry = accumulated_tool_calls.entry(tool_call.index).or_insert((
+                            let tool_call_index = tool_call.index;
+                            let entry = accumulated_tool_calls.entry(tool_call_index).or_insert((
                                 String::new(),
                                 String::new(),
                                 String::new(),
@@ -128,8 +129,22 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
                                 }
                                 if let Some(args) = function.arguments {
                                     entry.2.push_str(&args);
+                                    let tool_call_id = if entry.0.is_empty() {
+                                        format!("openai-tool-call-{tool_call_index}")
+                                    } else {
+                                        entry.0.clone()
+                                    };
+                                    let tool_name = if entry.1.is_empty() {
+                                        "unknown".to_string()
+                                    } else {
+                                        entry.1.clone()
+                                    };
                                     results.push(LanguageModelStreamChunk::Delta(
-                                        LanguageModelStreamChunkType::ToolCall(args),
+                                        LanguageModelStreamChunkType::ToolCallDelta {
+                                            tool_call_id,
+                                            tool_name,
+                                            delta: args,
+                                        },
                                     ));
                                 }
                             }
@@ -148,9 +163,20 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
                             }
                             "tool_calls" | "function_call" => {
                                 // Send accumulated tool calls
-                                for (id, name, args) in accumulated_tool_calls.values() {
-                                    let mut tool_info = ToolCallInfo::new(name.clone());
-                                    tool_info.id(id.clone());
+                                for (index, (id, name, args)) in &accumulated_tool_calls {
+                                    let resolved_id = if id.is_empty() {
+                                        format!("openai-tool-call-{index}")
+                                    } else {
+                                        id.clone()
+                                    };
+                                    let resolved_name = if name.is_empty() {
+                                        "unknown".to_string()
+                                    } else {
+                                        name.clone()
+                                    };
+
+                                    let mut tool_info = ToolCallInfo::new(resolved_name);
+                                    tool_info.id(resolved_id);
                                     tool_info.input(serde_json::from_str(args).unwrap_or_else(
                                         |_| serde_json::Value::Object(serde_json::Map::new()),
                                     ));

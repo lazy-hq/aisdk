@@ -226,13 +226,19 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
                                     }
                                     (
                                         AccumulatedBlock::ToolUse {
-                                            accumulated_json, ..
+                                            id,
+                                            name,
+                                            accumulated_json,
                                         },
                                         AnthropicDelta::ToolUseDelta { partial_json },
                                     ) => {
                                         accumulated_json.push_str(&partial_json);
                                         Some(Ok(vec![LanguageModelStreamChunk::Delta(
-                                            LanguageModelStreamChunkType::ToolCall(partial_json),
+                                            LanguageModelStreamChunkType::ToolCallDelta {
+                                                tool_call_id: id.clone(),
+                                                tool_name: name.clone(),
+                                                delta: partial_json,
+                                            },
                                         )]))
                                     }
                                     _ => Some(Ok(unsupported("ContentBlockDelta"))),
