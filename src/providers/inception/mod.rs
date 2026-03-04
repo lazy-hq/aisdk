@@ -16,7 +16,7 @@ crate::openai_compatible_provider!(
     Inception,
     InceptionBuilder,
     InceptionProviderSettings,
-    "inception"
+    "mercury-2"
 );
 
 // Generate the language model implementation
