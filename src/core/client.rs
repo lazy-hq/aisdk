@@ -335,7 +335,11 @@ pub(crate) trait EmbeddingClient {
     fn body(&self) -> reqwest::Body;
     fn headers(&self) -> reqwest::header::HeaderMap;
 
-    async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
+    async fn send(
+        &self,
+        base_url: impl IntoUrl,
+        additional_headers: Option<HashMap<String, String>>,
+    ) -> Result<Self::Response> {
         let base_url = base_url
             .into_url()
             .map_err(|_| Error::InvalidInput("Invalid base URL".into()))?;
@@ -357,7 +361,12 @@ pub(crate) trait EmbeddingClient {
         };
 
         let method = self.method();
-        let headers = self.headers();
+        let mut headers = self.headers();
+        if let Some(extra) = additional_headers {
+            let extra_map = reqwest::header::HeaderMap::try_from(&extra)
+                .map_err(|e| Error::InvalidInput(format!("Invalid headers: {}", e)))?;
+            headers.extend(extra_map);
+        }
         let query_params = self.query_params();
         let config = RetryConfig::default();
 

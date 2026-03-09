@@ -62,6 +62,7 @@ impl<M: ModelName> OpenAIChatCompletions<M> {
 
     /// Embeds the given input using the OpenAI Embeddings API.
     pub async fn embed(&self, input: EmbeddingModelOptions) -> Result<EmbeddingModelResponse> {
+        let headers = input.headers.clone();
         let embedding_options = self.create_embedding_body(input)?;
 
         // Create a temporary client instance for this request
@@ -70,7 +71,9 @@ impl<M: ModelName> OpenAIChatCompletions<M> {
             options: embedding_options,
         };
 
-        let response = embedding_client.send(&self.settings.base_url).await?;
+        let response = embedding_client
+            .send(&self.settings.base_url, headers)
+            .await?;
 
         // Extract embeddings from response
         Ok(response.data.into_iter().map(|e| e.embedding).collect())

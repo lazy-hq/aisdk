@@ -24,6 +24,8 @@ pub struct GoogleEmbeddingModelOptions {}
 #[async_trait]
 impl<M: ModelName> EmbeddingModel for Google<M> {
     async fn embed(&self, input: EmbeddingModelOptions) -> Result<EmbeddingModelResponse> {
+        let headers = input.headers.clone();
+
         // Clone self to allow mutation
         let mut model = self.clone();
 
@@ -44,7 +46,7 @@ impl<M: ModelName> EmbeddingModel for Google<M> {
         model.embedding_options = options;
 
         // Send the request
-        let response = model.send(&model.settings.base_url).await?;
+        let response = model.send(&model.settings.base_url, headers).await?;
 
         // Extract embeddings from response
         Ok(response.embeddings.into_iter().map(|e| e.values).collect())
