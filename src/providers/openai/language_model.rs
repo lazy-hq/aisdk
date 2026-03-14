@@ -1,7 +1,7 @@
 //! Language model implementation for the OpenAI provider.
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::LanguageModelClient;
+use crate::core::client::{LanguageModelClient, merge_body};
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream, Usage,
@@ -29,6 +29,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.clone();
@@ -36,7 +37,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         self.lm_options = options;
 
         let response: client::OpenAIResponse = self
-            .send(&self.settings.base_url, additional_headers)
+            .send(&self.settings.base_url, additional_headers, body)
             .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
@@ -74,6 +75,7 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
     /// Streams text using the OpenAI provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: OpenAILanguageModelOptions = options.into();
 
         options.model = self.lm_options.model.to_string();
@@ -88,7 +90,11 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
 
         let openai_stream = loop {
             match self
-                .send_and_stream(&self.settings.base_url, additional_headers.clone())
+                .send_and_stream(
+                    &self.settings.base_url,
+                    additional_headers.clone(),
+                    body.clone(),
+                )
                 .await
             {
                 Ok(stream) => break stream,

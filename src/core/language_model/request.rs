@@ -499,6 +499,25 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
+    /// Sets extra fields to merge into the provider's request body.
+    ///
+    /// These fields are merged at the top level of the JSON body,
+    /// allowing provider-specific options without modifying the SDK.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// .body(serde_json::json!({
+    ///     "store": false
+    /// }))
+    /// ```
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.options.body = Some(map);
+        }
+        self
+    }
+
     /// Builds the `LanguageModelRequest`.
     ///
     /// This method consumes the builder and returns the configured request.

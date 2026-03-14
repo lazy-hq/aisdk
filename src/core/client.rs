@@ -205,6 +205,42 @@ where
     }
 }
 
+/// Merges model-level and request-level body fields.
+/// Request-level fields take priority over model-level fields.
+#[allow(dead_code)]
+pub(crate) fn merge_body(
+    model_level: &Option<serde_json::Map<String, serde_json::Value>>,
+    request_level: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Option<serde_json::Map<String, serde_json::Value>> {
+    match (model_level, request_level) {
+        (None, None) => None,
+        (Some(model), None) => Some(model.clone()),
+        (None, Some(request)) => Some(request),
+        (Some(model), Some(request)) => {
+            let mut merged = model.clone();
+            merged.extend(request);
+            Some(merged)
+        }
+    }
+}
+
+fn apply_body_overrides(
+    body_bytes: &[u8],
+    body: Option<serde_json::Map<String, serde_json::Value>>,
+) -> Vec<u8> {
+    match body {
+        Some(overrides) if !overrides.is_empty() => {
+            let mut json: serde_json::Value = serde_json::from_slice(body_bytes)
+                .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+            if let serde_json::Value::Object(ref mut map) = json {
+                map.extend(overrides);
+            }
+            serde_json::to_vec(&json).unwrap_or_else(|_| body_bytes.to_vec())
+        }
+        _ => body_bytes.to_vec(),
+    }
+}
+
 #[allow(dead_code)]
 pub(crate) trait LanguageModelClient {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
@@ -220,19 +256,15 @@ pub(crate) trait LanguageModelClient {
         &self,
         base_url: impl IntoUrl,
         additional_headers: Option<HashMap<String, String>>,
+        body: Option<serde_json::Map<String, serde_json::Value>>,
     ) -> Result<Self::Response> {
         let url = join_url(base_url, &self.path())?;
 
-        // Serialize body once to avoid consumption issues on retries
         let body_bytes = {
-            let body = self.body();
-            // Convert Body to bytes - this is the critical fix for retry body consumption
-            // We need to get the bytes from the body to be able to reconstruct it
-            match body.as_bytes() {
-                Some(bytes) => bytes.to_vec(),
+            let raw = self.body();
+            match raw.as_bytes() {
+                Some(bytes) => apply_body_overrides(bytes, body),
                 None => {
-                    // If body doesn't have as_bytes (streaming body), we can't retry it
-                    // This should rarely happen for our use case (JSON bodies)
                     log::warn!("Request body is not retryable (streaming body)");
                     vec![]
                 }
@@ -272,6 +304,7 @@ pub(crate) trait LanguageModelClient {
         &self,
         base_url: impl IntoUrl,
         additional_headers: Option<HashMap<String, String>>,
+        body: Option<serde_json::Map<String, serde_json::Value>>,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::StreamEvent>> + Send>>>
     where
         Self::StreamEvent: Send + 'static,
@@ -288,6 +321,12 @@ pub(crate) trait LanguageModelClient {
             all_headers.extend(extra_map);
         }
 
+        let req_body = {
+            let raw = self.body();
+            let bytes = raw.as_bytes().unwrap_or(&[]);
+            reqwest::Body::from(apply_body_overrides(bytes, body))
+        };
+
         // Establish the event source stream directly
         // Note: Status code errors (including 429) will be surfaced as stream events
         // and should be handled by retry logic in the provider's stream_text() method
@@ -295,7 +334,7 @@ pub(crate) trait LanguageModelClient {
             .request(self.method(), url.clone())
             .headers(all_headers)
             .query(&self.query_params())
-            .body(self.body())
+            .body(req_body)
             .eventsource()
             .map_err(|e| Error::ApiError {
                 status_code: None,
@@ -907,5 +946,114 @@ mod tests {
 
         let result = parse_retry_after(&headers);
         assert_eq!(result, None); // Should fail to parse as u64
+    }
+
+    #[test]
+    fn test_apply_body_overrides_none() {
+        let body = br#"{"model":"gpt-4o","input":"hello"}"#;
+        let result = apply_body_overrides(body, None);
+        assert_eq!(result, body.to_vec());
+    }
+
+    #[test]
+    fn test_apply_body_overrides_empty_map() {
+        let body = br#"{"model":"gpt-4o"}"#;
+        let result = apply_body_overrides(body, Some(serde_json::Map::new()));
+        assert_eq!(result, body.to_vec());
+    }
+
+    #[test]
+    fn test_apply_body_overrides_adds_new_fields() {
+        let body = br#"{"model":"gpt-4o"}"#;
+        let mut extra = serde_json::Map::new();
+        extra.insert("store".to_string(), serde_json::Value::Bool(false));
+        extra.insert(
+            "instructions".to_string(),
+            serde_json::Value::String("Be helpful".to_string()),
+        );
+
+        let result = apply_body_overrides(body, Some(extra));
+        let parsed: serde_json::Value = serde_json::from_slice(&result).unwrap();
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["store"], false);
+        assert_eq!(parsed["instructions"], "Be helpful");
+    }
+
+    #[test]
+    fn test_apply_body_overrides_overwrites_existing_fields() {
+        let body = br#"{"model":"gpt-4o","temperature":0.5}"#;
+        let mut extra = serde_json::Map::new();
+        extra.insert(
+            "temperature".to_string(),
+            serde_json::Value::Number(serde_json::Number::from_f64(0.9).unwrap()),
+        );
+
+        let result = apply_body_overrides(body, Some(extra));
+        let parsed: serde_json::Value = serde_json::from_slice(&result).unwrap();
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["temperature"], 0.9);
+    }
+
+    #[test]
+    fn test_apply_body_overrides_preserves_nested_objects() {
+        let body = br#"{"model":"gpt-4o","reasoning":{"effort":"high"}}"#;
+        let mut extra = serde_json::Map::new();
+        extra.insert("store".to_string(), serde_json::Value::Bool(false));
+
+        let result = apply_body_overrides(body, Some(extra));
+        let parsed: serde_json::Value = serde_json::from_slice(&result).unwrap();
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["reasoning"]["effort"], "high");
+        assert_eq!(parsed["store"], false);
+    }
+
+    #[test]
+    fn test_apply_body_overrides_invalid_base_body_falls_back() {
+        let body = b"not json";
+        let mut extra = serde_json::Map::new();
+        extra.insert("store".to_string(), serde_json::Value::Bool(false));
+
+        let result = apply_body_overrides(body, Some(extra));
+        let parsed: serde_json::Value = serde_json::from_slice(&result).unwrap();
+
+        assert_eq!(parsed["store"], false);
+    }
+
+    #[test]
+    fn test_merge_body_both_none() {
+        assert_eq!(merge_body(&None, None), None);
+    }
+
+    #[test]
+    fn test_merge_body_model_only() {
+        let mut model = serde_json::Map::new();
+        model.insert("store".to_string(), serde_json::Value::Bool(false));
+        let result = merge_body(&Some(model.clone()), None);
+        assert_eq!(result, Some(model));
+    }
+
+    #[test]
+    fn test_merge_body_request_only() {
+        let mut request = serde_json::Map::new();
+        request.insert("store".to_string(), serde_json::Value::Bool(true));
+        let result = merge_body(&None, Some(request.clone()));
+        assert_eq!(result, Some(request));
+    }
+
+    #[test]
+    fn test_merge_body_request_overrides_model() {
+        let mut model = serde_json::Map::new();
+        model.insert("store".to_string(), serde_json::Value::Bool(false));
+        model.insert("key".to_string(), serde_json::Value::String("model".into()));
+
+        let mut request = serde_json::Map::new();
+        request.insert("store".to_string(), serde_json::Value::Bool(true));
+
+        let result = merge_body(&Some(model), Some(request)).unwrap();
+        assert_eq!(result["store"], serde_json::Value::Bool(true));
+        assert_eq!(result["key"], serde_json::Value::String("model".into()));
     }
 }

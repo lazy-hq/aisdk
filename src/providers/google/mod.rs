@@ -166,6 +166,14 @@ impl<M: ModelName> GoogleBuilder<M> {
         self
     }
 
+    /// Sets extra body fields to merge into every request.
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.settings.body = Some(map);
+        }
+        self
+    }
+
     /// Builds the Google provider settings.
     pub fn build(self) -> Result<Google<M>, Error> {
         // validate base url

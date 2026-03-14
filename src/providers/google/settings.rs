@@ -19,6 +19,12 @@ pub struct GoogleProviderSettings {
     /// Custom API path override. When set, this path is used instead of the
     /// default dynamic path (e.g., "/v1beta/models/{model}:generateContent").
     pub path: Option<String>,
+
+    /// Extra body fields to include in every request made with this provider.
+    /// These are merged with any request-level body, with request-level taking priority.
+    #[serde(skip)]
+    #[builder(setter(skip))]
+    pub body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 impl Default for GoogleProviderSettings {
@@ -29,6 +35,7 @@ impl Default for GoogleProviderSettings {
             base_url: "https://generativelanguage.googleapis.com".to_string(),
             api_key: std::env::var("GOOGLE_API_KEY").unwrap_or_default(),
             path: None,
+            body: None,
         }
     }
 }

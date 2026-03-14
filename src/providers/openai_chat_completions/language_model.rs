@@ -1,7 +1,7 @@
 //! Language model implementation for the OpenAI Chat Completions provider.
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::LanguageModelClient;
+use crate::core::client::{LanguageModelClient, merge_body};
 use crate::core::language_model::{
     LanguageModel, LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream,
@@ -25,12 +25,13 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: client::ChatCompletionsOptions = options.into();
         options.model = self.options.model.clone();
         self.options = options;
 
         let response: types::ChatCompletionsResponse = self
-            .send(&self.settings.base_url, additional_headers)
+            .send(&self.settings.base_url, additional_headers, body)
             .await?;
 
         // Convert choices to LanguageModelResponse
@@ -66,6 +67,7 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: client::ChatCompletionsOptions = options.into();
         options.model = self.options.model.clone();
         options.stream = Some(true);
@@ -76,7 +78,7 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
         self.options = options;
 
         let stream = self
-            .send_and_stream(&self.settings.base_url, additional_headers)
+            .send_and_stream(&self.settings.base_url, additional_headers, body)
             .await?;
 
         // State for accumulating tool calls across chunks
