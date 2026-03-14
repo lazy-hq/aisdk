@@ -20,16 +20,21 @@ pub struct OpenAIProviderSettings {
     /// This is useful for connecting to endpoints that use a different path,
     /// such as OpenAI Codex (`/responses`).
     pub path: Option<String>,
+
+    /// Extra body fields to include in every request made with this provider.
+    /// These are merged with any request-level body, with request-level taking priority.
+    #[builder(setter(skip))]
+    pub body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 impl Default for OpenAIProviderSettings {
-    /// Returns the default settings for the OpenAI provider.
     fn default() -> Self {
         Self {
             provider_name: "openai".to_string(),
             base_url: "https://api.openai.com".to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
             path: None,
+            body: None,
         }
     }
 }

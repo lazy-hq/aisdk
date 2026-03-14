@@ -1,7 +1,7 @@
 //! Language model implementation for the Anthropic provider.
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::LanguageModelClient;
+use crate::core::client::{LanguageModelClient, merge_body};
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, ProviderStream,
@@ -34,12 +34,13 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: AnthropicOptions = options.into();
         options.model = self.options.model.clone();
         self.options = options;
 
         let response = self
-            .send(self.settings.base_url.clone(), additional_headers)
+            .send(self.settings.base_url.clone(), additional_headers, body)
             .await?;
 
         let mut collected: Vec<LanguageModelResponseContentType> = Vec::new();
@@ -90,6 +91,7 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
     /// Streams text using the Anthropic provider.
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let mut options: AnthropicOptions = options.into();
         options.stream = Some(true);
         options.model = self.options.model.clone();
@@ -102,7 +104,11 @@ impl<M: ModelName> LanguageModel for Anthropic<M> {
 
         let response = loop {
             match self
-                .send_and_stream(self.settings.base_url.clone(), additional_headers.clone())
+                .send_and_stream(
+                    self.settings.base_url.clone(),
+                    additional_headers.clone(),
+                    body.clone(),
+                )
                 .await
             {
                 Ok(stream) => break stream,

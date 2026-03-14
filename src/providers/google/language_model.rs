@@ -1,6 +1,6 @@
 //! Language model implementation for the Google provider.
 use crate::core::capabilities::ModelName;
-use crate::core::client::LanguageModelClient;
+use crate::core::client::{LanguageModelClient, merge_body};
 use crate::core::language_model::{
     LanguageModelOptions, LanguageModelResponse, LanguageModelResponseContentType,
     LanguageModelStreamChunk, LanguageModelStreamChunkType, ProviderStream, Usage,
@@ -25,12 +25,13 @@ impl<M: ModelName> LanguageModel for Google<M> {
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = false;
 
         let response: types::GenerateContentResponse = self
-            .send(&self.settings.base_url, additional_headers)
+            .send(&self.settings.base_url, additional_headers, body)
             .await?;
 
         let mut collected = Vec::new();
@@ -63,6 +64,7 @@ impl<M: ModelName> LanguageModel for Google<M> {
 
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let additional_headers = options.headers.clone();
+        let body = merge_body(&self.settings.body, options.body.clone());
         let request: types::GenerateContentRequest = options.into();
         self.lm_options.request = Some(request);
         self.lm_options.streaming = true;
@@ -74,7 +76,11 @@ impl<M: ModelName> LanguageModel for Google<M> {
 
         let google_stream = loop {
             match self
-                .send_and_stream(&self.settings.base_url, additional_headers.clone())
+                .send_and_stream(
+                    &self.settings.base_url,
+                    additional_headers.clone(),
+                    body.clone(),
+                )
                 .await
             {
                 Ok(stream) => break stream,
