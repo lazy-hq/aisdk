@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
 
 use crate::core::embedding_model::{EmbeddingModel, EmbeddingModelOptions, EmbeddingModelResponse};
@@ -103,6 +104,7 @@ impl<M: EmbeddingModel> EmbeddingModelRequestBuilder<M> {
             options: EmbeddingModelOptions::builder()
                 .input(vec![])
                 .dimensions(None)
+                .headers(None)
                 .build()
                 .unwrap(),
             state: std::marker::PhantomData,
@@ -165,6 +167,20 @@ impl<M: EmbeddingModel> EmbeddingModelRequestBuilder<M, OptionsStage> {
         dimensions: usize,
     ) -> EmbeddingModelRequestBuilder<M, OptionsStage> {
         self.options.dimensions = Some(dimensions);
+        self
+    }
+
+    /// Sets custom HTTP headers for the request.
+    ///
+    /// These headers will be merged with the provider's default headers.
+    /// If a header key conflicts with a default header, the custom value takes precedence.
+    ///
+    /// # Parameters
+    ///
+    /// * `headers` - A map of header names to values.
+    ///
+    pub fn headers(mut self, headers: HashMap<String, String>) -> Self {
+        self.options.headers = Some(headers);
         self
     }
 

@@ -203,3 +203,127 @@ impl From<EmbeddingModelOptions> for GoogleEmbeddingOptions {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::Message;
+    use crate::core::language_model::LanguageModelOptions;
+    use crate::core::tools::{Tool, ToolExecute, ToolList};
+    use schemars::{JsonSchema, schema_for};
+    use serde::{Deserialize, Serialize};
+    use serde_json::json;
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct StructuredOutput {
+        answer: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct SumInput {
+        a: i32,
+        b: i32,
+    }
+
+    #[test]
+    fn test_scalar_request_options_map_to_google_body() {
+        let options = LanguageModelOptions {
+            system: Some("You are helpful".to_string()),
+            messages: vec![Message::User("Hello".to_string().into()).into()],
+            temperature: Some(70),
+            top_p: Some(90),
+            stop_sequences: Some(vec!["END".to_string()]),
+            max_output_tokens: Some(256),
+            ..Default::default()
+        };
+
+        let req: GenerateContentRequest = options.into();
+
+        let gen_config = req
+            .generation_config
+            .expect("should have generation config");
+        assert!(
+            gen_config
+                .temperature
+                .is_some_and(|value| (value - 0.7).abs() < f32::EPSILON)
+        );
+        assert!(
+            gen_config
+                .top_p
+                .is_some_and(|value| (value - 0.9).abs() < f32::EPSILON)
+        );
+        assert_eq!(gen_config.max_output_tokens, Some(256));
+        assert_eq!(gen_config.stop_sequences, Some(vec!["END".to_string()]));
+
+        let sys = req
+            .system_instruction
+            .expect("should have system instruction");
+        assert!(matches!(sys.role, Role::User)); // Default role is user in Content
+        assert_eq!(sys.parts[0].text.as_deref(), Some("You are helpful"));
+
+        assert_eq!(req.contents.len(), 1);
+        assert!(matches!(req.contents[0].role, Role::User));
+        assert_eq!(req.contents[0].parts[0].text.as_deref(), Some("Hello"));
+    }
+
+    #[test]
+    fn test_schema_maps_to_google_body() {
+        let options = LanguageModelOptions {
+            schema: Some(schema_for!(StructuredOutput)),
+            ..Default::default()
+        };
+
+        let req: GenerateContentRequest = options.into();
+
+        let gen_config = req
+            .generation_config
+            .expect("should have generation config");
+        assert_eq!(
+            gen_config.response_mime_type.as_deref(),
+            Some("application/json")
+        );
+
+        let schema = gen_config
+            .response_schema
+            .expect("should have response schema");
+        assert_eq!(schema["type"], json!("object"));
+        assert_eq!(schema["properties"]["answer"]["type"], json!("string"));
+    }
+
+    #[test]
+    fn test_tools_map_to_google_body() {
+        let tool = Tool::builder()
+            .name("sum")
+            .description("Adds two numbers")
+            .input_schema(schema_for!(SumInput))
+            .execute(ToolExecute::new(Box::new(|_| Ok("3".to_string()))))
+            .build()
+            .expect("tool should build");
+
+        let options = LanguageModelOptions {
+            tools: Some(ToolList::new(vec![tool])),
+            ..Default::default()
+        };
+
+        let req: GenerateContentRequest = options.into();
+
+        let tools = req.tools.expect("tools should be present");
+        assert_eq!(tools.len(), 1);
+
+        let declarations = tools[0]
+            .function_declarations
+            .as_ref()
+            .expect("should have function declarations");
+        assert_eq!(declarations.len(), 1);
+        assert_eq!(declarations[0].name, "sum");
+        assert_eq!(declarations[0].description, "Adds two numbers");
+
+        let parameters = declarations[0]
+            .parameters
+            .as_ref()
+            .expect("should have parameters");
+        assert_eq!(parameters["type"], json!("object"));
+        assert!(parameters["properties"].get("a").is_some());
+        assert!(parameters["properties"].get("b").is_some());
+    }
+}

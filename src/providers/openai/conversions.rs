@@ -210,9 +210,143 @@ fn from_schema_to_response_format(schema: Schema) -> types::TextResponseFormat {
 #[cfg(test)]
 mod tests {
     use super::client::*;
+    use crate::core::Message;
     use crate::core::language_model::{
         LanguageModelOptions, ReasoningEffort as LMReasoningEffort, Usage,
     };
+    use crate::core::tools::{Tool, ToolExecute, ToolList};
+    use schemars::{JsonSchema, schema_for};
+    use serde::{Deserialize, Serialize};
+    use serde_json::json;
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct StructuredOutput {
+        answer: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct SumInput {
+        a: i32,
+        b: i32,
+    }
+
+    #[test]
+    fn test_scalar_request_options_map_to_openai_body() {
+        let options = LanguageModelOptions {
+            messages: vec![
+                Message::System("You are helpful".to_string().into()).into(),
+                Message::User("Hello".to_string().into()).into(),
+            ],
+            temperature: Some(70),
+            top_p: Some(90),
+            max_output_tokens: Some(256),
+            ..Default::default()
+        };
+
+        let req: OpenAILanguageModelOptions = options.into();
+
+        assert!(
+            req.temperature
+                .is_some_and(|value| (value - 0.7).abs() < f32::EPSILON)
+        );
+        assert!(
+            req.top_p
+                .is_some_and(|value| (value - 0.9).abs() < f32::EPSILON)
+        );
+        assert_eq!(req.max_output_tokens, Some(256));
+        assert_eq!(req.stream, Some(false));
+
+        let input = req.input.expect("input should be present");
+        let Input::InputItemList(items) = input else {
+            panic!("expected input item list")
+        };
+        assert_eq!(items.len(), 2);
+
+        match &items[0] {
+            InputItem::Item(MessageItem::InputMessage { role, content, .. }) => {
+                assert_eq!(role, &Role::System);
+                assert!(matches!(
+                    content.first(),
+                    Some(ContentType::InputText { text }) if text == "You are helpful"
+                ));
+            }
+            _ => panic!("expected first item to be a system input message"),
+        }
+
+        match &items[1] {
+            InputItem::Item(MessageItem::InputMessage { role, content, .. }) => {
+                assert_eq!(role, &Role::User);
+                assert!(
+                    matches!(content.first(), Some(ContentType::InputText { text }) if text == "Hello")
+                );
+            }
+            _ => panic!("expected second item to be a user input message"),
+        }
+    }
+
+    #[test]
+    fn test_schema_maps_to_openai_body() {
+        let options = LanguageModelOptions {
+            schema: Some(schema_for!(StructuredOutput)),
+            ..Default::default()
+        };
+
+        let req: OpenAILanguageModelOptions = options.into();
+        let text = req.text.expect("text config should be present");
+        let format = text.format.expect("format should be present");
+
+        let TextResponseFormat::JsonSchema {
+            name,
+            schema,
+            strict,
+            ..
+        } = format
+        else {
+            panic!("expected json_schema response format")
+        };
+
+        assert_eq!(name, "StructuredOutput");
+        assert_eq!(strict, Some(false));
+        assert_eq!(schema["type"], json!("object"));
+        assert_eq!(schema["properties"]["answer"]["type"], json!("string"));
+    }
+
+    #[test]
+    fn test_tools_map_to_openai_body() {
+        let tool = Tool::builder()
+            .name("sum")
+            .description("Adds two numbers")
+            .input_schema(schema_for!(SumInput))
+            .execute(ToolExecute::new(Box::new(|_| Ok("3".to_string()))))
+            .build()
+            .expect("tool should build");
+
+        let options = LanguageModelOptions {
+            tools: Some(ToolList::new(vec![tool])),
+            ..Default::default()
+        };
+
+        let req: OpenAILanguageModelOptions = options.into();
+        let tools = req.tools.expect("tools should be present");
+        assert_eq!(tools.len(), 1);
+
+        match &tools[0] {
+            ToolParams::Function {
+                name,
+                description,
+                strict,
+                parameters,
+            } => {
+                assert_eq!(name, "sum");
+                assert_eq!(description.as_deref(), Some("Adds two numbers"));
+                assert!(*strict);
+                assert_eq!(parameters["type"], json!("object"));
+                assert_eq!(parameters["additionalProperties"], json!(false));
+                assert!(parameters["properties"].get("a").is_some());
+                assert!(parameters["properties"].get("b").is_some());
+            }
+        }
+    }
 
     #[test]
     fn test_reasoning_effort_conversion_low() {

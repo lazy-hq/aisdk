@@ -264,6 +264,21 @@ impl From<types::Usage> for Usage {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::tools::{Tool, ToolExecute, ToolList};
+    use schemars::{JsonSchema, schema_for};
+    use serde::{Deserialize, Serialize};
+    use serde_json::json;
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct StructuredOutput {
+        answer: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    struct SumInput {
+        a: i32,
+        b: i32,
+    }
 
     #[test]
     fn test_message_conversion_system() {
@@ -315,6 +330,113 @@ mod tests {
         if let Some(types::StopSequences::Multiple(seqs)) = completions_opts.stop {
             assert_eq!(seqs.len(), 4);
         }
+    }
+
+    #[test]
+    fn test_scalar_request_options_map_to_chat_completions_body() {
+        let options = LanguageModelOptions {
+            system: Some("You are helpful".to_string()),
+            messages: vec![Message::User("Hello".to_string().into()).into()],
+            temperature: Some(70),
+            top_p: Some(90),
+            seed: Some(42),
+            frequency_penalty: Some(0.5),
+            stop_sequences: Some(vec!["END".to_string()]),
+            ..Default::default()
+        };
+
+        let completions_opts: client::ChatCompletionsOptions = options.into();
+
+        assert!(
+            completions_opts
+                .temperature
+                .is_some_and(|value| (value - 0.7).abs() < f32::EPSILON)
+        );
+        assert!(
+            completions_opts
+                .top_p
+                .is_some_and(|value| (value - 0.9).abs() < f32::EPSILON)
+        );
+        assert_eq!(completions_opts.seed, Some(42));
+        assert_eq!(completions_opts.frequency_penalty, Some(0.5));
+        assert_eq!(completions_opts.messages.len(), 2);
+        assert_eq!(completions_opts.messages[0].role, types::Role::System);
+        assert_eq!(
+            completions_opts.messages[0].content.as_deref(),
+            Some("You are helpful")
+        );
+        assert_eq!(completions_opts.messages[1].role, types::Role::User);
+        assert_eq!(
+            completions_opts.messages[1].content.as_deref(),
+            Some("Hello")
+        );
+        assert!(matches!(
+            completions_opts.stop,
+            Some(types::StopSequences::Single(sequence)) if sequence == "END"
+        ));
+    }
+
+    #[test]
+    fn test_schema_and_reasoning_options_map_to_chat_completions_body() {
+        let options = LanguageModelOptions {
+            schema: Some(schema_for!(StructuredOutput)),
+            reasoning_effort: Some(ReasoningEffort::High),
+            ..Default::default()
+        };
+
+        let completions_opts: client::ChatCompletionsOptions = options.into();
+
+        let Some(types::ResponseFormat::JsonSchema { json_schema }) =
+            completions_opts.response_format
+        else {
+            panic!("expected json schema response format");
+        };
+
+        assert_eq!(json_schema.name, "StructuredOutput");
+        assert_eq!(json_schema.strict, Some(true));
+        assert_eq!(json_schema.schema["additionalProperties"], json!(false));
+        assert!(json_schema.schema["properties"].get("answer").is_some());
+        assert_eq!(completions_opts.reasoning_effort.as_deref(), Some("high"));
+    }
+
+    #[test]
+    fn test_tools_map_to_chat_completions_body() {
+        let tool = Tool::builder()
+            .name("sum")
+            .description("Adds two numbers")
+            .input_schema(schema_for!(SumInput))
+            .execute(ToolExecute::new(Box::new(|_| Ok("3".to_string()))))
+            .build()
+            .expect("tool should build");
+
+        let options = LanguageModelOptions {
+            tools: Some(ToolList::new(vec![tool])),
+            ..Default::default()
+        };
+
+        let completions_opts: client::ChatCompletionsOptions = options.into();
+        let tools = completions_opts.tools.expect("tools should be present");
+        let tool = &tools[0];
+
+        assert_eq!(tools.len(), 1);
+        assert_eq!(tool.function.name, "sum");
+        assert_eq!(
+            tool.function.description.as_deref(),
+            Some("Adds two numbers")
+        );
+        assert_eq!(tool.function.strict, Some(true));
+        assert_eq!(tool.function.parameters["type"], json!("object"));
+        assert_eq!(
+            tool.function.parameters["additionalProperties"],
+            json!(false)
+        );
+        assert!(tool.function.parameters["properties"].get("a").is_some());
+        assert!(tool.function.parameters["properties"].get("b").is_some());
+        assert!(matches!(
+            completions_opts.tool_choice,
+            Some(types::ToolChoice::String(choice)) if choice == "auto"
+        ));
+        assert_eq!(completions_opts.parallel_tool_calls, Some(true));
     }
 
     #[test]
