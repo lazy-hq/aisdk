@@ -136,6 +136,24 @@ model_capabilities! {
             display_name: "Grok Code Fast 1",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Grok420Beta {
+            model_name: "grok-4.20-experimental-beta-latest",
+            constructor_name: grok_4_20_beta,
+            display_name: "Grok 4.20 Beta",
+            capabilities: [ReasoningSupport, ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Grok420BetaNonReasoning {
+            model_name: "grok-4.20-experimental-beta-non-reasoning-latest",
+            constructor_name: grok_4_20_beta_non_reasoning,
+            display_name: "Grok 4.20 Beta (Non-Reasoning)",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Grok420BetaMultiAgent {
+            model_name: "grok-4.20-multi-agent-beta-latest",
+            constructor_name: grok_4_20_beta_multi_agent,
+            display_name: "Grok 4.20 Beta (Multi-Agent)",
+            capabilities: [ReasoningSupport, ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
         GrokVisionBeta {
             model_name: "grok-vision-beta",
             constructor_name: grok_vision_beta,
