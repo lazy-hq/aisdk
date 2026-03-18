@@ -102,6 +102,7 @@ tera = { version = "1", optional = true }
 glob = { version = "0.3", optional = true }
 log = "0.4"
 async-trait = "0.1.88"
+async-stream = "0.3.6"
 serde = {version = "1.0.219", features = ["derive"]}
 serde_json = { version = "1.0" }
 schemars = "1.0.4"

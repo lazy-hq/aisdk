@@ -35,11 +35,32 @@ impl From<Tool> for types::ToolParams {
 
 impl From<LanguageModelOptions> for client::OpenAILanguageModelOptions {
     fn from(options: LanguageModelOptions) -> Self {
-        let items: Vec<types::InputItem> = options
+        let mut items: Vec<types::InputItem> = Vec::new();
+        let has_system_message = options
             .messages
-            .into_iter()
-            .filter_map(|m| m.message.into())
-            .collect();
+            .iter()
+            .any(|message| matches!(message.message, Message::System(_)));
+
+        if !has_system_message && let Some(system) = options.system.as_ref() {
+            let trimmed = system.trim();
+            if !trimmed.is_empty() {
+                items.push(types::InputItem::Item(types::MessageItem::InputMessage {
+                    content: vec![types::ContentType::InputText {
+                        text: trimmed.to_string(),
+                    }],
+                    role: types::Role::System,
+                    type_: "message".to_string(),
+                }));
+            }
+        }
+
+        items.extend(
+            options
+                .messages
+                .into_iter()
+                .filter_map(|m| m.message.into())
+                .collect::<Vec<_>>(),
+        );
 
         let tools: Option<Vec<types::ToolParams>> = options.tools.map(|t| {
             t.tools
@@ -59,6 +80,7 @@ impl From<LanguageModelOptions> for client::OpenAILanguageModelOptions {
 
         client::OpenAILanguageModelOptions {
             model: "".to_string(), // will be set in mod.rs
+            instructions: None,
             input: Some(types::Input::InputItemList(items)),
             text: Some(types::TextConfig {
                 verbosity: None,
@@ -73,6 +95,7 @@ impl From<LanguageModelOptions> for client::OpenAILanguageModelOptions {
             temperature: options.temperature.map(|t| t as f32 / 100.0),
             max_output_tokens: options.max_output_tokens.map(|t| t as usize),
             stream: Some(false),
+            store: None,
             top_p: options.top_p.map(|t| t as f32 / 100.0),
             tools,
         }
