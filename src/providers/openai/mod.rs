@@ -200,6 +200,12 @@ impl<M: ModelName> OpenAIBuilder<M> {
         self
     }
 
+    /// Adds a custom header to every request for this provider instance.
+    pub fn header(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.settings.extra_headers.push((key.into(), value.into()));
+        self
+    }
+
     /// Builds the OpenAI provider.
     ///
     /// Validates the configuration and creates the provider instance.

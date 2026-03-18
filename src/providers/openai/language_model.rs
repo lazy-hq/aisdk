@@ -16,6 +16,138 @@ use crate::{
 use async_trait::async_trait;
 use futures::StreamExt;
 
+fn is_chatgpt_codex_request<M: ModelName>(provider: &OpenAI<M>) -> bool {
+    let base_url = provider.settings.base_url.trim().to_ascii_lowercase();
+    let path = provider
+        .settings
+        .path
+        .as_deref()
+        .unwrap_or("/v1/responses")
+        .trim()
+        .to_ascii_lowercase();
+
+    base_url.contains("chatgpt.com/backend-api/codex") || path == "/responses"
+}
+
+fn extract_input_text_parts(content: &[types::ContentType]) -> Vec<String> {
+    content
+        .iter()
+        .filter_map(|part| match part {
+            types::ContentType::InputText { text } => {
+                let trimmed = text.trim();
+                if trimmed.is_empty() {
+                    None
+                } else {
+                    Some(trimmed.to_string())
+                }
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+fn bridge_chatgpt_codex_options(options: &mut OpenAILanguageModelOptions) {
+    options.store = Some(false);
+
+    let mut instruction_parts = Vec::<String>::new();
+    if let Some(existing) = options.instructions.take() {
+        let trimmed = existing.trim();
+        if !trimmed.is_empty() {
+            instruction_parts.push(trimmed.to_string());
+        }
+    }
+
+    if let Some(types::Input::InputItemList(items)) = options.input.as_mut() {
+        let mut retained = Vec::with_capacity(items.len());
+        for item in items.drain(..) {
+            match item {
+                types::InputItem::Item(types::MessageItem::InputMessage {
+                    content,
+                    role: types::Role::System,
+                    ..
+                }) => {
+                    instruction_parts.extend(extract_input_text_parts(&content));
+                }
+                types::InputItem::InputMessage {
+                    content,
+                    role: types::Role::System,
+                } => match content {
+                    types::InputItemContent::Text(text) => {
+                        let trimmed = text.trim();
+                        if !trimmed.is_empty() {
+                            instruction_parts.push(trimmed.to_string());
+                        }
+                    }
+                    types::InputItemContent::InputItemContentList(parts) => {
+                        instruction_parts.extend(extract_input_text_parts(&parts));
+                    }
+                },
+                other => retained.push(other),
+            }
+        }
+        *items = retained;
+    }
+
+    if !instruction_parts.is_empty() {
+        options.instructions = Some(instruction_parts.join("\n\n"));
+    }
+}
+
+async fn generate_text_via_stream<M: ModelName>(
+    provider: &mut OpenAI<M>,
+    options: LanguageModelOptions,
+) -> Result<LanguageModelResponse> {
+    let mut stream = provider.stream_text(options).await?;
+    let mut contents: Vec<LanguageModelResponseContentType> = Vec::new();
+    let mut buffered_text = String::new();
+    let mut last_usage: Option<Usage> = None;
+
+    while let Some(event) = stream.next().await {
+        for chunk in event? {
+            match chunk {
+                LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::Text(delta)) => {
+                    buffered_text.push_str(&delta);
+                }
+                LanguageModelStreamChunk::Done(message) => {
+                    last_usage = message.usage.clone();
+                    match message.content {
+                        LanguageModelResponseContentType::Text(text) => {
+                            if buffered_text.trim().is_empty() {
+                                contents.push(LanguageModelResponseContentType::Text(text));
+                            }
+                        }
+                        other => contents.push(other),
+                    }
+                }
+                LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::Failed(reason)) => {
+                    return Err(crate::error::Error::ApiError {
+                        status_code: None,
+                        details: reason,
+                    });
+                }
+                LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::Incomplete(
+                    reason,
+                )) => {
+                    return Err(crate::error::Error::ApiError {
+                        status_code: None,
+                        details: reason,
+                    });
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if !buffered_text.trim().is_empty() {
+        contents.insert(0, LanguageModelResponseContentType::Text(buffered_text));
+    }
+
+    Ok(LanguageModelResponse {
+        contents,
+        usage: last_usage,
+    })
+}
+
 #[async_trait]
 impl<M: ModelName> LanguageModel for OpenAI<M> {
     /// Returns the name of the model.
@@ -28,6 +160,10 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         &mut self,
         options: LanguageModelOptions,
     ) -> Result<LanguageModelResponse> {
+        if is_chatgpt_codex_request(self) {
+            return generate_text_via_stream(self, options).await;
+        }
+
         let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
 
@@ -75,6 +211,9 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
     async fn stream_text(&mut self, options: LanguageModelOptions) -> Result<ProviderStream> {
         let additional_headers = options.headers.clone();
         let mut options: OpenAILanguageModelOptions = options.into();
+        if is_chatgpt_codex_request(self) {
+            bridge_chatgpt_codex_options(&mut options);
+        }
 
         options.model = self.lm_options.model.to_string();
         options.stream = Some(true);
@@ -233,6 +372,27 @@ mod tests {
         model.settings.base_url = base_url;
         model.settings.api_key = "test-key".to_string();
         model
+    }
+
+    fn test_model_with_provider_header(base_url: String) -> OpenAI<DynamicModel> {
+        OpenAI::<DynamicModel>::builder()
+            .model_name("gpt-4o-mini")
+            .api_key("test-key")
+            .base_url(base_url)
+            .header("x-provider-header", "provider-123")
+            .build()
+            .expect("model should build")
+    }
+
+    fn test_codex_model(base_url: String) -> OpenAI<DynamicModel> {
+        OpenAI::<DynamicModel>::builder()
+            .model_name("gpt-5-codex")
+            .api_key("test-key")
+            .base_url(base_url)
+            .path("/responses")
+            .header("x-codex-header", "codex-123")
+            .build()
+            .expect("model should build")
     }
 
     fn responses_api_response(content: &str) -> ResponseTemplate {
@@ -530,6 +690,45 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_generate_text_merges_provider_headers_into_request() {
+        let server = MockServer::start().await;
+
+        Mock::given(method("POST"))
+            .and(path("/v1/responses"))
+            .and(header("authorization", "Bearer test-key"))
+            .and(header("x-provider-header", "provider-123"))
+            .and(body_partial_json(json!({
+                "model": "gpt-4o-mini",
+                "input": [
+                    {
+                        "role": "user",
+                        "type": "message",
+                        "content": [
+                            {
+                                "type": "input_text",
+                                "text": "Hello"
+                            }
+                        ]
+                    }
+                ]
+            })))
+            .respond_with(responses_api_response("ok"))
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        let response = LanguageModelRequest::builder()
+            .model(test_model_with_provider_header(server.uri()))
+            .messages(vec![Message::User("Hello".to_string().into())])
+            .build()
+            .generate_text()
+            .await
+            .expect("request should succeed");
+
+        assert_eq!(response.text().as_deref(), Some("ok"));
+    }
+
+    #[tokio::test]
     async fn test_stream_text_sends_streaming_request_without_custom_headers() {
         let (base_url, request_handle) = spawn_sse_server().await;
 
@@ -676,5 +875,50 @@ mod tests {
         assert!(request.contains("\"stream\":true"));
         assert!(request.contains("\"temperature\":0.6"));
         assert!(request.contains("\"top_p\":0.95"));
+    }
+
+    #[tokio::test]
+    async fn test_generate_text_uses_codex_streaming_with_instructions_and_provider_headers() {
+        let (base_url, request_handle) = spawn_sse_server().await;
+
+        let response = LanguageModelRequest::builder()
+            .model(test_codex_model(base_url))
+            .system("You are a focused coding assistant")
+            .messages(vec![Message::User(
+                "Return a short answer".to_string().into(),
+            )])
+            .build()
+            .generate_text()
+            .await
+            .expect("request should succeed");
+
+        assert_eq!(response.text().as_deref(), Some("Hello"));
+
+        let request = request_handle
+            .await
+            .expect("request capture should succeed");
+        assert!(request.starts_with("POST /responses HTTP/1.1"));
+        assert_eq!(
+            header_value(&request, "authorization"),
+            Some("Bearer test-key")
+        );
+        assert_eq!(header_value(&request, "x-codex-header"), Some("codex-123"));
+
+        let body = body_json(&request);
+        assert_eq!(body["model"], json!("gpt-5-codex"));
+        assert_eq!(body["store"], json!(false));
+        assert_eq!(
+            body["instructions"],
+            json!("You are a focused coding assistant")
+        );
+        assert_eq!(body["stream"], json!(true));
+
+        let input = body["input"].as_array().expect("input should be an array");
+        assert_eq!(input.len(), 1);
+        assert_eq!(input[0]["role"], json!("user"));
+        assert_eq!(
+            input[0]["content"][0]["text"],
+            json!("Return a short answer")
+        );
     }
 }

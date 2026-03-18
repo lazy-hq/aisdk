@@ -20,6 +20,9 @@ pub struct OpenAIProviderSettings {
     /// This is useful for connecting to endpoints that use a different path,
     /// such as OpenAI Codex (`/responses`).
     pub path: Option<String>,
+
+    /// Additional headers forwarded with every request.
+    pub extra_headers: Vec<(String, String)>,
 }
 
 impl Default for OpenAIProviderSettings {
@@ -30,6 +33,7 @@ impl Default for OpenAIProviderSettings {
             base_url: "https://api.openai.com".to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
             path: None,
+            extra_headers: Vec::new(),
         }
     }
 }

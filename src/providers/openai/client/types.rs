@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 #[builder(setter(into), build_fn(error = "Error"))]
 pub(crate) struct OpenAILanguageModelOptions {
     pub(crate) model: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) instructions: Option<String>,
     #[builder(default)]
     pub(crate) input: Option<Input>, // open ai requires input to be set
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -24,6 +27,9 @@ pub(crate) struct OpenAILanguageModelOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
     pub(crate) stream: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default)]
+    pub(crate) store: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[builder(default)]
     pub(crate) top_p: Option<f32>,
