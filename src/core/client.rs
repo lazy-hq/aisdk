@@ -314,13 +314,13 @@ pub(crate) fn merge_headers(
 ) -> Result<reqwest::header::HeaderMap> {
     if let Some(provider_headers) = provider_level {
         let provider_headers = reqwest::header::HeaderMap::try_from(provider_headers)
-            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {}", e)))?;
+            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {e}")))?;
         default_headers.extend(provider_headers);
     }
 
     if let Some(request_headers) = request_level {
         let request_headers = reqwest::header::HeaderMap::try_from(request_headers)
-            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {}", e)))?;
+            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {e}")))?;
         default_headers.extend(request_headers);
     }
 
