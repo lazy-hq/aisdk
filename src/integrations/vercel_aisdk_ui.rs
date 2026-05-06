@@ -337,7 +337,6 @@ impl crate::core::StreamTextResponse {
             .unwrap_or_else(|| format!("msg_{}", uuid::Uuid::new_v4().simple()));
 
         let mut pending_tool_inputs: HashMap<String, String> = HashMap::new();
-
         self.stream.flat_map(move |chunk| {
             let ui_chunks = map_language_model_chunk_to_vercel_ui(
                 chunk,
@@ -370,11 +369,13 @@ fn map_language_model_chunk_to_vercel_ui(
             }
         }
 
-        LanguageModelStreamChunkType::TextDelta(delta) => vec![VercelUIStream::TextDelta {
-            id: message_id.to_string(),
-            delta,
-            provider_metadata: None,
-        }],
+        LanguageModelStreamChunkType::TextDelta(delta) => {
+            vec![VercelUIStream::TextDelta {
+                id: message_id.to_string(),
+                delta,
+                provider_metadata: None,
+            }]
+        }
 
         LanguageModelStreamChunkType::TextEnd => {
             if options.send_finish {
