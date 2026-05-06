@@ -101,6 +101,22 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
         };
 
         let stream = openai_stream.map(|evt_res| match evt_res {
+            Ok(client::OpenAiStreamEvent::ResponseCreated { .. })
+            | Ok(client::OpenAiStreamEvent::ResponseInProgress { .. })
+            | Ok(client::OpenAiStreamEvent::ResponseContentPartDone { .. })
+            | Ok(client::OpenAiStreamEvent::ResponseOutputItemDone { .. }) => Ok(vec![]),
+
+            Ok(client::OpenAiStreamEvent::ResponseFunctionCallArgumentsDone { .. }) => Ok(vec![]),
+
+            Ok(client::OpenAiStreamEvent::ResponseContentPartAdded { part, .. }) => match part {
+                types::OutputContent::OutputText { .. } => {
+                    Ok(vec![LanguageModelStreamChunk::Delta(
+                        LanguageModelStreamChunkType::TextStart,
+                    )])
+                }
+                types::OutputContent::Refusal { .. } => Ok(vec![]),
+            },
+
             Ok(client::OpenAiStreamEvent::ResponseOutputItemAdded { item, .. }) => match item {
                 // Handle "start" events
                 types::MessageItem::FunctionCall { id, name, .. } => {
@@ -115,7 +131,6 @@ impl<M: ModelName> LanguageModel for OpenAI<M> {
                 types::MessageItem::Reasoning { .. } => Ok(vec![LanguageModelStreamChunk::Delta(
                     LanguageModelStreamChunkType::ReasoningStart,
                 )]),
-
                 types::MessageItem::OutputMessage { .. } => {
                     Ok(vec![LanguageModelStreamChunk::Delta(
                         LanguageModelStreamChunkType::TextStart,
@@ -380,8 +395,21 @@ mod tests {
             let request = String::from_utf8(buffer).expect("request should be valid utf-8");
             let response_body = concat!(
                 "data: {",
-                "\"type\":\"response.output_text.delta\",",
+                "\"type\":\"response.content_part.added\",",
                 "\"sequence_number\":1,",
+                "\"item_id\":\"msg_stream_1\",",
+                "\"output_index\":0,",
+                "\"content_index\":0,",
+                "\"part\":{",
+                "\"type\":\"output_text\",",
+                "\"text\":\"\",",
+                "\"annotations\":[],",
+                "\"logprobs\":[]",
+                "}",
+                "}\n\n",
+                "data: {",
+                "\"type\":\"response.output_text.delta\",",
+                "\"sequence_number\":2,",
                 "\"item_id\":\"item_1\",",
                 "\"output_index\":0,",
                 "\"content_index\":0,",
@@ -389,7 +417,7 @@ mod tests {
                 "}\n\n",
                 "data: {",
                 "\"type\":\"response.completed\",",
-                "\"sequence_number\":2,",
+                "\"sequence_number\":3,",
                 "\"response\":{",
                 "\"id\":\"resp_stream_1\",",
                 "\"model\":\"gpt-4o-mini\",",
@@ -648,20 +676,20 @@ mod tests {
             .await
             .expect("stream request should succeed");
 
-        let mut first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
+        let first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
             .await
             .expect("stream should yield an event")
             .expect("stream should not end immediately");
 
-        if matches!(
+        assert!(matches!(
             first_item,
             crate::core::language_model::LanguageModelStreamChunkType::TextStart
-        ) {
-            first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
-                .await
-                .expect("stream should yield an event")
-                .expect("stream should not end immediately");
-        }
+        ));
+
+        let first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
+            .await
+            .expect("stream should yield an event")
+            .expect("stream should not end immediately");
 
         match first_item {
             crate::core::language_model::LanguageModelStreamChunkType::TextDelta(text) => {
@@ -739,20 +767,20 @@ mod tests {
             .await
             .expect("stream request should succeed");
 
-        let mut first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
+        let first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
             .await
             .expect("stream should yield an event")
             .expect("stream should not end immediately");
 
-        if matches!(
+        assert!(matches!(
             first_item,
             crate::core::language_model::LanguageModelStreamChunkType::TextStart
-        ) {
-            first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
-                .await
-                .expect("stream should yield an event")
-                .expect("stream should not end immediately");
-        }
+        ));
+
+        let first_item = tokio::time::timeout(Duration::from_secs(1), stream.stream.next())
+            .await
+            .expect("stream should yield an event")
+            .expect("stream should not end immediately");
 
         match first_item {
             crate::core::language_model::LanguageModelStreamChunkType::TextDelta(text) => {
