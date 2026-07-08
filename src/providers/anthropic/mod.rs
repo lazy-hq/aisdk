@@ -182,6 +182,20 @@ impl<M: ModelName> AnthropicBuilder<M> {
         self
     }
 
+    /// Sets extra headers to merge into every request.
+    pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+        self.settings.headers = Some(headers);
+        self
+    }
+
+    /// Sets extra body fields to merge into every request.
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.settings.body = Some(map);
+        }
+        self
+    }
+
     /// Builds the Anthropic provider.
     ///
     /// Validates the configuration and creates the provider instance.

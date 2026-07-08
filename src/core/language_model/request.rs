@@ -4,11 +4,14 @@
 //! and options for generating text or streaming responses. It includes a type-state builder
 //! pattern to ensure requests are constructed correctly and safely.
 
+use crate::Error;
 use crate::core::Messages;
-use crate::core::capabilities::*;
 use crate::core::language_model::{LanguageModel, LanguageModelOptions};
-use crate::core::tools::Tool;
+use crate::core::tools::{Tool, ToolExecute};
+use crate::core::{ToolContext, capabilities::*};
+use futures::StreamExt;
 use schemars::{JsonSchema, schema_for};
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
@@ -73,10 +76,21 @@ pub struct SystemStage {}
 /// Transitions to [`OptionsStage`] after calling [`prompt`](LanguageModelRequestBuilder::prompt) or [`messages`](LanguageModelRequestBuilder::messages).
 pub struct ConversationStage {}
 
+/// The state after setting a subagent, requiring a system prompt before options can be set.
+///
+/// Transitions to [`OptionsStage`] after calling [`system`](LanguageModelRequestBuilder::system).
+pub struct SubAgentStage {}
+
 /// The final state where additional options can be configured before building.
 ///
 /// Transitions to the completed `LanguageModelRequest` after calling [`build`](LanguageModelRequestBuilder::build).
 pub struct OptionsStage {}
+
+/// The default request-building mode for normal text generation requests.
+pub struct RequestMode {}
+
+/// The subagent-building mode for producing a subagent tool.
+pub struct SubagentMode {}
 
 /// A type-state builder for constructing `LanguageModelRequest` instances.
 ///
@@ -87,14 +101,18 @@ pub struct OptionsStage {}
 ///
 /// * `M` - The language model type.
 /// * `State` - The current builder state, determining available methods.
-pub struct LanguageModelRequestBuilder<M: LanguageModel, State = ModelStage> {
+/// * `Mode` - Whether the builder is producing a normal request or a subagent tool.
+pub struct LanguageModelRequestBuilder<M: LanguageModel, State = ModelStage, Mode = RequestMode> {
     model: Option<M>,
     prompt: Option<String>,
     options: LanguageModelOptions,
+    subagent_name: Option<String>,
+    subagent_description: Option<String>,
     state: std::marker::PhantomData<State>,
+    mode: std::marker::PhantomData<Mode>,
 }
 
-impl<M: LanguageModel, State> Deref for LanguageModelRequestBuilder<M, State> {
+impl<M: LanguageModel, State, Mode> Deref for LanguageModelRequestBuilder<M, State, Mode> {
     type Target = LanguageModelOptions;
 
     /// Dereferences to the underlying `LanguageModelOptions`.
@@ -105,7 +123,7 @@ impl<M: LanguageModel, State> Deref for LanguageModelRequestBuilder<M, State> {
     }
 }
 
-impl<M: LanguageModel, State> DerefMut for LanguageModelRequestBuilder<M, State> {
+impl<M: LanguageModel, State, Mode> DerefMut for LanguageModelRequestBuilder<M, State, Mode> {
     /// Mutably dereferences to the underlying `LanguageModelOptions`.
     ///
     /// This allows direct mutation of the options fields during building.
@@ -120,13 +138,16 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M> {
             model: None,
             prompt: None,
             options: LanguageModelOptions::default(),
+            subagent_name: None,
+            subagent_description: None,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 }
 
 /// Methods available in the [`ModelStage`] state.
-impl<M: LanguageModel> LanguageModelRequestBuilder<M, ModelStage> {
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, ModelStage, RequestMode> {
     /// Sets the language model for the request.
     ///
     /// This is the first required step in building a request.
@@ -138,18 +159,21 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ModelStage> {
     /// # Returns
     ///
     /// The builder in the [`SystemStage`] state.
-    pub fn model(self, model: M) -> LanguageModelRequestBuilder<M, SystemStage> {
+    pub fn model(self, model: M) -> LanguageModelRequestBuilder<M, SystemStage, RequestMode> {
         LanguageModelRequestBuilder {
             model: Some(model),
             prompt: self.prompt,
             options: self.options,
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 }
 
 /// Methods available in the [`SystemStage`] state.
-impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage, RequestMode> {
     /// Sets an optional system prompt for the request.
     ///
     /// The system prompt provides context or instructions to the model.
@@ -164,7 +188,7 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
     pub fn system(
         self,
         system: impl Into<String>,
-    ) -> LanguageModelRequestBuilder<M, ConversationStage> {
+    ) -> LanguageModelRequestBuilder<M, ConversationStage, RequestMode> {
         LanguageModelRequestBuilder {
             model: self.model,
             prompt: self.prompt,
@@ -172,7 +196,49 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
                 system: Some(system.into()),
                 ..self.options
             },
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
+        }
+    }
+
+    /// Switches the builder into **subagent mode**.
+    ///
+    /// A subagent is an agent that can be invoked by a parent agent as a tool.
+    /// The parent delegates a task, and the subagent executes it autonomously,
+    /// returning the result once complete.
+    ///
+    /// Subagents does not accept a direct prompt or messages at construction time.
+    /// Instead, it receives its task dynamically from the parent agent when invoked.
+    ///
+    /// # Parameters
+    ///
+    /// * `name` - A unique identifier for the subagent.
+    /// * `description` - A short description of the subagent’s purpose, used by the
+    ///   parent agent to decide when to invoke it.
+    ///
+    /// # Example
+    /// * `name` - "explore-agent"
+    /// * `description` - "Explore the codebase to have a deeper understanding of the project."
+    ///
+    /// # Returns
+    ///
+    /// The builder in [`SubAgentStage`], where only `.system()` is available next.
+    ///
+    pub fn subagent(
+        self,
+        name: impl Into<String>,
+        description: impl Into<String>,
+    ) -> LanguageModelRequestBuilder<M, SubAgentStage, SubagentMode> {
+        LanguageModelRequestBuilder {
+            model: self.model,
+            prompt: None,
+            options: self.options,
+            subagent_name: Some(name.into()),
+            subagent_description: Some(description.into()),
+            state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 
@@ -187,12 +253,18 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
     /// # Returns
     ///
     /// The builder in the [`OptionsStage`] state.
-    pub fn prompt(self, prompt: impl Into<String>) -> LanguageModelRequestBuilder<M, OptionsStage> {
+    pub fn prompt(
+        self,
+        prompt: impl Into<String>,
+    ) -> LanguageModelRequestBuilder<M, OptionsStage, RequestMode> {
         LanguageModelRequestBuilder {
             model: self.model,
             prompt: Some(prompt.into()),
             options: self.options,
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 
@@ -207,7 +279,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
     /// # Returns
     ///
     /// The builder in the [`OptionsStage`] state.
-    pub fn messages(self, messages: Messages) -> LanguageModelRequestBuilder<M, OptionsStage> {
+    pub fn messages(
+        self,
+        messages: Messages,
+    ) -> LanguageModelRequestBuilder<M, OptionsStage, RequestMode> {
         LanguageModelRequestBuilder {
             model: self.model,
             prompt: self.prompt,
@@ -215,13 +290,16 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, SystemStage> {
                 messages: messages.into_iter().map(|msg| msg.into()).collect(),
                 ..self.options
             },
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 }
 
 /// Methods available in the [`ConversationStage`] state.
-impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage, RequestMode> {
     /// Sets a simple text prompt for the request.
     ///
     /// This method allows setting a user prompt.
@@ -234,7 +312,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
     /// # Returns
     ///
     /// The builder in the [`OptionsStage`] state.
-    pub fn prompt(self, prompt: impl Into<String>) -> LanguageModelRequestBuilder<M, OptionsStage>
+    pub fn prompt(
+        self,
+        prompt: impl Into<String>,
+    ) -> LanguageModelRequestBuilder<M, OptionsStage, RequestMode>
     where
         M: TextInputSupport,
     {
@@ -242,7 +323,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
             model: self.model,
             prompt: Some(prompt.into()),
             options: self.options,
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 
@@ -258,7 +342,10 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
     /// # Returns
     ///
     /// The builder in the [`OptionsStage`] state.
-    pub fn messages(self, messages: Messages) -> LanguageModelRequestBuilder<M, OptionsStage>
+    pub fn messages(
+        self,
+        messages: Messages,
+    ) -> LanguageModelRequestBuilder<M, OptionsStage, RequestMode>
     where
         M: TextInputSupport,
     {
@@ -269,13 +356,41 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, ConversationStage> {
                 messages: messages.into_iter().map(|msg| msg.into()).collect(),
                 ..self.options
             },
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
             state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
+        }
+    }
+}
+
+/// Methods available in the subagent system stage.
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, SubAgentStage, SubagentMode> {
+    /// Sets the system prompt for the delegated subagent request,
+    /// defining how the subagent should behave.
+    ///
+    /// Subagents require a system prompt before they can be configured further or built.
+    pub fn system(
+        self,
+        system: impl Into<String>,
+    ) -> LanguageModelRequestBuilder<M, OptionsStage, SubagentMode> {
+        LanguageModelRequestBuilder {
+            model: self.model,
+            prompt: None,
+            options: LanguageModelOptions {
+                system: Some(system.into()),
+                ..self.options
+            },
+            subagent_name: self.subagent_name,
+            subagent_description: self.subagent_description,
+            state: std::marker::PhantomData,
+            mode: std::marker::PhantomData,
         }
     }
 }
 
 /// Methods available in the [`OptionsStage`] state.
-impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
+impl<M: LanguageModel, Mode> LanguageModelRequestBuilder<M, OptionsStage, Mode> {
     /// Sets the output schema for structured generation.
     ///
     /// This method configures the language model to generate output that conforms
@@ -484,7 +599,42 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
         self
     }
 
-    /// Builds the `LanguageModelRequest`.
+    /// Sets custom HTTP headers for the request.
+    ///
+    /// These headers will be merged with the provider's default headers.
+    /// If a header key conflicts with a default header, the custom value takes precedence.
+    ///
+    /// # Parameters
+    ///
+    /// * `headers` - A map of header names to values.
+    ///
+    pub fn headers(mut self, headers: HashMap<String, String>) -> Self {
+        self.options.headers = Some(headers);
+        self
+    }
+
+    /// Sets extra fields to merge into the provider's request body.
+    ///
+    /// These fields are merged at the top level of the JSON body,
+    /// allowing provider-specific options without modifying the SDK.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// .body(serde_json::json!({
+    ///     "store": false
+    /// }))
+    /// ```
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.options.body = Some(map);
+        }
+        self
+    }
+}
+
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage, RequestMode> {
+    /// Builds a standard `LanguageModelRequest`.
     ///
     /// This method consumes the builder and returns the configured request.
     ///
@@ -501,5 +651,74 @@ impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage> {
             prompt: self.prompt,
             options: self.options,
         }
+    }
+}
+
+// --------------------------------------------------------------------------------
+// SubAgent
+// --------------------------------------------------------------------------------
+
+#[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+/// Input schema for subagent tools.
+pub struct SubAgentInput {
+    /// The task prompt delegated to the subagent.
+    pub prompt: String,
+}
+
+impl<M: LanguageModel> LanguageModelRequestBuilder<M, OptionsStage, SubagentMode> {
+    /// Builds the subagent as a tool that can be provided to a parent agent.
+    pub fn build(self) -> Tool {
+        let name = self
+            .subagent_name
+            .unwrap_or_else(|| unreachable!("Subagent name is guaranteed to be set"));
+        let description = self
+            .subagent_description
+            .unwrap_or_else(|| unreachable!("Subagent description is guaranteed to be set"));
+        let model = self
+            .model
+            .unwrap_or_else(|| unreachable!("Model is guaranteed to be set"));
+        let options = self.options;
+
+        Tool::builder()
+            .name(name)
+            .description(description)
+            .input_schema(schema_for!(SubAgentInput))
+            .execute(ToolExecute::from_async(move |ctx: ToolContext, input| {
+                let prompt = input["prompt"]
+                    .as_str()
+                    .unwrap_or("The agent didn’t give the task as a prompt.");
+                let mut request = LanguageModelRequest::<M> {
+                    model: model.clone(),
+                    prompt: Some(prompt.into()),
+                    options: options.clone(),
+                };
+
+                async move {
+                    if let Some(_tx) = ctx.stream_tx() {
+                        let mut response = request.stream_text().await?;
+                        // consume the stream and send chunks to main agent
+                        {
+                            let stream = &mut response.stream;
+                            while let Some(chunk) = stream.next().await {
+                                ctx.emit(chunk).map_err(|err| {
+                                    Error::ToolCallError(format!(
+                                        "failed to emit subagent stream chunk: {err}"
+                                    ))
+                                })?;
+                            }
+                        }
+
+                        // get the final text
+                        let text = response.text().await;
+                        return Ok(text.unwrap_or_default());
+                    }
+
+                    let response = request.generate_text().await?;
+                    let text = response.text().unwrap_or_default();
+                    Ok(text)
+                }
+            }))
+            .build()
+            .unwrap()
     }
 }

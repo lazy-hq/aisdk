@@ -22,6 +22,8 @@ impl<M: ModelName> EmbeddingModel for OpenAICompatible<M> {
                 api_key: self.inner.settings.api_key.clone(),
                 provider_name: self.inner.settings.provider_name.clone(),
                 path: self.inner.settings.path.clone(),
+                body: self.inner.settings.body.clone(),
+                headers: self.inner.settings.headers.clone(),
             },
             lm_options: Default::default(),
             embedding_options: crate::providers::openai::client::OpenAIEmbeddingOptions {
@@ -30,6 +32,8 @@ impl<M: ModelName> EmbeddingModel for OpenAICompatible<M> {
                 user: None,
                 dimensions: input.dimensions,
                 encoding_format: None,
+                extra_body: None,
+                extra_headers: None,
             },
             _phantom: std::marker::PhantomData,
         };

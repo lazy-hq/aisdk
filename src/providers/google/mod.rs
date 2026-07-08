@@ -63,6 +63,8 @@ impl Google<DynamicModel> {
         let embedding_options = GoogleEmbeddingOptions {
             model: model_name.clone(),
             requests: Vec::new(),
+            extra_body: None,
+            extra_headers: None,
         };
 
         Self {
@@ -85,6 +87,8 @@ impl<M: ModelName> Default for Google<M> {
         let embedding_options = GoogleEmbeddingOptions {
             model: M::MODEL_NAME.to_string(),
             requests: Vec::new(),
+            extra_body: None,
+            extra_headers: None,
         };
 
         Self {
@@ -166,6 +170,20 @@ impl<M: ModelName> GoogleBuilder<M> {
         self
     }
 
+    /// Sets extra headers to merge into every request.
+    pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+        self.settings.headers = Some(headers);
+        self
+    }
+
+    /// Sets extra body fields to merge into every request.
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.settings.body = Some(map);
+        }
+        self
+    }
+
     /// Builds the Google provider settings.
     pub fn build(self) -> Result<Google<M>, Error> {
         // validate base url
@@ -181,6 +199,8 @@ impl<M: ModelName> GoogleBuilder<M> {
         let embedding_options = GoogleEmbeddingOptions {
             model: model_name,
             requests: Vec::new(),
+            extra_body: None,
+            extra_headers: None,
         };
 
         Ok(Google {

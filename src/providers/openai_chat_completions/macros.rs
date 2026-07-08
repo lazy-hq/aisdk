@@ -24,6 +24,7 @@ macro_rules! openai_compatible_settings {
             //! Defines the settings for this provider.
 
             use derive_builder::Builder;
+            use std::collections::HashMap;
 
             /// Settings for this provider (delegates to OpenAI Chat Completions).
             #[derive(Debug, Clone, Builder)]
@@ -40,6 +41,14 @@ macro_rules! openai_compatible_settings {
 
                 /// Custom API path override.
                 pub path: Option<String>,
+
+                /// Extra headers to merge into every request.
+                #[builder(setter(skip))]
+                pub headers: Option<HashMap<String, String>>,
+
+                /// Extra body fields to merge into every request.
+                #[builder(setter(skip))]
+                pub body: Option<serde_json::Map<String, serde_json::Value>>,
             }
 
             impl Default for $settings_struct {
@@ -49,6 +58,8 @@ macro_rules! openai_compatible_settings {
                         base_url: $default_base_url.to_string(),
                         api_key: std::env::var($api_key_env).unwrap_or_default(),
                         path: None,
+                        headers: None,
+                        body: None,
                     }
                 }
             }
@@ -234,6 +245,8 @@ macro_rules! openai_compatible_provider {
                 inner.settings.base_url = settings.base_url.clone();
                 inner.settings.api_key = settings.api_key.clone();
                 inner.settings.path = settings.path.clone();
+                inner.settings.headers = settings.headers.clone();
+                inner.settings.body = settings.body.clone();
 
                 Self { settings, inner }
             }
@@ -290,6 +303,22 @@ macro_rules! openai_compatible_provider {
                 let p = Some(path.into());
                 self.settings.path = p.clone();
                 self.inner.settings.path = p;
+                self
+            }
+
+            /// Sets extra headers to merge into every request.
+            pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+                self.settings.headers = Some(headers.clone());
+                self.inner.settings.headers = Some(headers);
+                self
+            }
+
+            /// Sets extra body fields to merge into every request.
+            pub fn body(mut self, body: serde_json::Value) -> Self {
+                if let serde_json::Value::Object(map) = body {
+                    self.settings.body = Some(map.clone());
+                    self.inner.settings.body = Some(map);
+                }
                 self
             }
 

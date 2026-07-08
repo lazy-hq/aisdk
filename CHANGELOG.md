@@ -17,11 +17,46 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- Added support for SubAgents
+- Added support for custom HTTP headers in `LanguageModelRequest`, allowing request header injection and overriding provider default headers. by [@gaki2](https://github.com/gaki2)
+- Added support for custom HTTP headers in `EmbeddingModelRequest`, allowing request header injection and overriding provider default headers.
+- Add grok-4-20-beta as a model in xAI provider.
+- Added support for custom HTTP request body for `LanguageModelRequest` and all providers, allowing request body injection and overriding provider default body. by [@gaki2](https://github.com/gaki2)
+- Added support for custom HTTP request body for `EmbeddingModelRequest`, and for all providers, allowing request body injection and overriding provider default body.
+- Added Provider level HTTP headers to `LanguageModelRequest` and `EmbeddingModelRequest`. allowing request header injection on provider intialization.
+- Added async tool executor support through `ToolExecute::from_async(...)`.
+- Added support for `#[tool] pub async fn ...` tool bodies.
+- Added `ToolContext` for tools, enabling runtime-aware execution and access to `LanguageModelOptions`.
+- Added optional tool stream sender support in `ToolContext`, allowing tools to emit `LanguageModelStreamChunkType` from the tool body.
+- Added new `LanguageModelStreamChunkType` chunk types: `ReasoningStart`, `ReasoningDelta`, `ReasoningEnd`, `ToolCallStart`, `ToolCallDelta`, `ToolCallAvailable`, and `ToolCallEnd`
+- Added ToolCall progress stream support for vercel-ai-sdk-ui integration.
+
+### Changed
+
+- `ToolExecute` now uses a trait-based executor abstraction internally, allowing both synchronous and asynchronous tool executors behind the same `Tool` API.
+- `ToolExecute::call(...)` is now async and must be awaited. This is a breaking change for direct callers of the tool executor API.
+- `ToolList::execute(...)` and `ToolExecute::call(...)` is now async, takes `ToolContext` as the first parameter as the first parameter for runtime-aware execution.
+- Removed `ToolExecute::new(...)` in favor of the explicit `from_sync(...)` and `from_async(...)` constructors.
+- `Start` and `End` language model stream chunk types are now `TextStart` and `TextEnd`.
+
 ## [0.5.2] - 2026-02-25
 
 ### Fixed
 
 - Fixed `DynamicModel` builder bug where `.model_name(...)` was overwritten on `.build()`, causing empty model IDs.
+
+### Added
+
+- Added optional jitter feature flag for backoff jitter (pulls in fastrand)
+- Added separate shared connection pools
+- Added retry logic for transport-level errors (timeout, connection refused)
+
+### Changed
+
+- Switched TLS backend from native-tls to rustls (removes OpenSSL dependency)
+- Reduced default max_retries from 5 to 3, initial_wait from 1s to 500ms and reduced default max_wait from 30s to 20s
 
 ## [0.5.1] - 2026-02-16
 
@@ -125,7 +160,6 @@ Changelog entries are grouped by type, with the following types:
 [Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.5.2...HEAD
 [0.5.2]: https://github.com/lazy-hq/aisdk/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/lazy-hq/aisdk/compare/v0.5.0...v0.5.1
-
 [0.5.0]: https://github.com/lazy-hq/aisdk/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/lazy-hq/aisdk/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/lazy-hq/aisdk/compare/v0.2.1...v0.3.0

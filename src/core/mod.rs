@@ -31,4 +31,4 @@ pub use embedding_model::EmbeddingModelRequest;
 
 pub use messages::{AssistantMessage, Message, Messages, Role, SystemMessage, UserMessage};
 pub use provider::Provider;
-pub use tools::{Tool, ToolCallInfo, ToolResultInfo};
+pub use tools::{Tool, ToolCallInfo, ToolContext, ToolResultInfo};
