@@ -141,12 +141,16 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     let ty = &*pat_type.ty;
                     let ident_str = ident.to_string();
                     Some(quote! {
+                        // `.get(...)` returns `None` when the model omits an optional
+                        // argument entirely (not just `null`) — fall back to `Value::Null`
+                        // instead of unwrapping, so `from_value`'s `unwrap_or_default()`
+                        // below can still apply the type's default instead of panicking.
                         let #ident: #ty = ::aisdk::__private::serde_json::from_value(
                             inp.as_object()
                                 .unwrap()
                                 .get(#ident_str)
-                                .unwrap()
-                                .clone()
+                                .cloned()
+                                .unwrap_or(::aisdk::__private::serde_json::Value::Null)
                         ).unwrap_or_default();  // use default value if model doesn't send arg
                     })
                 } else {
