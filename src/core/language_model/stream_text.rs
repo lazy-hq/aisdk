@@ -57,7 +57,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
     ///            .stream;
     ///
     ///         while let Some(chunk) = stream.next().await {
-    ///             if let LanguageModelStreamChunkType::Text(text) = chunk {
+    ///             if let LanguageModelStreamChunkType::TextDelta(text) = chunk {
     ///                 println!("{}", text);
     ///             }
     ///         }
@@ -79,11 +79,12 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
             on_step_start: self.options.on_step_start.clone(),
             on_step_finish: self.options.on_step_finish.clone(),
             stop_reason: None,
+            headers: self.options.headers.clone(),
+            body: self.options.body.clone(),
             ..self.options
         }));
 
         let (tx, stream) = LanguageModelStream::new();
-        let _ = tx.send(LanguageModelStreamChunkType::Start);
 
         let mut model = self.model.clone();
 
@@ -115,6 +116,7 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                 while let Some(ref chunk) = response.next().await {
                     match chunk {
                         Ok(chunk) => {
+                            let mut had_tool_call = false;
                             for output in chunk {
                                 match output {
                                     LanguageModelStreamChunk::Done(final_msg) => {
@@ -162,7 +164,31 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                                         usage,
                                                     )),
                                                 ));
-                                                options.handle_tool_call(tool_info).await;
+
+                                                let _ = tx.send(
+                                                    LanguageModelStreamChunkType::ToolCallAvailable(
+                                                        tool_info.clone(),
+                                                    ),
+                                                );
+
+                                                options
+                                                    .handle_tool_call(tool_info, Some(tx.clone()))
+                                                    .await;
+
+                                                // Emit tool result AFTER execution (last message is the result)
+                                                if let Some(TaggedMessage {
+                                                    message: Message::Tool(result_info),
+                                                    ..
+                                                }) = options.messages.last()
+                                                {
+                                                    let _ = tx.send(
+                                                        LanguageModelStreamChunkType::ToolCallEnd(
+                                                            result_info.clone(),
+                                                        ),
+                                                    );
+                                                }
+
+                                                had_tool_call = true;
                                             }
                                             _ => {}
                                         }
@@ -184,15 +210,16 @@ impl<M: LanguageModel> LanguageModelRequest<M> {
                                             break;
                                         }
                                     }
-                                    LanguageModelStreamChunk::Delta(other) => match other {
-                                        // Propagate text and reasoning chunks
-                                        LanguageModelStreamChunkType::Text(_)
-                                        | LanguageModelStreamChunkType::Reasoning(_) => {
-                                            let _ = tx.send(other.clone());
-                                        }
-                                        _ => {}
-                                    },
+                                    LanguageModelStreamChunk::Delta(other) => {
+                                        let _ = tx.send(other.clone());
+                                    }
                                 }
+                            }
+                            // Prioritize continued tool call execution over text finishes
+                            if had_tool_call
+                                && matches!(options.stop_reason, Some(StopReason::Finish))
+                            {
+                                options.stop_reason = None;
                             }
                         }
                         Err(e) => {
@@ -376,5 +403,143 @@ impl StreamTextResponse {
     /// An `Option<StopReason>` indicating the termination reason if available.
     pub async fn stop_reason(&self) -> Option<StopReason> {
         self.options.lock().await.stop_reason()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::capabilities::ToolCallSupport;
+    use crate::core::language_model::{
+        LanguageModel, LanguageModelOptions, LanguageModelResponse,
+        LanguageModelResponseContentType, LanguageModelStreamChunk, ProviderStream,
+    };
+    use crate::core::tools::{Tool, ToolCallInfo, ToolDetails, ToolExecute};
+    use crate::core::{LanguageModelRequest, ToolContext};
+    use crate::error::Result;
+    use async_trait::async_trait;
+    use futures::{StreamExt, stream};
+    use schemars::JsonSchema;
+    use serde::{Deserialize, Serialize};
+    use serde_json::json;
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+
+    #[derive(Clone, Debug)]
+    struct TestStreamingModel {
+        calls: Arc<AtomicUsize>,
+    }
+
+    impl ToolCallSupport for TestStreamingModel {}
+
+    #[async_trait]
+    impl LanguageModel for TestStreamingModel {
+        fn name(&self) -> String {
+            "test-streaming-model".to_string()
+        }
+
+        async fn generate_text(
+            &mut self,
+            _options: LanguageModelOptions,
+        ) -> Result<LanguageModelResponse> {
+            unreachable!("generate_text is not used in this test")
+        }
+
+        async fn stream_text(&mut self, _options: LanguageModelOptions) -> Result<ProviderStream> {
+            let call_index = self.calls.fetch_add(1, Ordering::SeqCst);
+
+            let chunks = if call_index == 0 {
+                let tool_call = ToolCallInfo {
+                    tool: ToolDetails {
+                        id: "call_1".to_string(),
+                        name: "get_weather".to_string(),
+                    },
+                    input: json!({ "location": "dc" }),
+                    extensions: Default::default(),
+                };
+
+                vec![Ok(vec![
+                    LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::ToolCallStart(
+                        tool_call.tool.clone(),
+                    )),
+                    LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::ToolCallDelta {
+                        id: "call_1".to_string(),
+                        delta: "{\"location\":\"dc\"}".to_string(),
+                    }),
+                    LanguageModelStreamChunk::Done(AssistantMessage {
+                        content: LanguageModelResponseContentType::ToolCall(tool_call),
+                        usage: None,
+                    }),
+                ])]
+            } else {
+                vec![Ok(vec![
+                    LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::TextStart),
+                    LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::TextDelta(
+                        "done".to_string(),
+                    )),
+                    LanguageModelStreamChunk::Delta(LanguageModelStreamChunkType::TextEnd),
+                    LanguageModelStreamChunk::Done(AssistantMessage {
+                        content: LanguageModelResponseContentType::Text("done".to_string()),
+                        usage: None,
+                    }),
+                ])]
+            };
+
+            Ok(Box::pin(stream::iter(chunks)))
+        }
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+    struct GetWeatherInput {
+        location: String,
+    }
+
+    fn get_weather() -> Tool {
+        Tool {
+            name: "get_weather".to_string(),
+            description: "Get weather for a location".to_string(),
+            input_schema: schemars::schema_for!(GetWeatherInput),
+            execute: ToolExecute::from_sync(|_ctx: ToolContext, params: serde_json::Value| {
+                let location = params["location"]
+                    .as_str()
+                    .ok_or_else(|| crate::Error::ToolCallError("missing location".to_string()))?;
+                Ok(format!("The weather in {location} is sunny"))
+            }),
+        }
+    }
+
+    #[tokio::test]
+    async fn stream_text_emits_tool_input_available_before_tool_result() {
+        let response = LanguageModelRequest::builder()
+            .model(TestStreamingModel {
+                calls: Arc::new(AtomicUsize::new(0)),
+            })
+            .prompt("what is the weather in dc?")
+            .with_tool(get_weather())
+            .build()
+            .stream_text()
+            .await
+            .expect("stream_text should succeed");
+
+        let chunks = response.stream.take(4).collect::<Vec<_>>().await;
+
+        assert!(matches!(
+            chunks.first(),
+            Some(LanguageModelStreamChunkType::ToolCallStart(_))
+        ));
+        assert!(matches!(
+            chunks.get(1),
+            Some(LanguageModelStreamChunkType::ToolCallDelta { .. })
+        ));
+        assert!(matches!(
+            chunks.get(2),
+            Some(LanguageModelStreamChunkType::ToolCallAvailable(_))
+        ));
+        assert!(matches!(
+            chunks.get(3),
+            Some(LanguageModelStreamChunkType::ToolCallEnd(_))
+        ));
     }
 }

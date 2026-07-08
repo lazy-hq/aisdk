@@ -113,6 +113,8 @@ impl<M: ModelName> Default for OpenAICompatibleBuilder<M> {
         inner.settings.base_url = settings.base_url.clone();
         inner.settings.api_key = settings.api_key.clone();
         inner.settings.path = settings.path.clone();
+        inner.settings.headers = settings.headers.clone();
+        inner.settings.body = settings.body.clone();
 
         Self { settings, inner }
     }
@@ -172,6 +174,22 @@ impl<M: ModelName> OpenAICompatibleBuilder<M> {
         let p = Some(path.into());
         self.settings.path = p.clone();
         self.inner.settings.path = p;
+        self
+    }
+
+    /// Sets extra headers to merge into every request.
+    pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+        self.settings.headers = Some(headers.clone());
+        self.inner.settings.headers = Some(headers);
+        self
+    }
+
+    /// Sets extra body fields to merge into every request.
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.settings.body = Some(map.clone());
+            self.inner.settings.body = Some(map);
+        }
         self
     }
 

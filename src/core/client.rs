@@ -8,32 +8,94 @@ use futures::StreamExt;
 use reqwest;
 use reqwest::IntoUrl;
 use reqwest_eventsource::{Event, RequestBuilderExt};
+use serde::Serialize;
 use serde::de::DeserializeOwned;
+use std::collections::HashMap;
 use std::pin::Pin;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 /// Configuration for retry behavior on API requests.
 #[derive(Debug, Clone)]
 struct RetryConfig {
-    /// Maximum number of retry attempts (default: 5)
+    /// Maximum number of retry attempts (default: 3).
     max_retries: u32,
-    /// Initial wait time before first retry (default: 1 second)
+
+    /// Initial wait time before first retry (default: 500ms).
     initial_wait: Duration,
-    /// Maximum wait time between retries (default: 30 seconds)
+
+    /// Maximum wait time between retries (default: 20 seconds).
     max_wait: Duration,
-    /// Whether to add jitter to backoff (default: true)
+    /// Whether to add jitter to backoff (default: true).
+
+    #[allow(dead_code)]
+    /// Whether to add jitter to backoff.
+    /// turn on the `jitter` feature to use (pulls in `fastrand`).
     use_jitter: bool,
 }
 
 impl Default for RetryConfig {
     fn default() -> Self {
         Self {
-            max_retries: 5,
-            initial_wait: Duration::from_secs(1),
-            max_wait: Duration::from_secs(30),
+            max_retries: 3,
+            initial_wait: Duration::from_millis(500),
+            max_wait: Duration::from_secs(20),
             use_jitter: true,
         }
     }
+}
+
+/// Shared `reqwest::Client` for non-streaming requests (has a 180s response timeout).
+#[allow(dead_code)]
+static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+/// Shared `reqwest::Client` for streaming requests (no response timeout).
+#[allow(dead_code)]
+static HTTP_STREAMING_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+// TODO: reasoning for two different clients in connection pooling is not
+// working during tests. make sure to fix this later.
+//
+/// Returns the shared HTTP client for non-streaming requests.
+#[allow(dead_code)]
+#[cfg(not(feature = "test-access"))]
+fn get_client() -> &'static reqwest::Client {
+    HTTP_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .pool_max_idle_per_host(32)
+            .pool_idle_timeout(Duration::from_secs(120))
+            .tcp_keepalive(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(180))
+            .build()
+            .expect("Failed to build shared HTTP client")
+    })
+}
+
+/// Returns the shared HTTP client for streaming requests.
+/// Identical to [`get_client`] except `.timeout()` is intentionally omitted for streaming.
+#[allow(dead_code)]
+#[cfg(not(feature = "test-access"))]
+fn get_streaming_client() -> &'static reqwest::Client {
+    HTTP_STREAMING_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .pool_max_idle_per_host(32)
+            .pool_idle_timeout(Duration::from_secs(120))
+            .tcp_keepalive(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(5))
+            .build()
+            .expect("Failed to build shared HTTP streaming client")
+    })
+}
+
+#[cfg(feature = "test-access")]
+fn get_client() -> reqwest::Client {
+    reqwest::Client::new()
+}
+
+#[cfg(feature = "test-access")]
+fn get_streaming_client() -> reqwest::Client {
+    reqwest::Client::new()
 }
 
 /// Checks if a status code is retryable.
@@ -78,23 +140,21 @@ fn calculate_backoff(
         .saturating_mul(2_u32.saturating_pow(retry_count));
     let backoff = backoff.min(config.max_wait);
 
-    // Add jitter to prevent thundering herd (±10% of backoff time)
+    // Add jitter to prevent thundering herd (±10% of backoff time).
+    // Requires the `jitter` feature (pulls in `fastrand`).
+    #[cfg(feature = "jitter")]
     if config.use_jitter {
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_nanos();
-        let jitter_pct = ((now % 200) as i64 - 100) as f64 / 1000.0; // Range: -0.1 to +0.1
+        let jitter_pct = fastrand::i64(-100..=100) as f64 / 1000.0; // Range: -0.1 to +0.1
         let jitter_ms = (backoff.as_millis() as f64 * jitter_pct) as i64;
 
-        if jitter_ms >= 0 {
+        return if jitter_ms >= 0 {
             backoff.saturating_add(Duration::from_millis(jitter_ms as u64))
         } else {
             backoff.saturating_sub(Duration::from_millis((-jitter_ms) as u64))
-        }
-    } else {
-        backoff
+        };
     }
+
+    backoff
 }
 
 /// Shared retry logic for HTTP requests.
@@ -103,7 +163,8 @@ fn calculate_backoff(
 /// - Exponential backoff with configurable limits
 /// - Jitter to prevent thundering herd
 /// - Retry-After header parsing
-/// - Retryable error detection (429, 502, 503, 504)
+/// - Retryable HTTP status codes (429, 502, 503, 504)
+/// - Retryable transport errors (timeout, connection failure)
 /// - Request body reconstruction on each retry
 async fn retry_request<F, T>(
     url: reqwest::Url,
@@ -117,38 +178,43 @@ where
     F: Fn() -> reqwest::Body,
     T: DeserializeOwned + std::fmt::Debug,
 {
-    let client = reqwest::Client::new();
+    let client = get_client();
     let mut retry_count = 0;
 
     loop {
-        // Reconstruct body for each attempt to avoid consumption issues
         let body = body_fn();
 
-        let resp = client
+        let resp = match client
             .request(method.clone(), url.clone())
             .headers(headers.clone())
             .query(&query_params)
             .body(body)
             .send()
             .await
-            .map_err(|e| {
-                // Check if error is retryable (timeout, connection error, etc.)
-                if e.is_timeout() || e.is_connect() {
-                    log::warn!(
-                        "Request failed with retryable error (attempt {}/{}): {}",
-                        retry_count + 1,
-                        config.max_retries + 1,
-                        e
-                    );
-                } else {
-                    log::error!("Request failed: {e}");
-                }
-
-                Error::ApiError {
+        {
+            Ok(r) => r,
+            // retry none HTTP-level errors (timeout, connection refused)
+            Err(e) if (e.is_timeout() || e.is_connect()) && retry_count < config.max_retries => {
+                let wait_time = calculate_backoff(retry_count, &config, None);
+                retry_count += 1;
+                log::warn!(
+                    "Request failed with retryable error (attempt {}/{}): {}. Retrying after {:?}...",
+                    retry_count,
+                    config.max_retries + 1,
+                    e,
+                    wait_time
+                );
+                tokio::time::sleep(wait_time).await;
+                continue;
+            }
+            Err(e) => {
+                log::error!("Request failed: {e}");
+                return Err(Error::ApiError {
                     status_code: e.status(),
                     details: e.to_string(),
-                }
-            })?;
+                });
+            }
+        };
 
         let status = resp.status();
         let response_headers = resp.headers().clone();
@@ -167,11 +233,10 @@ where
 
         // Check if error is retryable and we have retries left
         if is_retryable_status(status) && retry_count < config.max_retries {
-            retry_count += 1;
-
             // Parse Retry-After header if present
             let retry_after = parse_retry_after(&response_headers);
-            let wait_time = calculate_backoff(retry_count - 1, &config, retry_after);
+            let wait_time = calculate_backoff(retry_count, &config, retry_after);
+            retry_count += 1;
 
             log::warn!(
                 "Request failed with status {} (attempt {}/{}). Retrying after {:?}...",
@@ -204,6 +269,64 @@ where
     }
 }
 
+/// Merges a typed request body with provider-level and request-level body fields.
+/// Request-level fields take priority over provider-level fields.
+#[allow(dead_code)]
+pub(crate) fn merge_body<T>(
+    request: &T,
+    provider_level: Option<&serde_json::Map<String, serde_json::Value>>,
+    request_level: Option<&serde_json::Map<String, serde_json::Value>>,
+) -> Result<reqwest::Body>
+where
+    T: Serialize,
+{
+    let body_bytes = serde_json::to_vec(request)
+        .map_err(|e| Error::Other(format!("Failed to serialize request body: {e}")))?;
+    let mut json: serde_json::Value = serde_json::from_slice(&body_bytes)
+        .map_err(|e| Error::Other(format!("Failed to parse request body as JSON: {e}")))?;
+
+    let map = json
+        .as_object_mut()
+        .ok_or_else(|| Error::Other("Request body must serialize to a JSON object".to_string()))?;
+
+    if let Some(provider_overrides) = provider_level {
+        map.extend(provider_overrides.clone());
+    }
+
+    if let Some(request_overrides) = request_level {
+        map.extend(request_overrides.clone());
+    }
+
+    let body_bytes = serde_json::to_vec(&json)
+        .map_err(|e| Error::Other(format!("Failed to encode request body: {e}")))?;
+
+    Ok(reqwest::Body::from(body_bytes))
+}
+
+/// Merges default, provider-level, and request-level headers.
+/// Request-level headers take priority over provider-level headers,
+/// which take priority over the provider defaults.
+#[allow(dead_code)]
+pub(crate) fn merge_headers(
+    mut default_headers: reqwest::header::HeaderMap,
+    provider_level: Option<&HashMap<String, String>>,
+    request_level: Option<&HashMap<String, String>>,
+) -> Result<reqwest::header::HeaderMap> {
+    if let Some(provider_headers) = provider_level {
+        let provider_headers = reqwest::header::HeaderMap::try_from(provider_headers)
+            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {}", e)))?;
+        default_headers.extend(provider_headers);
+    }
+
+    if let Some(request_headers) = request_level {
+        let request_headers = reqwest::header::HeaderMap::try_from(request_headers)
+            .map_err(|e| Error::InvalidInput(format!("Invalid headers: {}", e)))?;
+        default_headers.extend(request_headers);
+    }
+
+    Ok(default_headers)
+}
+
 #[allow(dead_code)]
 pub(crate) trait LanguageModelClient {
     type Response: DeserializeOwned + std::fmt::Debug + Clone;
@@ -212,22 +335,17 @@ pub(crate) trait LanguageModelClient {
     fn path(&self) -> String;
     fn method(&self) -> reqwest::Method;
     fn query_params(&self) -> Vec<(&str, &str)>;
-    fn body(&self) -> reqwest::Body;
-    fn headers(&self) -> reqwest::header::HeaderMap;
+    fn body(&self) -> Result<reqwest::Body>;
+    fn headers(&self) -> Result<reqwest::header::HeaderMap>;
 
     async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
         let url = join_url(base_url, &self.path())?;
 
-        // Serialize body once to avoid consumption issues on retries
         let body_bytes = {
-            let body = self.body();
-            // Convert Body to bytes - this is the critical fix for retry body consumption
-            // We need to get the bytes from the body to be able to reconstruct it
-            match body.as_bytes() {
+            let raw = self.body()?;
+            match raw.as_bytes() {
                 Some(bytes) => bytes.to_vec(),
                 None => {
-                    // If body doesn't have as_bytes (streaming body), we can't retry it
-                    // This should rarely happen for our use case (JSON bodies)
                     log::warn!("Request body is not retryable (streaming body)");
                     vec![]
                 }
@@ -235,14 +353,13 @@ pub(crate) trait LanguageModelClient {
         };
 
         let method = self.method();
-        let headers = self.headers();
         let query_params = self.query_params();
         let config = RetryConfig::default();
 
         retry_request(
             url,
             method,
-            headers,
+            self.headers()?,
             query_params,
             move || reqwest::Body::from(body_bytes.clone()),
             config,
@@ -266,7 +383,7 @@ pub(crate) trait LanguageModelClient {
         Self::StreamEvent: Send + 'static,
         Self: Sync,
     {
-        let client = reqwest::Client::new();
+        let client = get_streaming_client();
 
         let url = join_url(base_url, &self.path())?;
 
@@ -275,9 +392,9 @@ pub(crate) trait LanguageModelClient {
         // and should be handled by retry logic in the provider's stream_text() method
         let events_stream = client
             .request(self.method(), url.clone())
-            .headers(self.headers())
+            .headers(self.headers()?)
             .query(&self.query_params())
-            .body(self.body())
+            .body(self.body()?)
             .eventsource()
             .map_err(|e| Error::ApiError {
                 status_code: None,
@@ -285,7 +402,11 @@ pub(crate) trait LanguageModelClient {
             })?;
 
         // Map events to deserialized StreamEvent ( ProviderStreamEvent )
-        let mapped_stream = events_stream.map(|event_result| Self::parse_stream_sse(event_result));
+        // Filter out Event::Open (connection acknowledgement with no data) before parsing,
+        // so providers never receive a spurious NotSupported chunk as the first stream item.
+        let mapped_stream = events_stream
+            .filter(|e| futures::future::ready(!matches!(e, Ok(Event::Open))))
+            .map(|event_result| Self::parse_stream_sse(event_result));
 
         // State that indicates if the stream has ended
         let ended = std::sync::Arc::new(std::sync::Mutex::new(false));
@@ -314,8 +435,8 @@ pub(crate) trait EmbeddingClient {
     fn path(&self) -> String;
     fn method(&self) -> reqwest::Method;
     fn query_params(&self) -> Vec<(&str, &str)>;
-    fn body(&self) -> reqwest::Body;
-    fn headers(&self) -> reqwest::header::HeaderMap;
+    fn body(&self) -> Result<reqwest::Body>;
+    fn headers(&self) -> Result<reqwest::header::HeaderMap>;
 
     async fn send(&self, base_url: impl IntoUrl) -> Result<Self::Response> {
         let base_url = base_url
@@ -326,7 +447,7 @@ pub(crate) trait EmbeddingClient {
 
         // Serialize body once to avoid consumption issues on retries
         let body_bytes = {
-            let body = self.body();
+            let body = self.body()?;
             // Convert Body to bytes - this is the critical fix for retry body consumption
             match body.as_bytes() {
                 Some(bytes) => bytes.to_vec(),
@@ -339,14 +460,13 @@ pub(crate) trait EmbeddingClient {
         };
 
         let method = self.method();
-        let headers = self.headers();
         let query_params = self.query_params();
         let config = RetryConfig::default();
 
         retry_request(
             url,
             method,
-            headers,
+            self.headers()?,
             query_params,
             move || reqwest::Body::from(body_bytes.clone()),
             config,
@@ -519,9 +639,10 @@ mod tests {
     }
 
     // ========================================================================
-    // Tests for Exponential Backoff with Jitter
+    // Tests for Exponential Backoff with Jitter (requires `jitter` feature)
     // ========================================================================
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_with_jitter_within_range() {
         let config = test_config(5, 1000, 30000, true);
@@ -539,6 +660,7 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_with_jitter_different_retry_counts() {
         let config = test_config(5, 1000, 30000, true);
@@ -560,6 +682,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_jitter_respects_max_wait() {
         let config = test_config(5, 1000, 10000, true);
@@ -567,29 +690,22 @@ mod tests {
         // Base would be 16000ms, but max_wait is 10000ms
         let result = calculate_backoff(4, &config, None);
 
-        // Even with jitter, should never exceed max_wait
-        // Actually, the current implementation caps BEFORE jitter,
-        // so it should be around 10000 ± 10% = 9000-11000ms
-        // Let's be conservative and check it's close to 10000ms
+        // The implementation caps BEFORE jitter, so the result can be up to ±10%
+        // of max_wait: 9000ms to 11000ms.
         assert!(
             result >= Duration::from_millis(9000) && result <= Duration::from_millis(11000),
             "Result {result:?} should be around 10000ms ±10%"
         );
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
-    fn test_calculate_backoff_jitter_deterministic_within_run() {
+    fn test_calculate_backoff_jitter_independent_calls_in_range() {
         let config = test_config(5, 1000, 30000, true);
 
-        // Multiple calls in quick succession should give different results
-        // due to changing timestamp nanoseconds
         let result1 = calculate_backoff(2, &config, None);
-        std::thread::sleep(Duration::from_nanos(100)); // Tiny sleep to change timestamp
         let result2 = calculate_backoff(2, &config, None);
 
-        // Results might be the same if called at exactly the same nanosecond,
-        // but they're likely different. Just verify both are in valid range.
-        let _base = Duration::from_millis(4000);
         let min = Duration::from_millis(3600);
         let max = Duration::from_millis(4400);
 
@@ -597,6 +713,7 @@ mod tests {
         assert!(result2 >= min && result2 <= max);
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_jitter_at_zero_retry_count() {
         let config = test_config(5, 1000, 30000, true);
@@ -686,6 +803,7 @@ mod tests {
         assert_eq!(result, Duration::from_millis(60000));
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_jitter_with_zero_base() {
         let config = test_config(5, 0, 30000, true);
@@ -695,6 +813,7 @@ mod tests {
         assert_eq!(result, Duration::from_millis(0));
     }
 
+    #[cfg(feature = "jitter")]
     #[test]
     fn test_calculate_backoff_jitter_with_very_small_base() {
         let config = test_config(5, 10, 30000, true);
@@ -889,5 +1008,180 @@ mod tests {
 
         let result = parse_retry_after(&headers);
         assert_eq!(result, None); // Should fail to parse as u64
+    }
+
+    #[derive(serde::Serialize)]
+    struct TestBody<'a> {
+        model: &'a str,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        temperature: Option<f32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        reasoning: Option<serde_json::Value>,
+    }
+
+    fn parse_body(body: reqwest::Body) -> serde_json::Value {
+        let bytes = body.as_bytes().expect("body should be available as bytes");
+        serde_json::from_slice(bytes).expect("body should contain valid json")
+    }
+
+    #[test]
+    fn test_merge_body_without_overrides() {
+        let body = TestBody {
+            model: "gpt-4o",
+            temperature: None,
+            reasoning: None,
+        };
+
+        let parsed = parse_body(merge_body(&body, None, None).expect("body should merge"));
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert!(parsed.get("temperature").is_none());
+    }
+
+    #[test]
+    fn test_merge_body_adds_new_fields() {
+        let body = TestBody {
+            model: "gpt-4o",
+            temperature: None,
+            reasoning: None,
+        };
+        let mut request = serde_json::Map::new();
+        request.insert("store".to_string(), serde_json::Value::Bool(false));
+        request.insert(
+            "instructions".to_string(),
+            serde_json::Value::String("Be helpful".to_string()),
+        );
+
+        let parsed =
+            parse_body(merge_body(&body, None, Some(&request)).expect("body should merge"));
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["store"], false);
+        assert_eq!(parsed["instructions"], "Be helpful");
+    }
+
+    #[test]
+    fn test_merge_body_request_overrides_provider_level_fields() {
+        let body = TestBody {
+            model: "gpt-4o",
+            temperature: Some(0.5),
+            reasoning: None,
+        };
+        let mut provider = serde_json::Map::new();
+        provider.insert("store".to_string(), serde_json::Value::Bool(false));
+        provider.insert(
+            "temperature".to_string(),
+            serde_json::Value::Number(serde_json::Number::from_f64(0.7).expect("valid number")),
+        );
+
+        let mut request = serde_json::Map::new();
+        request.insert("store".to_string(), serde_json::Value::Bool(true));
+        request.insert(
+            "temperature".to_string(),
+            serde_json::Value::Number(serde_json::Number::from_f64(0.9).expect("valid number")),
+        );
+
+        let parsed = parse_body(
+            merge_body(&body, Some(&provider), Some(&request)).expect("body should merge"),
+        );
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["store"], true);
+        assert_eq!(parsed["temperature"], 0.9);
+    }
+
+    #[test]
+    fn test_merge_body_preserves_nested_objects() {
+        let body = TestBody {
+            model: "gpt-4o",
+            temperature: None,
+            reasoning: Some(serde_json::json!({ "effort": "high" })),
+        };
+        let mut request = serde_json::Map::new();
+        request.insert("store".to_string(), serde_json::Value::Bool(false));
+
+        let parsed =
+            parse_body(merge_body(&body, None, Some(&request)).expect("body should merge"));
+
+        assert_eq!(parsed["model"], "gpt-4o");
+        assert_eq!(parsed["reasoning"]["effort"], "high");
+        assert_eq!(parsed["store"], false);
+    }
+
+    #[test]
+    fn test_merge_body_rejects_non_object_requests() {
+        let err = merge_body(&serde_json::Value::String("oops".to_string()), None, None)
+            .expect_err("non-object bodies should fail");
+
+        assert!(matches!(err, Error::Other(_)));
+    }
+
+    #[test]
+    fn test_merge_headers_without_overrides() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(
+            reqwest::header::AUTHORIZATION,
+            reqwest::header::HeaderValue::from_static("Bearer test-key"),
+        );
+
+        let merged = merge_headers(headers.clone(), None, None).expect("headers should merge");
+
+        assert_eq!(
+            merged.get(reqwest::header::AUTHORIZATION),
+            headers.get(reqwest::header::AUTHORIZATION)
+        );
+        assert_eq!(merged.len(), 1);
+    }
+
+    #[test]
+    fn test_merge_headers_request_overrides_provider_level_headers() {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(
+            reqwest::header::CONTENT_TYPE,
+            reqwest::header::HeaderValue::from_static("application/json"),
+        );
+
+        let provider = HashMap::from([
+            ("x-trace-id".to_string(), "provider-trace".to_string()),
+            ("x-provider".to_string(), "openai".to_string()),
+        ]);
+        let request = HashMap::from([
+            ("x-trace-id".to_string(), "request-trace".to_string()),
+            ("x-request".to_string(), "generate-text".to_string()),
+        ]);
+
+        let merged =
+            merge_headers(headers, Some(&provider), Some(&request)).expect("headers should merge");
+
+        assert_eq!(merged["content-type"], "application/json");
+        assert_eq!(merged["x-trace-id"], "request-trace");
+        assert_eq!(merged["x-provider"], "openai");
+        assert_eq!(merged["x-request"], "generate-text");
+    }
+
+    #[test]
+    fn test_merge_headers_rejects_invalid_header_name() {
+        let provider = HashMap::from([("bad header".to_string(), "value".to_string())]);
+
+        let err = merge_headers(reqwest::header::HeaderMap::new(), Some(&provider), None)
+            .expect_err("invalid header name should fail");
+
+        assert_eq!(
+            err.to_string(),
+            "Invalid input: Invalid headers: invalid HTTP header name"
+        );
+    }
+
+    #[test]
+    fn test_merge_headers_rejects_invalid_header_value() {
+        let request = HashMap::from([("x-trace-id".to_string(), "\ninvalid".to_string())]);
+
+        let err = merge_headers(reqwest::header::HeaderMap::new(), None, Some(&request))
+            .expect_err("invalid header value should fail");
+
+        assert_eq!(
+            err.to_string(),
+            "Invalid input: Invalid headers: failed to parse header value"
+        );
     }
 }

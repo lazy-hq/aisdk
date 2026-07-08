@@ -13,11 +13,8 @@ pub mod request;
 pub mod stream_text;
 
 use crate::core::messages::{AssistantMessage, TaggedMessage, TaggedMessageHelpers};
-use crate::core::tools::ToolList;
-use crate::core::{
-    Message,
-    tools::{ToolCallInfo, ToolResultInfo},
-};
+use crate::core::tools::{ToolDetails, ToolList};
+use crate::core::{Message, ToolCallInfo, ToolContext, ToolResultInfo};
 use crate::core::{Messages, utils};
 use crate::error::{Error, Result};
 use async_trait::async_trait;
@@ -241,6 +238,15 @@ pub struct LanguageModelOptions {
 
     /// The reason why generation stopped.
     pub(crate) stop_reason: Option<StopReason>,
+
+    /// Custom HTTP headers to include in the request.
+    pub headers: Option<HashMap<String, String>>,
+
+    /// Extra fields to merge into the provider's request body.
+    /// These are merged at the top level of the JSON body, allowing
+    /// provider-specific options (e.g., OpenAI's `store`, `instructions`)
+    /// without modifying the SDK.
+    pub body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 impl Debug for LanguageModelOptions {
@@ -263,6 +269,8 @@ impl Debug for LanguageModelOptions {
             .field("stop_when", &self.stop_when.is_some())
             .field("on_step_start", &self.on_step_start.is_some())
             .field("on_step_finish", &self.on_step_finish.is_some())
+            .field("headers", &self.headers)
+            .field("body", &self.body)
             .finish()
     }
 }
@@ -279,13 +287,21 @@ impl LanguageModelOptions {
     }
 
     /// Executes a tool call and adds the result to the message history.
-    pub(crate) async fn handle_tool_call(&mut self, input: &ToolCallInfo) -> &mut Self {
+    pub(crate) async fn handle_tool_call(
+        &mut self,
+        input: &ToolCallInfo,
+        stream_tx: Option<UnboundedSender<LanguageModelStreamChunkType>>,
+    ) -> &mut Self {
         if let Some(tools) = &self.tools {
-            let tool_result_task = tools.execute(input.clone()).await;
-            let tool_result = tool_result_task
-                .await
-                .map_err(|err| Error::ToolCallError(format!("Error executing tool: {err}")))
-                .and_then(|result| result);
+            let tool_result = tools
+                .execute(
+                    match stream_tx {
+                        Some(tx) => ToolContext::new(self.clone()).with_stream_tx(tx),
+                        None => ToolContext::new(self.clone()),
+                    },
+                    input.clone(),
+                )
+                .await;
 
             let mut tool_output_infos = Vec::new();
 
@@ -497,23 +513,51 @@ impl LanguageModelResponse {
 /// Types of chunks that can be emitted during streaming text generation.
 #[derive(Default, Debug, Clone)]
 pub enum LanguageModelStreamChunkType {
-    /// Indicates the start of generation.
+    /// Text generation start.
     #[default]
-    Start,
+    TextStart,
     /// A chunk of generated text.
-    Text(String),
-    /// Reasoning summary text chunk (content delta only)
-    Reasoning(String),
-    /// Tool call argument chunk
-    ToolCall(String),
-    /// Successful completion of generation.
-    End(AssistantMessage),
+    TextDelta(String),
+    /// Text generation end.
+    TextEnd,
+    /// Reasoning start emitted before reasoning.
+    ReasoningStart,
+    /// Reasoning summary text chunk.
+    ReasoningDelta(String),
+    /// Reasoning end emitted after reasoning.
+    ReasoningEnd,
+    /// Tool call start emitted before tool execution, contains details on the
+    /// tool call.
+    ToolCallStart(ToolDetails),
+    /// Tool call argument chunk with metadata
+    ToolCallDelta {
+        /// Provider/tool-call unique identifier for correlating streamed deltas.
+        id: String,
+        /// Incremental argument JSON fragment.
+        delta: String,
+    },
+    /// Tool call input is complete and ready for execution.
+    ToolCallAvailable(ToolCallInfo),
+    /// Tool call end emitted after tool execution, contains the result of the\
+    /// tool call.
+    // NOTE: This event is emitted by the sdk after the tool call is done
+    ToolCallEnd(ToolResultInfo),
     /// Generation failed with an error message.
     Failed(String),
     /// Generation ended with an incomplete response.
     Incomplete(String),
     /// Feature not supported by the provider.
     NotSupported(String),
+}
+
+impl LanguageModelStreamChunkType {
+    /// Returns `true` if the language model stream chunk type is [`ToolCallStart`].
+    ///
+    /// [`ToolCallStart`]: LanguageModelStreamChunkType::ToolCallStart
+    #[must_use]
+    pub fn is_tool_call_start(&self) -> bool {
+        matches!(self, Self::ToolCallStart(..))
+    }
 }
 
 /// A chunk of data from a streaming language model response.

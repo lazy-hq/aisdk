@@ -1,6 +1,7 @@
 //! Defines the settings for the OpenAI-compatible provider.
 
 use derive_builder::Builder;
+use std::collections::HashMap;
 
 /// Settings for the OpenAI-compatible provider (delegates to OpenAI).
 #[derive(Debug, Clone, Builder)]
@@ -17,6 +18,14 @@ pub struct OpenAICompatibleSettings {
 
     /// Custom API path override.
     pub path: Option<String>,
+
+    /// Extra headers to merge into every request.
+    #[builder(setter(skip))]
+    pub headers: Option<HashMap<String, String>>,
+
+    /// Extra body fields to merge into every request.
+    #[builder(setter(skip))]
+    pub body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 impl Default for OpenAICompatibleSettings {
@@ -27,6 +36,8 @@ impl Default for OpenAICompatibleSettings {
             base_url: "https://api.openai.com/v1".to_string(),
             api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
             path: None,
+            headers: None,
+            body: None,
         }
     }
 }

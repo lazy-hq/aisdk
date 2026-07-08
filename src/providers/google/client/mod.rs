@@ -1,5 +1,5 @@
 //! Client implementation for the Google provider.
-use crate::core::client::{EmbeddingClient, LanguageModelClient};
+use crate::core::client::{EmbeddingClient, LanguageModelClient, merge_body, merge_headers};
 use crate::error::{Error, Result};
 use crate::providers::google::{Google, ModelName};
 use derive_builder::Builder;
@@ -19,6 +19,12 @@ pub(crate) struct GoogleOptions {
     #[serde(skip)]
     #[builder(default)]
     pub(crate) streaming: bool,
+    #[serde(skip)]
+    #[builder(default)]
+    pub(crate) extra_body: Option<serde_json::Map<String, serde_json::Value>>,
+    #[serde(skip)]
+    #[builder(default)]
+    pub(crate) extra_headers: Option<std::collections::HashMap<String, String>>,
 }
 
 impl GoogleOptions {
@@ -32,6 +38,12 @@ impl GoogleOptions {
 pub(crate) struct GoogleEmbeddingOptions {
     pub(crate) model: String,
     pub(crate) requests: Vec<types::EmbedContentRequest>,
+    #[serde(skip)]
+    #[builder(default)]
+    pub(crate) extra_body: Option<serde_json::Map<String, serde_json::Value>>,
+    #[serde(skip)]
+    #[builder(default)]
+    pub(crate) extra_headers: Option<std::collections::HashMap<String, String>>,
 }
 
 impl<M: ModelName> LanguageModelClient for Google<M> {
@@ -55,11 +67,15 @@ impl<M: ModelName> LanguageModelClient for Google<M> {
         reqwest::Method::POST
     }
 
-    fn headers(&self) -> reqwest::header::HeaderMap {
+    fn headers(&self) -> Result<reqwest::header::HeaderMap> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
         headers.insert("x-goog-api-key", self.settings.api_key.parse().unwrap());
-        headers
+        merge_headers(
+            headers,
+            self.settings.headers.as_ref(),
+            self.lm_options.extra_headers.as_ref(),
+        )
     }
 
     fn query_params(&self) -> Vec<(&str, &str)> {
@@ -69,12 +85,20 @@ impl<M: ModelName> LanguageModelClient for Google<M> {
         Vec::new()
     }
 
-    fn body(&self) -> reqwest::Body {
+    fn body(&self) -> Result<reqwest::Body> {
         if let Some(request) = &self.lm_options.request {
-            let body = serde_json::to_string(request).unwrap();
-            return reqwest::Body::from(body);
-        };
-        reqwest::Body::from("{}")
+            return merge_body(
+                request,
+                self.settings.body.as_ref(),
+                self.lm_options.extra_body.as_ref(),
+            );
+        }
+
+        merge_body(
+            &serde_json::Value::Object(serde_json::Map::new()),
+            self.settings.body.as_ref(),
+            self.lm_options.extra_body.as_ref(),
+        )
     }
 
     fn parse_stream_sse(
@@ -135,22 +159,29 @@ impl<M: ModelName> EmbeddingClient for Google<M> {
         reqwest::Method::POST
     }
 
-    fn headers(&self) -> reqwest::header::HeaderMap {
+    fn headers(&self) -> Result<reqwest::header::HeaderMap> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
         headers.insert("x-goog-api-key", self.settings.api_key.parse().unwrap());
-        headers
+        merge_headers(
+            headers,
+            self.settings.headers.as_ref(),
+            self.embedding_options.extra_headers.as_ref(),
+        )
     }
 
     fn query_params(&self) -> Vec<(&str, &str)> {
         Vec::new()
     }
 
-    fn body(&self) -> reqwest::Body {
+    fn body(&self) -> Result<reqwest::Body> {
         let request = types::BatchEmbedContentsRequest {
             requests: self.embedding_options.requests.clone(),
         };
-        let body = serde_json::to_string(&request).unwrap();
-        reqwest::Body::from(body)
+        merge_body(
+            &request,
+            self.settings.body.as_ref(),
+            self.embedding_options.extra_body.as_ref(),
+        )
     }
 }

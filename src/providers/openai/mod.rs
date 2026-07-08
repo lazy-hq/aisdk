@@ -48,6 +48,8 @@ impl<M: ModelName> Default for OpenAI<M> {
             user: None,
             dimensions: None,
             encoding_format: None,
+            extra_body: None,
+            extra_headers: None,
         };
 
         Self {
@@ -92,6 +94,8 @@ impl OpenAI<DynamicModel> {
             user: None,
             dimensions: None,
             encoding_format: None,
+            extra_body: None,
+            extra_headers: None,
         };
 
         OpenAI {
@@ -200,6 +204,20 @@ impl<M: ModelName> OpenAIBuilder<M> {
         self
     }
 
+    /// Sets extra headers to merge into every request.
+    pub fn headers(mut self, headers: std::collections::HashMap<String, String>) -> Self {
+        self.settings.headers = Some(headers);
+        self
+    }
+
+    /// Sets extra body fields to merge into every request.
+    pub fn body(mut self, body: serde_json::Value) -> Self {
+        if let serde_json::Value::Object(map) = body {
+            self.settings.body = Some(map);
+        }
+        self
+    }
+
     /// Builds the OpenAI provider.
     ///
     /// Validates the configuration and creates the provider instance.
@@ -225,6 +243,8 @@ impl<M: ModelName> OpenAIBuilder<M> {
             user: None,
             dimensions: None,
             encoding_format: None,
+            extra_body: None,
+            extra_headers: None,
         };
 
         Ok(OpenAI {

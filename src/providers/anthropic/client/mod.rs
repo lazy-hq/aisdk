@@ -10,7 +10,7 @@ use reqwest_eventsource::Event;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    core::client::LanguageModelClient,
+    core::client::{LanguageModelClient, merge_body, merge_headers},
     providers::anthropic::{ANTHROPIC_API_VERSION, Anthropic},
 };
 
@@ -46,6 +46,12 @@ pub(crate) struct AnthropicOptions {
     #[builder(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
+    #[builder(default)]
+    #[serde(skip)]
+    pub(crate) extra_body: Option<serde_json::Map<String, serde_json::Value>>,
+    #[builder(default)]
+    #[serde(skip)]
+    pub(crate) extra_headers: Option<std::collections::HashMap<String, String>>,
 }
 
 impl AnthropicOptions {
@@ -69,23 +75,30 @@ impl<M: ModelName> LanguageModelClient for Anthropic<M> {
         reqwest::Method::POST
     }
 
-    fn headers(&self) -> reqwest::header::HeaderMap {
+    fn headers(&self) -> crate::error::Result<reqwest::header::HeaderMap> {
         // Default headers
         let mut default_headers = reqwest::header::HeaderMap::new();
         default_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
         default_headers.insert("x-api-key", self.settings.api_key.parse().unwrap());
         default_headers.insert("anthropic-version", ANTHROPIC_API_VERSION.parse().unwrap());
 
-        default_headers
+        merge_headers(
+            default_headers,
+            self.settings.headers.as_ref(),
+            self.options.extra_headers.as_ref(),
+        )
     }
 
     fn query_params(&self) -> Vec<(&str, &str)> {
         Vec::new()
     }
 
-    fn body(&self) -> reqwest::Body {
-        let body = serde_json::to_string(&self.options).unwrap();
-        reqwest::Body::from(body)
+    fn body(&self) -> crate::error::Result<reqwest::Body> {
+        merge_body(
+            &self.options,
+            self.settings.body.as_ref(),
+            self.options.extra_body.as_ref(),
+        )
     }
 
     fn parse_stream_sse(

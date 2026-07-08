@@ -49,12 +49,11 @@
 //!     name: "sum".to_string(),
 //!     description: "Adds two numbers together.".to_string(),
 //!     input_schema: schema_for!(SumInput),
-//!     execute:
-//!         ToolExecute::new(Box::new(|params: Value| {
-//!             let a = params["a"].as_u64().unwrap();
-//!             let b = params["b"].as_u64().unwrap();
-//!             Ok(format!("{}", a + b))
-//!         })),
+//!     execute: ToolExecute::from_sync(|_ctx, params: Value| {
+//!         let a = params["a"].as_u64().unwrap();
+//!         let b = params["b"].as_u64().unwrap();
+//!         Ok(format!("{}", a + b))
+//!     }),
 //! };
 //!
 //! assert_eq!(tool.name, "sum");
@@ -62,6 +61,7 @@
 //! ```
 //!
 
+use crate::core::language_model::{LanguageModelOptions, LanguageModelStreamChunkType};
 use crate::error::{Error, Result};
 use crate::extensions::Extensions;
 use derive_builder::Builder;
@@ -69,37 +69,121 @@ use schemars::Schema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fmt::Debug;
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use tokio::task::JoinHandle;
+use tokio::sync::mpsc::UnboundedSender;
 
-/// A function that will be called when the tool is executed.
-pub type ToolFn = Box<dyn Fn(Value) -> std::result::Result<String, String> + Send + Sync>;
+/// Stream sender that tools can use to emit chunks during `stream_text()`.
+pub type ToolStreamSender = UnboundedSender<LanguageModelStreamChunkType>;
+
+/// Error returned when a tool-emitted stream chunk cannot be sent.
+pub type ToolEmitError = Box<tokio::sync::mpsc::error::SendError<LanguageModelStreamChunkType>>;
+
+/// Runtime-only context passed to tool executors.
+#[derive(Clone, Debug, Default)]
+pub struct ToolContext {
+    /// The current language model options at the time the tool is executed.
+    options: Arc<LanguageModelOptions>,
+    /// Optional sender for emitting stream chunks while a tool runs.
+    stream_tx: Option<ToolStreamSender>,
+}
+
+impl ToolContext {
+    /// Creates a new tool context from the current language model options.
+    pub fn new(options: LanguageModelOptions) -> Self {
+        Self {
+            options: Arc::new(options),
+            stream_tx: None,
+        }
+    }
+
+    /// Attaches a stream sender so a tool can emit stream chunks while it runs.
+    pub fn with_stream_tx(mut self, tx: ToolStreamSender) -> Self {
+        self.stream_tx = Some(tx);
+        self
+    }
+
+    /// Returns the language model options associated with this tool execution.
+    pub fn options(&self) -> &LanguageModelOptions {
+        &self.options
+    }
+
+    /// Returns the optional stream sender for tool-emitted chunks.
+    pub fn stream_tx(&self) -> Option<&ToolStreamSender> {
+        self.stream_tx.as_ref()
+    }
+
+    /// Sends a chunk through the tool stream sender if one is available.
+    pub fn emit(
+        &self,
+        chunk: LanguageModelStreamChunkType,
+    ) -> std::result::Result<(), ToolEmitError> {
+        match &self.stream_tx {
+            Some(tx) => tx.send(chunk).map_err(Box::new),
+            None => Ok(()),
+        }
+    }
+}
+
+/// The output returned by a tool executor.
+pub type ToolOutput = Result<String>;
+
+/// A boxed future returned by a tool executor.
+pub type ToolFuture = Pin<Box<dyn Future<Output = ToolOutput> + Send>>;
+
+type SyncToolFn = dyn Fn(ToolContext, Value) -> ToolOutput + Send + Sync;
+type AsyncToolFn = dyn Fn(ToolContext, Value) -> ToolFuture + Send + Sync;
+
+#[derive(Clone)]
+enum ToolExecuteInner {
+    Sync(Arc<SyncToolFn>),
+    Async(Arc<AsyncToolFn>),
+}
 
 /// Holds the function that will be called when the tool is executed. the function
-/// should take a single argument of type `Value` and returns a
-/// `Result<String, String>`.
+/// receives a [`ToolContext`] and the tool input `Value`, and returns a `ToolOutput`.
 #[derive(Clone)]
 pub struct ToolExecute {
-    inner: Arc<ToolFn>,
+    inner: ToolExecuteInner,
 }
 
 impl ToolExecute {
     /// Calls the tool with the given input.
-    pub fn call(&self, map: Value) -> Result<String> {
-        (*self.inner)(map).map_err(Error::ToolCallError)
+    pub async fn call(&self, context: ToolContext, map: Value) -> Result<String> {
+        match &self.inner {
+            ToolExecuteInner::Sync(f) => (f)(context, map),
+            ToolExecuteInner::Async(f) => (f)(context, map).await,
+        }
     }
 
-    /// Creates a new `ToolExecute` instance with the given function.
-    /// The function should take a single argument of type `Value` and return a
-    /// `Result<String, String>`.
-    pub fn new(f: ToolFn) -> Self {
-        Self { inner: Arc::new(f) }
+    /// Creates a new `ToolExecute` instance from a synchronous function.
+    pub fn from_sync<F>(f: F) -> Self
+    where
+        F: Fn(ToolContext, Value) -> ToolOutput + Send + Sync + 'static,
+    {
+        Self {
+            inner: ToolExecuteInner::Sync(Arc::new(f)),
+        }
+    }
+
+    /// Creates a new `ToolExecute` instance from an asynchronous function.
+    pub fn from_async<F, Fut>(f: F) -> Self
+    where
+        F: Fn(ToolContext, Value) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ToolOutput> + Send + 'static,
+    {
+        Self {
+            inner: ToolExecuteInner::Async(Arc::new(move |context, input| {
+                Box::pin(f(context, input))
+            })),
+        }
     }
 }
 
 impl Default for ToolExecute {
     fn default() -> Self {
-        Self::new(Box::new(|_| Ok("".to_string())))
+        Self::from_sync(|_, _| Ok("".to_string()))
     }
 }
 
@@ -132,8 +216,8 @@ impl<'de> Deserialize<'de> for ToolExecute {
 /// define the input schema.
 ///
 /// The execute method is responsible for executing the tool and returning the result to
-/// the language model. It takes a single argument of type `Value` and returns a
-/// `Result<String, String>`.
+/// the language model. It receives a [`ToolContext`] and the tool input `Value`, and
+/// returns a `ToolOutput`.
 ///
 /// # Example
 /// ```
@@ -152,12 +236,11 @@ impl<'de> Deserialize<'de> for ToolExecute {
 ///     name: "sum".to_string(),
 ///     description: "Adds two numbers together.".to_string(),
 ///     input_schema: schema_for!(SumInput),
-///     execute:
-///         ToolExecute::new(Box::new(|params: Value| {
-///             let a = params["a"].as_u64().unwrap();
-///             let b = params["b"].as_u64().unwrap();
-///             Ok(format!("{}", a + b))
-///         })),
+///     execute: ToolExecute::from_sync(|_ctx, params: Value| {
+///         let a = params["a"].as_u64().unwrap();
+///         let b = params["b"].as_u64().unwrap();
+///         Ok(format!("{}", a + b))
+///     }),
 /// };
 ///
 /// assert_eq!(tool.name, "sum");
@@ -215,22 +298,22 @@ impl ToolList {
             .push(tool);
     }
 
-    /// Executes a tool.
-    pub async fn execute(&self, tool_info: ToolCallInfo) -> JoinHandle<Result<String>> {
-        let tools = self.tools.clone();
-        tokio::spawn(async move {
-            let tools = tools
-                .lock()
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
-            let tool = tools.iter().find(|tool| tool.name == tool_info.tool.name);
+    /// Executes a tool with runtime context.
+    pub async fn execute(&self, context: ToolContext, tool_info: ToolCallInfo) -> Result<String> {
+        let tool = self
+            .tools
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .iter()
+            .find(|tool| tool.name == tool_info.tool.name)
+            .cloned();
 
-            match tool {
-                Some(tool) => tool.execute.call(tool_info.input),
-                None => Err(crate::error::Error::ToolCallError(
-                    "Tool not found".to_string(),
-                )),
-            }
-        })
+        match tool {
+            Some(tool) => tool.execute.call(context, tool_info.input).await,
+            None => Err(crate::error::Error::ToolCallError(
+                "Tool not found".to_string(),
+            )),
+        }
     }
 }
 
@@ -333,5 +416,132 @@ impl ToolResultInfo {
     /// Sets the output of the tool.
     pub fn output(&mut self, inp: serde_json::Value) {
         self.output = Ok(inp);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Tool, ToolCallInfo, ToolContext, ToolExecute, ToolList};
+    use crate::core::language_model::{
+        LanguageModelOptions, LanguageModelStream, LanguageModelStreamChunkType,
+    };
+    use futures::StreamExt;
+    use schemars::schema_for;
+    use serde::Serialize;
+    use serde_json::json;
+
+    #[derive(Serialize, schemars::JsonSchema)]
+    struct ToolInput {
+        value: String,
+    }
+
+    #[tokio::test]
+    async fn test_tool_list_executes_sync_and_async_tools() {
+        let sync_tool = Tool::builder()
+            .name("sync-tool")
+            .description("sync")
+            .input_schema(schema_for!(ToolInput))
+            .execute(ToolExecute::from_sync(|_ctx, input| {
+                Ok(format!("sync:{}", input["value"].as_str().unwrap()))
+            }))
+            .build()
+            .unwrap();
+
+        let async_tool = Tool::builder()
+            .name("async-tool")
+            .description("async")
+            .input_schema(schema_for!(ToolInput))
+            .execute(ToolExecute::from_async(|_ctx, input| async move {
+                tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+                Ok(format!("async:{}", input["value"].as_str().unwrap()))
+            }))
+            .build()
+            .unwrap();
+
+        let tools = ToolList::new(vec![sync_tool, async_tool]);
+
+        let mut sync_call = ToolCallInfo::new("sync-tool");
+        sync_call.input(json!({ "value": "a" }));
+
+        let mut async_call = ToolCallInfo::new("async-tool");
+        async_call.input(json!({ "value": "b" }));
+
+        let context = ToolContext::new(LanguageModelOptions::default());
+        assert_eq!(
+            tools.execute(context.clone(), sync_call).await.unwrap(),
+            "sync:a"
+        );
+        assert_eq!(tools.execute(context, async_call).await.unwrap(), "async:b");
+    }
+
+    #[tokio::test]
+    async fn test_tool_execute_with_context_exposes_options() {
+        let tool = Tool::builder()
+            .name("context-tool")
+            .description("context")
+            .input_schema(schema_for!(ToolInput))
+            .execute(ToolExecute::from_sync(|context, input| {
+                Ok(format!(
+                    "{}:{}",
+                    context.options().system.as_deref().unwrap_or_default(),
+                    input["value"].as_str().unwrap()
+                ))
+            }))
+            .build()
+            .unwrap();
+
+        let mut call = ToolCallInfo::new("context-tool");
+        call.input(json!({ "value": "payload" }));
+
+        let context = ToolContext::new(LanguageModelOptions {
+            system: Some("system prompt".to_string()),
+            ..Default::default()
+        });
+
+        assert_eq!(
+            ToolList::new(vec![tool])
+                .execute(context, call)
+                .await
+                .unwrap(),
+            "system prompt:payload"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_tool_execute_with_context_can_emit_stream_chunks() {
+        let tool = Tool::builder()
+            .name("stream-tool")
+            .description("stream")
+            .input_schema(schema_for!(ToolInput))
+            .execute(ToolExecute::from_async(|context, input| async move {
+                let _ = context.emit(LanguageModelStreamChunkType::TextDelta(format!(
+                    "chunk:{}",
+                    input["value"].as_str().unwrap()
+                )));
+                Ok("done".to_string())
+            }))
+            .build()
+            .unwrap();
+
+        let mut call = ToolCallInfo::new("stream-tool");
+        call.input(json!({ "value": "payload" }));
+
+        let (tx, mut stream) = LanguageModelStream::new();
+        let context = ToolContext::new(LanguageModelOptions::default()).with_stream_tx(tx);
+
+        assert_eq!(
+            ToolList::new(vec![tool])
+                .execute(context, call)
+                .await
+                .unwrap(),
+            "done"
+        );
+
+        match stream.next().await {
+            Some(LanguageModelStreamChunkType::TextDelta(text)) => {
+                assert_eq!(text, "chunk:payload")
+            }
+            other => panic!("expected tool-emitted text chunk, got {other:?}"),
+        }
     }
 }

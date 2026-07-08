@@ -5,7 +5,7 @@ pub(crate) mod types;
 pub(crate) use types::ChatCompletionsOptions;
 
 use crate::core::capabilities::ModelName;
-use crate::core::client::LanguageModelClient;
+use crate::core::client::{LanguageModelClient, merge_body, merge_headers};
 use crate::error::Error;
 use crate::providers::openai_chat_completions::OpenAIChatCompletions;
 use reqwest::header::CONTENT_TYPE;
@@ -27,23 +27,30 @@ impl<M: ModelName> LanguageModelClient for OpenAIChatCompletions<M> {
         reqwest::Method::POST
     }
 
-    fn headers(&self) -> reqwest::header::HeaderMap {
+    fn headers(&self) -> crate::error::Result<reqwest::header::HeaderMap> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
         headers.insert(
             "Authorization",
             format!("Bearer {}", self.settings.api_key).parse().unwrap(),
         );
-        headers
+        merge_headers(
+            headers,
+            self.settings.headers.as_ref(),
+            self.options.extra_headers.as_ref(),
+        )
     }
 
     fn query_params(&self) -> Vec<(&str, &str)> {
         Vec::new()
     }
 
-    fn body(&self) -> reqwest::Body {
-        let body = serde_json::to_string(&self.options).unwrap();
-        reqwest::Body::from(body)
+    fn body(&self) -> crate::error::Result<reqwest::Body> {
+        merge_body(
+            &self.options,
+            self.settings.body.as_ref(),
+            self.options.extra_body.as_ref(),
+        )
     }
 
     fn parse_stream_sse(

@@ -7,6 +7,7 @@ pub mod request;
 
 use crate::error::Result;
 use async_trait::async_trait;
+use std::collections::HashMap;
 
 use derive_builder::Builder;
 #[cfg(feature = "embedding-model-request")]
@@ -22,6 +23,12 @@ pub struct EmbeddingModelOptions {
     /// model used and if the provider returns an error for invalid dimensions `embed`
     /// will propagate the error.
     pub dimensions: Option<usize>,
+    /// Custom HTTP headers to include in the request.
+    pub headers: Option<HashMap<String, String>>,
+    /// Extra fields to merge into the provider's request body.
+    /// These are merged at the top level of the JSON body, allowing
+    /// provider-specific options without modifying the SDK.
+    pub body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 impl EmbeddingModelOptions {
