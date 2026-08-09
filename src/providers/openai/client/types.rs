@@ -82,6 +82,18 @@ impl OpenAILanguageModelOptions {
 #[serde(tag = "type")]
 /// Events emitted during streaming from OpenAI.
 pub(crate) enum OpenAiStreamEvent {
+    /// Emitted when the response object is created.
+    #[serde(rename = "response.created")]
+    ResponseCreated {
+        sequence_number: u64,
+        response: OpenAIResponse,
+    },
+    /// Emitted when the response transitions to in-progress.
+    #[serde(rename = "response.in_progress")]
+    ResponseInProgress {
+        sequence_number: u64,
+        response: OpenAIResponse,
+    },
     /// Emitted when the model response is complete.
     #[serde(rename = "response.completed")]
     ResponseCompleted {
@@ -94,6 +106,24 @@ pub(crate) enum OpenAiStreamEvent {
         sequence_number: u64,
         output_index: u32,
         item: MessageItem,
+    },
+    /// Emitted when a content part is added to an output item.
+    #[serde(rename = "response.content_part.added")]
+    ResponseContentPartAdded {
+        sequence_number: u64,
+        item_id: String,
+        output_index: u32,
+        content_index: u32,
+        part: OutputContent,
+    },
+    /// Emitted when a content part is finalized.
+    #[serde(rename = "response.content_part.done")]
+    ResponseContentPartDone {
+        sequence_number: u64,
+        item_id: String,
+        output_index: u32,
+        content_index: u32,
+        part: OutputContent,
     },
     /// Emitted when an output item is finalized.
     #[serde(rename = "response.output_item.done")]
