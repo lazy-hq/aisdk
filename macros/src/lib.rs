@@ -136,8 +136,36 @@ pub fn tool(_attr: TokenStream, item: TokenStream) -> TokenStream {
         fn_name.to_string()
     };
 
+    let binding_tokens: Vec<_> = inputs
+        .iter()
+        .filter_map(|arg| {
+            if let FnArg::Typed(pat_type) = arg {
+                if let Pat::Ident(pat_ident) = &*pat_type.pat {
+                    let ident = &pat_ident.ident;
+                    let ty = &*pat_type.ty;
+                    let ident_str = ident.to_string();
+                    Some(quote! {
+                        // `.get(...)` returns `None` when the model omits an optional
+                        // argument entirely (not just `null`) — fall back to `Value::Null`
+                        // instead of unwrapping, so `from_value`'s `unwrap_or_default()`
+                        // below can still apply the type's default instead of panicking.
+                        let #ident: #ty = ::aisdk::__private::serde_json::from_value(
+                            inp.as_object()
+                                .unwrap()
+                                .get(#ident_str)
+                                .cloned()
+                                .unwrap_or(::aisdk::__private::serde_json::Value::Null)
+                        ).unwrap_or_default();  // use default value if model doesn't send arg
+                    })
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .collect();
     let mut context_count = 0usize;
-    let mut binding_tokens = Vec::new();
     let mut struct_fields = Vec::new();
 
     for pat_type in inputs.iter().filter_map(|arg| match arg {
