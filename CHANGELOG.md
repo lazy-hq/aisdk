@@ -41,6 +41,10 @@ Changelog entries are grouped by type, with the following types:
 - Removed `ToolExecute::new(...)` in favor of the explicit `from_sync(...)` and `from_async(...)` constructors.
 - `Start` and `End` language model stream chunk types are now `TextStart` and `TextEnd`.
 
+### Fixed
+
+- Fixed Groq streaming reasoning by accepting SSE delta field `reasoning` as an alias for `reasoning_content` in OpenAI Chat Completions stream chunks.
+
 ## [0.5.2] - 2026-02-25
 
 ### Fixed
