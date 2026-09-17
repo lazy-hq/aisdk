@@ -299,8 +299,8 @@ pub(crate) struct Delta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
 
-    /// Reasoning content for reasoning models (e.g., OpenAI o1, DeepSeek R1)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Reasoning content for reasoning models (e.g., OpenAI o1, DeepSeek R1, Groq GPT-OSS)
+    #[serde(alias = "reasoning", skip_serializing_if = "Option::is_none")]
     pub reasoning_content: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -392,4 +392,21 @@ pub(crate) struct EmbeddingResponse {
     pub model: Option<String>,
     /// Usage statistics.
     pub usage: Option<EmbeddingUsage>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Delta;
+
+    #[test]
+    fn delta_deserializes_groq_reasoning_field() {
+        let delta: Delta = serde_json::from_str(r#"{"reasoning":"thinking..."}"#).unwrap();
+        assert_eq!(delta.reasoning_content.as_deref(), Some("thinking..."));
+    }
+
+    #[test]
+    fn delta_deserializes_openai_reasoning_content_field() {
+        let delta: Delta = serde_json::from_str(r#"{"reasoning_content":"thinking..."}"#).unwrap();
+        assert_eq!(delta.reasoning_content.as_deref(), Some("thinking..."));
+    }
 }
