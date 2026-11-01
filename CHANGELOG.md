@@ -23,6 +23,7 @@ Changelog entries are grouped by type, with the following types:
 - Added support for custom HTTP headers in `LanguageModelRequest`, allowing request header injection and overriding provider default headers. by [@gaki2](https://github.com/gaki2)
 - Added support for custom HTTP headers in `EmbeddingModelRequest`, allowing request header injection and overriding provider default headers.
 - Add grok-4-20-beta as a model in xAI provider.
+- Added `Runcrate` provider (OpenAI-compatible, language and embedding models) behind the `runcrate` feature.
 - Added support for custom HTTP request body for `LanguageModelRequest` and all providers, allowing request body injection and overriding provider default body. by [@gaki2](https://github.com/gaki2)
 - Added support for custom HTTP request body for `EmbeddingModelRequest`, and for all providers, allowing request body injection and overriding provider default body.
 - Added Provider level HTTP headers to `LanguageModelRequest` and `EmbeddingModelRequest`. allowing request header injection on provider intialization.
