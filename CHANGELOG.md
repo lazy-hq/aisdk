@@ -17,6 +17,8 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+## [0.6.0] - 2026-11-07
+
 ### Added
 
 - Added support for SubAgents
@@ -35,6 +37,7 @@ Changelog entries are grouped by type, with the following types:
 
 ### Changed
 
+- `aisdk-macros` 0.4.0: `#[tool]` now generates code for the async, context-aware `ToolExecute` API (`ToolExecute::from_sync` / `ToolExecute::from_async`). `aisdk` now requires `aisdk-macros` 0.4; `aisdk-macros` 0.3 does not work with it.
 - `ToolExecute` now uses a trait-based executor abstraction internally, allowing both synchronous and asynchronous tool executors behind the same `Tool` API.
 - `ToolExecute::call(...)` is now async and must be awaited. This is a breaking change for direct callers of the tool executor API.
 - `ToolList::execute(...)` and `ToolExecute::call(...)` is now async, takes `ToolContext` as the first parameter as the first parameter for runtime-aware execution.
@@ -157,7 +160,8 @@ Changelog entries are grouped by type, with the following types:
 - Rebranded to aisdk
 
 <!-- next-url -->
-[Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/lazy-hq/aisdk/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/lazy-hq/aisdk/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/lazy-hq/aisdk/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/lazy-hq/aisdk/compare/v0.4.0...v0.5.0

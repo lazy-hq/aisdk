@@ -17,9 +17,12 @@ The generator is a single Python executable: `provider-codegen.py`
 
 #### Standard way (with uv):
 
+The script declares its dependencies inline ([PEP 723](https://peps.python.org/pep-0723/)), so `uv run` installs them, at the versions pinned in `provider-codegen.py.lock` (update with `uv lock --script scripts/provider-codegen.py --upgrade`):
+
 ```bash
-uv run --python 3.13 --with typer --with requests provider-codegen.py openai-compatible
-uv run --python 3.13 --with typer --with requests provider-codegen.py capabilities
+uv run scripts/provider-codegen.py update
+uv run scripts/provider-codegen.py openai-compatible
+uv run scripts/provider-codegen.py capabilities
 ```
 
 #### With shell alias (recommended for developers):
@@ -27,7 +30,7 @@ uv run --python 3.13 --with typer --with requests provider-codegen.py capabiliti
 Add this to your `~/.bashrc`, `~/.zshrc`, or equivalent:
 
 ```bash
-alias provider-codegen='uv run --python 3.13 --with typer --with requests ./scripts/provider-codegen.py'
+alias provider-codegen='uv run ./scripts/provider-codegen.py'
 ```
 
 Then reload your shell:
@@ -39,11 +42,38 @@ source ~/.bashrc  # or source ~/.zshrc
 Now you can simply run:
 
 ```bash
+provider-codegen update
 provider-codegen openai-compatible
 provider-codegen capabilities
 ```
 
 ## Commands
+
+### Update Existing Providers (additive)
+
+```bash
+# Sync every existing provider's capabilities.rs with models.dev
+provider-codegen update
+
+# Preview without writing
+provider-codegen update --dry-run
+
+# What CI runs: also write a PR body and a CHANGELOG entry
+provider-codegen update --summary summary.md --changelog CHANGELOG.md
+```
+
+**Output:** Rewrites `src/providers/{provider}/capabilities.rs` only for providers that changed.
+
+This is the safe, everyday command, and the one the daily CI job runs. It keeps every update releasable as a **patch** version:
+
+- Only providers that already exist in the crate are touched. New providers are never added.
+- Existing models are **never removed**, even if models.dev deprecates or delists them, so no constructor disappears from the public API.
+- Existing capabilities are **never removed**; new capabilities reported by models.dev are added.
+- New, non-deprecated models are added. A model is skipped if its generated type or constructor name would clash with an existing one, a Rust keyword, or a provider method (`builder`, `default`, `new`).
+- Each file keeps its header and provider struct name, so hand-written providers (`OpenAI`, `XAI`, …) and manually added models survive.
+- Fails (exit code 1) if a capabilities file can't be parsed or the result doesn't pass `cargo fmt`.
+
+Running it twice in a row produces no changes.
 
 ### Generate OpenAI-compatible Providers
 
@@ -63,8 +93,10 @@ provider-codegen openai-compatible deepseek -c
 
 ### Generate Capabilities
 
+Unlike `update`, this **regenerates** files from scratch: models that are deprecated or gone from models.dev are removed, which is a breaking change. Use it only for a deliberate, non-patch release.
+
 ```bash
-# All provider capabilities
+# All providers that already exist in the crate
 provider-codegen capabilities
 
 # Single provider
@@ -116,7 +148,8 @@ provider-codegen.py
 ├── File Writing (PendingWrite, batch_write_files)
 ├── Capabilities Generation (generate_capabilities_rs, prepare_provider_capabilities)
 ├── OpenAI-compatible Generation (generate_openai_compatible_content, prepare_openai_compatible_provider)
-└── CLI Commands (openai_compatible, capabilities commands)
+├── Additive Update (parse_capabilities_rs, merge_capabilities, prepare_updates)
+└── CLI Commands (update, openai_compatible, capabilities commands)
 ```
 
 ## Data Flow
