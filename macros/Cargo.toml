@@ -1,6 +1,6 @@
 [package]
 name = "aisdk-macros"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 license = "MIT"
 description = "Procedural macros for the aisdk library"
@@ -20,7 +20,7 @@ quote = "1.0"
 serde_json = "1.0"
 futures = "0.3"
 tokio = { version = "1.46.1", features = ["full"]}
-aisdk = {path = "..", version = "0.5.2" }
+aisdk = { path = ".." }
 
 [[test]]
 name = "test_tools"

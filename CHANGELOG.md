@@ -35,6 +35,7 @@ Changelog entries are grouped by type, with the following types:
 
 ### Changed
 
+- `aisdk-macros` 0.4.0: `#[tool]` now generates code for the async, context-aware `ToolExecute` API (`ToolExecute::from_sync` / `ToolExecute::from_async`). `aisdk` now requires `aisdk-macros` 0.4; `aisdk-macros` 0.3 does not work with it.
 - `ToolExecute` now uses a trait-based executor abstraction internally, allowing both synchronous and asynchronous tool executors behind the same `Tool` API.
 - `ToolExecute::call(...)` is now async and must be awaited. This is a breaking change for direct callers of the tool executor API.
 - `ToolList::execute(...)` and `ToolExecute::call(...)` is now async, takes `ToolContext` as the first parameter as the first parameter for runtime-aware execution.
