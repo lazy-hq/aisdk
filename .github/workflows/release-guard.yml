@@ -1,0 +1,71 @@
+name: release guard
+
+# main only holds released code: every PR merged into main is a release.
+# These checks enforce that before merge. Make "release rules" and
+# "semver checks" required status checks on main.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-rules:
+    name: release rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags
+
+      - name: Source branch is allowed
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::PRs from forks must target 'dev', not 'main'."
+            exit 1
+          fi
+          case "$HEAD_REF" in
+            dev|release-*|auto/update-models)
+              echo "'$HEAD_REF' may target main." ;;
+            *)
+              echo "::error::PRs into main must come from 'dev', 'release-*' or 'auto/update-models' (got '$HEAD_REF'). Target 'dev' instead."
+              exit 1 ;;
+          esac
+
+      - name: Version is bumped and in the CHANGELOG
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
+          latest=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+          latest=${latest#v}
+          echo "Cargo.toml: $version, latest release: ${latest:-none}"
+
+          if [ -n "$latest" ]; then
+            highest=$(printf '%s\n%s\n' "$latest" "$version" | sort -V | tail -n1)
+            if [ "$version" = "$latest" ] || [ "$highest" != "$version" ]; then
+              echo "::error::Every merge into main is a release: bump the version above $latest (e.g. with ./release.sh)."
+              exit 1
+            fi
+          fi
+
+          if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section."
+            exit 1
+          fi
+
+  semver:
+    name: semver checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Checks the new version number matches the API change against the
+      # latest crates.io release (patch must not break anything).
+      - uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: aisdk

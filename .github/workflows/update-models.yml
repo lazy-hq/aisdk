@@ -1,0 +1,103 @@
+name: update models
+
+# Daily: sync model capabilities from models.dev. If anything changed, bump the
+# patch version and open (or refresh) a single PR into main. Merging that PR
+# releases it (see tag-release.yml).
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-models
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  BRANCH: auto/update-models
+
+jobs:
+  update:
+    name: update models
+    runs-on: ubuntu-latest
+    steps:
+      # A GitHub App token (not GITHUB_TOKEN) so the PR triggers CI, which main
+      # requires before merging.
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v5
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-release@0.25
+
+      - name: Update models from models.dev
+        run: >
+          uv run --python 3.13 scripts/provider-codegen.py update
+          --summary "$RUNNER_TEMP/summary.md"
+          --changelog CHANGELOG.md
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/providers; then
+            echo "No model changes."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lint (same as CI)
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Commit and bump patch version
+        if: steps.diff.outputs.changed == 'true'
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add src/providers CHANGELOG.md
+          git commit -m "chore: update models from models.dev"
+          # Bumps Cargo.toml/Cargo.lock, dates the CHANGELOG and commits.
+          # The local tag it creates is never pushed.
+          cargo release patch -p aisdk --execute --no-confirm --no-publish --no-push
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          printf '\n---\n\nMerging this PR releases **v%s** to crates.io.\n\n_This branch is rewritten by the daily job; do not push to it._\n' \
+            "$version" >> "$RUNNER_TEMP/summary.md"
+
+      - name: Open or update PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git push --force origin "$BRANCH"
+          title="chore: update models (v$VERSION)"
+          existing=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body-file "$RUNNER_TEMP/summary.md"
+            echo "Updated PR #$existing"
+          else
+            gh pr create --base main --head "$BRANCH" --title "$title" --body-file "$RUNNER_TEMP/summary.md"
+          fi

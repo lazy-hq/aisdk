@@ -1,0 +1,96 @@
+name: tag release
+
+# Every push to main is a release: tag v<version>, which triggers release.yml
+# (crates.io publish + GitHub release), then bring main back into dev.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tag-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: tag release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      # A GitHub App token: tags pushed with GITHUB_TOKEN don't trigger
+      # release.yml, and only bypass actors may create v* tags.
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tag="v$VERSION"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            if [ "$(git rev-list -n1 "$tag")" = "$(git rev-parse HEAD)" ]; then
+              echo "$tag already points at HEAD."
+              exit 0
+            fi
+            echo "::error::main changed but the version is still $VERSION ($tag is on another commit). Every merge into main must bump the version."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "Release $tag"
+          git push origin "$tag"
+
+  sync-dev:
+    name: sync main into dev
+    needs: tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open PR main -> dev
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ needs.tag.outputs.version }}
+        run: |
+          if ! git rev-parse -q --verify origin/dev >/dev/null; then
+            echo "No dev branch; skipping."
+            exit 0
+          fi
+          if [ -z "$(git rev-list origin/dev..origin/main)" ]; then
+            echo "dev already contains main."
+            exit 0
+          fi
+          existing=$(gh pr list --base dev --head main --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "Sync PR #$existing is already open."
+            exit 0
+          fi
+          gh pr create --base dev --head main \
+            --title "chore: sync main into dev after v$VERSION" \
+            --body "Brings release v$VERSION (version bump, CHANGELOG, model updates) back into dev. Use a merge commit, not squash, so the histories stay connected."
