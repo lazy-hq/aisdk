@@ -19,6 +19,8 @@ jobs:
     if: github.repository_owner == 'lazy-hq'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Holds the app credentials; only usable from main.
+    environment: release-bot
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -77,6 +79,7 @@ jobs:
     needs: tag
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: release-bot
     steps:
       - name: Generate app token
         id: app-token
