@@ -29,6 +29,15 @@ jobs:
           app-id: ${{ vars.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
 
+      - name: Tag as the app's bot user
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config --global user.name "${APP_SLUG}[bot]"
+          git config --global user.email "${id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # tags
@@ -53,8 +62,6 @@ jobs:
             echo "::error::main changed but the version is still $VERSION ($tag is on another commit). Every merge into main must bump the version."
             exit 1
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$tag" -m "Release $tag"
           git push origin "$tag"
 
