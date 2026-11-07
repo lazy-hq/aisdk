@@ -148,6 +148,36 @@ model_capabilities! {
             display_name: "Qwen3 VL 235B A22B Instruct",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen35397bA17bTee {
+            model_name: "Qwen/Qwen3.5-397B-A17B-TEE",
+            constructor_name: qwen_qwen3_5_397b_a17b_tee,
+            display_name: "Qwen3.5 397B A17B TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen3627bTee {
+            model_name: "Qwen/Qwen3.6-27B-TEE",
+            constructor_name: qwen_qwen3_6_27b_tee,
+            display_name: "Qwen3.6 27B TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen3824tA95b {
+            model_name: "Qwen/Qwen3.8-2.4T-A95B",
+            constructor_name: qwen_qwen3_8_2_4t_a95b,
+            display_name: "Qwen3.8 2.4T A95B",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        QwenQwen3827bTee {
+            model_name: "Qwen/Qwen3.8-27B-TEE",
+            constructor_name: qwen_qwen3_8_27b_tee,
+            display_name: "Qwen3.8 27B TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen38Max0902 {
+            model_name: "Qwen/Qwen3.8-Max-0902",
+            constructor_name: qwen_qwen3_8_max_0902,
+            display_name: "Qwen3.8 Max 0902",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
         QwenQwen3guardGen06b {
             model_name: "Qwen/Qwen3Guard-Gen-0.6B",
             constructor_name: qwen_qwen3guard_gen_0_6b,
@@ -226,6 +256,30 @@ model_capabilities! {
             display_name: "DeepSeek V3.2 TEE",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekAiDeepseekV4Flash0731Tee {
+            model_name: "deepseek-ai/DeepSeek-V4-Flash-0731-TEE",
+            constructor_name: deepseek_ai_deepseek_v4_flash_0731_tee,
+            display_name: "DeepSeek V4 Flash 0731 TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        DeepseekAiDeepseekV4Pro0813 {
+            model_name: "deepseek-ai/DeepSeek-V4-Pro-0813",
+            constructor_name: deepseek_ai_deepseek_v4_pro_0813,
+            display_name: "DeepSeek V4 Pro 0813",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        DeepseekAiDeepseekV41Flash1017 {
+            model_name: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash_1017,
+            display_name: "DeepSeek V4.1 Flash 1017",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        GoogleGemma431bTurboTee {
+            model_name: "google/gemma-4-31B-turbo-TEE",
+            constructor_name: google_gemma_4_31b_turbo_tee,
+            display_name: "gemma 4 31B turbo TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MiromindAiMirothinkerV15235b {
             model_name: "miromind-ai/MiroThinker-v1.5-235B",
             constructor_name: miromind_ai_mirothinker_v1_5_235b,
@@ -256,6 +310,24 @@ model_capabilities! {
             display_name: "Kimi K2.5 TEE",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        MoonshotaiKimiK26Tee {
+            model_name: "moonshotai/Kimi-K2.6-TEE",
+            constructor_name: moonshotai_kimi_k2_6_tee,
+            display_name: "Kimi K2.6 TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        MoonshotaiKimiK27Code {
+            model_name: "moonshotai/Kimi-K2.7-Code",
+            constructor_name: moonshotai_kimi_k2_7_code,
+            display_name: "Kimi K2.7 Code",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        MoonshotaiKimiK3Tee {
+            model_name: "moonshotai/Kimi-K3-TEE",
+            constructor_name: moonshotai_kimi_k3_tee,
+            display_name: "Kimi K3 TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         NvidiaNvidiaNemotron3Nano30bA3bBf16 {
             model_name: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
             constructor_name: nvidia_nvidia_nemotron_3_nano_30b_a3b_bf16,
@@ -279,6 +351,12 @@ model_capabilities! {
             constructor_name: rednote_hilab_dots_ocr,
             display_name: "dots.ocr",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
+        TencentHy4 {
+            model_name: "tencent/Hy4",
+            constructor_name: tencent_hy4,
+            display_name: "Hy4",
+            capabilities: [TextInputSupport, TextOutputSupport]
         },
         TngtechDeepseekR1tChimera {
             model_name: "tngtech/DeepSeek-R1T-Chimera",
@@ -405,6 +483,30 @@ model_capabilities! {
             constructor_name: zai_org_glm_5_tee,
             display_name: "GLM 5 TEE",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm51Tee {
+            model_name: "zai-org/GLM-5.1-TEE",
+            constructor_name: zai_org_glm_5_1_tee,
+            display_name: "GLM 5.1 TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm52Fast {
+            model_name: "zai-org/GLM-5.2-Fast",
+            constructor_name: zai_org_glm_5_2_fast,
+            display_name: "GLM 5.2 Fast",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        ZaiOrgGlm52Tee {
+            model_name: "zai-org/GLM-5.2-TEE",
+            constructor_name: zai_org_glm_5_2_tee,
+            display_name: "GLM 5.2 TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm53 {
+            model_name: "zai-org/GLM-5.3",
+            constructor_name: zai_org_glm_5_3,
+            display_name: "GLM 5.3",
+            capabilities: [TextInputSupport, TextOutputSupport]
         },
     }
 }
