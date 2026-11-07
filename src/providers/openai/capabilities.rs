@@ -28,6 +28,12 @@ model_capabilities! {
             display_name: "GPT-4",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt4Turbo {
+            model_name: "gpt-4-turbo",
+            constructor_name: gpt_4_turbo,
+            display_name: "GPT-4 Turbo",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt41 {
             model_name: "gpt-4.1",
             constructor_name: gpt_4_1,
@@ -45,12 +51,6 @@ model_capabilities! {
             constructor_name: gpt_4_1_nano,
             display_name: "GPT-4.1 nano",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt4Turbo {
-            model_name: "gpt-4-turbo",
-            constructor_name: gpt_4_turbo,
-            display_name: "GPT-4 Turbo",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt4o {
             model_name: "gpt-4o",
@@ -88,54 +88,6 @@ model_capabilities! {
             display_name: "GPT-5",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
-        Gpt51 {
-            model_name: "gpt-5.1",
-            constructor_name: gpt_5_1,
-            display_name: "GPT-5.1",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt51ChatLatest {
-            model_name: "gpt-5.1-chat-latest",
-            constructor_name: gpt_5_1_chat_latest,
-            display_name: "GPT-5.1 Chat",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt51Codex {
-            model_name: "gpt-5.1-codex",
-            constructor_name: gpt_5_1_codex,
-            display_name: "GPT-5.1 Codex",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt51CodexMax {
-            model_name: "gpt-5.1-codex-max",
-            constructor_name: gpt_5_1_codex_max,
-            display_name: "GPT-5.1 Codex Max",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt51CodexMini {
-            model_name: "gpt-5.1-codex-mini",
-            constructor_name: gpt_5_1_codex_mini,
-            display_name: "GPT-5.1 Codex mini",
-            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt52 {
-            model_name: "gpt-5.2",
-            constructor_name: gpt_5_2,
-            display_name: "GPT-5.2",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt52ChatLatest {
-            model_name: "gpt-5.2-chat-latest",
-            constructor_name: gpt_5_2_chat_latest,
-            display_name: "GPT-5.2 Chat",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
-        Gpt52Pro {
-            model_name: "gpt-5.2-pro",
-            constructor_name: gpt_5_2_pro,
-            display_name: "GPT-5.2 Pro",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
-        },
         Gpt5ChatLatest {
             model_name: "gpt-5-chat-latest",
             constructor_name: gpt_5_chat_latest,
@@ -165,6 +117,180 @@ model_capabilities! {
             constructor_name: gpt_5_pro,
             display_name: "GPT-5 Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt51 {
+            model_name: "gpt-5.1",
+            constructor_name: gpt_5_1,
+            display_name: "GPT-5.1",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt51ChatLatest {
+            model_name: "gpt-5.1-chat-latest",
+            constructor_name: gpt_5_1_chat_latest,
+            display_name: "GPT-5.1 Chat",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt51Codex {
+            model_name: "gpt-5.1-codex",
+            constructor_name: gpt_5_1_codex,
+            display_name: "GPT-5.1 Codex",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt51CodexMax {
+            model_name: "gpt-5.1-codex-max",
+            constructor_name: gpt_5_1_codex_max,
+            display_name: "GPT-5.1 Codex Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt51CodexMini {
+            model_name: "gpt-5.1-codex-mini",
+            constructor_name: gpt_5_1_codex_mini,
+            display_name: "GPT-5.1 Codex mini",
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt52 {
+            model_name: "gpt-5.2",
+            constructor_name: gpt_5_2,
+            display_name: "GPT-5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt52ChatLatest {
+            model_name: "gpt-5.2-chat-latest",
+            constructor_name: gpt_5_2_chat_latest,
+            display_name: "GPT-5.2 Chat",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt52Pro {
+            model_name: "gpt-5.2-pro",
+            constructor_name: gpt_5_2_pro,
+            display_name: "GPT-5.2 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt53Codex {
+            model_name: "gpt-5.3-codex",
+            constructor_name: gpt_5_3_codex,
+            display_name: "GPT-5.3 Codex",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt53CodexSpark {
+            model_name: "gpt-5.3-codex-spark",
+            constructor_name: gpt_5_3_codex_spark,
+            display_name: "GPT-5.3 Codex Spark",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt54 {
+            model_name: "gpt-5.4",
+            constructor_name: gpt_5_4,
+            display_name: "GPT-5.4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt54Mini {
+            model_name: "gpt-5.4-mini",
+            constructor_name: gpt_5_4_mini,
+            display_name: "GPT-5.4 mini",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt54Nano {
+            model_name: "gpt-5.4-nano",
+            constructor_name: gpt_5_4_nano,
+            display_name: "GPT-5.4 nano",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt54Pro {
+            model_name: "gpt-5.4-pro",
+            constructor_name: gpt_5_4_pro,
+            display_name: "GPT-5.4 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt55 {
+            model_name: "gpt-5.5",
+            constructor_name: gpt_5_5,
+            display_name: "GPT-5.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt55Pro {
+            model_name: "gpt-5.5-pro",
+            constructor_name: gpt_5_5_pro,
+            display_name: "GPT-5.5 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt56 {
+            model_name: "gpt-5.6",
+            constructor_name: gpt_5_6,
+            display_name: "GPT-5.6",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt56Luna {
+            model_name: "gpt-5.6-luna",
+            constructor_name: gpt_5_6_luna,
+            display_name: "GPT-5.6 Luna",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt56Sol {
+            model_name: "gpt-5.6-sol",
+            constructor_name: gpt_5_6_sol,
+            display_name: "GPT-5.6 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt56Terra {
+            model_name: "gpt-5.6-terra",
+            constructor_name: gpt_5_6_terra,
+            display_name: "GPT-5.6 Terra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt6Astra {
+            model_name: "gpt-6-astra",
+            constructor_name: gpt_6_astra,
+            display_name: "GPT-6 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt6Luna {
+            model_name: "gpt-6-luna",
+            constructor_name: gpt_6_luna,
+            display_name: "GPT-6 Luna",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt6Sol {
+            model_name: "gpt-6-sol",
+            constructor_name: gpt_6_sol,
+            display_name: "GPT-6 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt61Sol {
+            model_name: "gpt-6.1-sol",
+            constructor_name: gpt_6_1_sol,
+            display_name: "GPT-6.1 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt61Terra {
+            model_name: "gpt-6.1-terra",
+            constructor_name: gpt_6_1_terra,
+            display_name: "GPT-6.1 Terra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GptDaybreakBlueLatest {
+            model_name: "gpt-daybreak-blue-latest",
+            constructor_name: gpt_daybreak_blue_latest,
+            display_name: "Daybreak Blue",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GptDaybreakRedLatest {
+            model_name: "gpt-daybreak-red-latest",
+            constructor_name: gpt_daybreak_red_latest,
+            display_name: "Daybreak Red",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GptImage2 {
+            model_name: "gpt-image-2",
+            constructor_name: gpt_image_2,
+            display_name: "gpt-image-2",
+            capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport]
+        },
+        GptRealtime21 {
+            model_name: "gpt-realtime-2.1",
+            constructor_name: gpt_realtime_2_1,
+            display_name: "GPT-Realtime-2.1",
+            capabilities: [AudioInputSupport, AudioOutputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O1 {
             model_name: "o1",

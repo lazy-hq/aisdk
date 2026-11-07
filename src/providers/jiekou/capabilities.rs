@@ -26,25 +26,25 @@ model_capabilities! {
             model_name: "claude-haiku-4-5-20251001",
             constructor_name: claude_haiku_4_5_20251001,
             display_name: "claude-haiku-4-5-20251001",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeOpus4120250805 {
             model_name: "claude-opus-4-1-20250805",
             constructor_name: claude_opus_4_1_20250805,
             display_name: "claude-opus-4-1-20250805",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeOpus420250514 {
             model_name: "claude-opus-4-20250514",
             constructor_name: claude_opus_4_20250514,
             display_name: "claude-opus-4-20250514",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeOpus4520251101 {
             model_name: "claude-opus-4-5-20251101",
             constructor_name: claude_opus_4_5_20251101,
             display_name: "claude-opus-4-5-20251101",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeOpus46 {
             model_name: "claude-opus-4-6",
@@ -56,13 +56,13 @@ model_capabilities! {
             model_name: "claude-sonnet-4-20250514",
             constructor_name: claude_sonnet_4_20250514,
             display_name: "claude-sonnet-4-20250514",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeSonnet4520250929 {
             model_name: "claude-sonnet-4-5-20250929",
             constructor_name: claude_sonnet_4_5_20250929,
             display_name: "claude-sonnet-4-5-20250929",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         DeepseekDeepseekR10528 {
             model_name: "deepseek/deepseek-r1-0528",
@@ -86,19 +86,19 @@ model_capabilities! {
             model_name: "gemini-2.5-flash",
             constructor_name: gemini_2_5_flash,
             display_name: "gemini-2.5-flash",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini25FlashLite {
             model_name: "gemini-2.5-flash-lite",
             constructor_name: gemini_2_5_flash_lite,
             display_name: "gemini-2.5-flash-lite",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini25FlashLitePreview0617 {
             model_name: "gemini-2.5-flash-lite-preview-06-17",
             constructor_name: gemini_2_5_flash_lite_preview_06_17,
             display_name: "gemini-2.5-flash-lite-preview-06-17",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini25FlashLitePreview092025 {
             model_name: "gemini-2.5-flash-lite-preview-09-2025",
@@ -110,31 +110,31 @@ model_capabilities! {
             model_name: "gemini-2.5-flash-preview-05-20",
             constructor_name: gemini_2_5_flash_preview_05_20,
             display_name: "gemini-2.5-flash-preview-05-20",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini25Pro {
             model_name: "gemini-2.5-pro",
             constructor_name: gemini_2_5_pro,
             display_name: "gemini-2.5-pro",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini25ProPreview0605 {
             model_name: "gemini-2.5-pro-preview-06-05",
             constructor_name: gemini_2_5_pro_preview_06_05,
             display_name: "gemini-2.5-pro-preview-06-05",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini3FlashPreview {
             model_name: "gemini-3-flash-preview",
             constructor_name: gemini_3_flash_preview,
             display_name: "gemini-3-flash-preview",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini3ProPreview {
             model_name: "gemini-3-pro-preview",
             constructor_name: gemini_3_pro_preview,
             display_name: "gemini-3-pro-preview",
-            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gpt5ChatLatest {
             model_name: "gpt-5-chat-latest",
@@ -146,7 +146,7 @@ model_capabilities! {
             model_name: "gpt-5-codex",
             constructor_name: gpt_5_codex,
             display_name: "gpt-5-codex",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5Mini {
             model_name: "gpt-5-mini",
@@ -158,7 +158,7 @@ model_capabilities! {
             model_name: "gpt-5-nano",
             constructor_name: gpt_5_nano,
             display_name: "gpt-5-nano",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5Pro {
             model_name: "gpt-5-pro",
@@ -194,7 +194,7 @@ model_capabilities! {
             model_name: "gpt-5.2",
             constructor_name: gpt_5_2,
             display_name: "gpt-5.2",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt52Codex {
             model_name: "gpt-5.2-codex",
@@ -224,7 +224,7 @@ model_capabilities! {
             model_name: "grok-4-1-fast-reasoning",
             constructor_name: grok_4_1_fast_reasoning,
             display_name: "grok-4-1-fast-reasoning",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Grok4FastNonReasoning {
             model_name: "grok-4-fast-non-reasoning",
@@ -236,13 +236,13 @@ model_capabilities! {
             model_name: "grok-4-fast-reasoning",
             constructor_name: grok_4_fast_reasoning,
             display_name: "grok-4-fast-reasoning",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GrokCodeFast1 {
             model_name: "grok-code-fast-1",
             constructor_name: grok_code_fast_1,
             display_name: "grok-code-fast-1",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MinimaxMinimaxM21 {
             model_name: "minimax/minimax-m2.1",
@@ -278,19 +278,19 @@ model_capabilities! {
             model_name: "o3",
             constructor_name: o3,
             display_name: "o3",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O3Mini {
             model_name: "o3-mini",
             constructor_name: o3_mini,
             display_name: "o3-mini",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O4Mini {
             model_name: "o4-mini",
             constructor_name: o4_mini,
             display_name: "o4-mini",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen3235bA22bFp8 {
             model_name: "qwen/qwen3-235b-a22b-fp8",

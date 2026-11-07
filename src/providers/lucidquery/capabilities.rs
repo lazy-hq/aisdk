@@ -16,6 +16,18 @@ model_capabilities! {
             display_name: "LucidNova RF1 100B",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        LucidqueryAgi01Frontier {
+            model_name: "lucidquery-agi-01-frontier",
+            constructor_name: lucidquery_agi_01_frontier,
+            display_name: "AGI-01 Frontier",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        LucidqueryAgi01Swift {
+            model_name: "lucidquery-agi-01-swift",
+            constructor_name: lucidquery_agi_01_swift,
+            display_name: "AGI-01 Swift",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         LucidqueryNexusCoder {
             model_name: "lucidquery-nexus-coder",
             constructor_name: lucidquery_nexus_coder,
