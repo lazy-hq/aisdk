@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = ["typer", "requests", "tomlkit"]
+# ///
 """
-/// script
-/// dependencies = ["typer", "requests", "tomlkit"]
-/// python-version = "3.13"
-
 AI SDK Provider Code Generator
 
-This single-file executable generates Rust provider and capability code from 
-models.dev API data.
+This single-file executable generates Rust provider and capability code from
+models.dev API data. `uv run` installs the dependencies declared above.
 
 Usage:
-    uv run --python 3.13 --with typer provider-codegen.py openai-compatible
-    uv run --python 3.13 --with typer provider-codegen.py openai-compatible \
-    deepseek --with-capabilities
-    uv run --python 3.13 --with typer provider-codegen.py capabilities
-    uv run --python 3.13 --with typer provider-codegen.py capabilities openai
+    uv run scripts/provider-codegen.py update
+    uv run scripts/provider-codegen.py openai-compatible
+    uv run scripts/provider-codegen.py openai-compatible deepseek --with-capabilities
+    uv run scripts/provider-codegen.py capabilities
+    uv run scripts/provider-codegen.py capabilities openai
 """
 
 import re
@@ -106,8 +106,9 @@ def provider_id_to_snake_case(provider_id: str) -> str:
         # Move digits to end with underscore: "302ai" -> "ai_302"
         provider_id = rest + "_" + digits
 
-    # Replace hyphens with underscores and clean up
-    result = provider_id.replace("-", "_")
+    # Replace hyphens (and any other non-identifier character, e.g. "wafer.ai")
+    # with underscores and clean up
+    result = re.sub(r"[^a-zA-Z0-9_]", "_", provider_id)
 
     # Remove leading/trailing underscores and consecutive underscores
     result = re.sub(r"_+", "_", result).strip("_")
@@ -248,6 +249,28 @@ def get_model_capabilities(model_data: dict[str, Any]) -> list[str]:
 # ============================================================================
 
 
+def resolve_provider_dir(provider_id: str, root: Path) -> Path:
+    """
+    Resolve the on-disk directory for a models.dev provider ID.
+
+    Prefers an existing directory, so hand-written providers stored in
+    snake_case (e.g. 'amazon_bedrock' for models.dev 'amazon-bedrock') are
+    updated in place instead of getting a duplicate kebab-case directory.
+
+    Args:
+        provider_id: Provider identifier (kebab-case from models.dev)
+        root: Project root directory
+
+    Returns:
+        Path to the provider directory (may not exist yet)
+    """
+    providers_dir = root / "src" / "providers"
+    for candidate in (provider_id, provider_id.replace("-", "_")):
+        if (providers_dir / candidate).is_dir():
+            return providers_dir / candidate
+    return providers_dir / provider_id
+
+
 @dataclass
 class PendingWrite:
     """Represents a file to be written."""
@@ -275,8 +298,7 @@ def create_pending_write(
     Returns:
         PendingWrite object with computed path
     """
-    providers_dir = root / "src" / "providers"
-    provider_dir = providers_dir / provider_id
+    provider_dir = resolve_provider_dir(provider_id, root)
 
     if file_type == "mod":
         file_path = provider_dir / "mod.rs"
@@ -604,13 +626,20 @@ def parse_model_id(model_id: str) -> tuple[str, str | None]:
     return model_id, None
 
 
-def generate_capabilities_rs(provider_id: str, models: dict[str, Any]) -> str:
+def generate_capabilities_rs(
+    provider_id: str,
+    models: dict[str, Any],
+    existing: Optional["CapabilitiesFile"] = None,
+) -> str:
     """
     Generate the complete capabilities.rs content.
 
     Args:
         provider_id: Provider identifier (kebab-case)
         models: Dictionary of model configurations from API
+        existing: Parsed current capabilities.rs, if any. Its header and
+            provider struct name are reused, since hand-written providers
+            don't follow the generated naming (e.g. `OpenAI`, not `Openai`).
 
     Returns:
         Generated Rust code as string
@@ -618,18 +647,25 @@ def generate_capabilities_rs(provider_id: str, models: dict[str, Any]) -> str:
     provider_struct_name = to_pascal_case(provider_id)
     provider_module = provider_id_to_snake_case(provider_id)
 
-    lines = [
-        f"//! Capabilities for {provider_module} models.",
-        "//!",
-        f"//! This module defines model types and their capabilities for {
-            provider_module
-        } providers.",
-        "//! Users can implement additional traits on custom models.",
-        "",
-        "use crate::core::capabilities::*;",
-        "use crate::model_capabilities;",
-        f"use crate::providers::{provider_module}::{provider_struct_name};",
-        "",
+    if existing is not None:
+        provider_struct_name = existing.provider
+        lines = existing.header.rstrip("\n").split("\n") + [""]
+    else:
+        lines = [
+            f"//! Capabilities for {provider_module} models.",
+            "//!",
+            f"//! This module defines model types and their capabilities for {
+                provider_module
+            } providers.",
+            "//! Users can implement additional traits on custom models.",
+            "",
+            "use crate::core::capabilities::*;",
+            "use crate::model_capabilities;",
+            f"use crate::providers::{provider_module}::{provider_struct_name};",
+            "",
+        ]
+
+    lines += [
         "model_capabilities! {",
         f"    provider: {provider_struct_name},",
         "    models: {",
@@ -669,14 +705,15 @@ def generate_capabilities_rs(provider_id: str, models: dict[str, Any]) -> str:
         capabilities = get_model_capabilities(model_data)
 
         lines.extend(
-            [
-                f"        {model_type_name} {{",
-                f'            model_name: "{model_name}",',
-                f"            constructor_name: {constructor_name},",
-                f'            display_name: "{display_name}",',
-                f"            capabilities: [{', '.join(capabilities)}]",
-                "        },",
-            ]
+            render_model_entry(
+                ModelEntry(
+                    type_name=model_type_name,
+                    model_name=model_name,
+                    constructor_name=constructor_name,
+                    display_name=display_name,
+                    capabilities=capabilities,
+                )
+            )
         )
 
     lines.extend(
@@ -708,7 +745,15 @@ def generate_provider_capabilities_content(
         return None
 
     log(f"Preparing capabilities for '{provider_id}' with {len(models)} models")
-    return generate_capabilities_rs(provider_id, models)
+    existing_path = resolve_provider_dir(provider_id, get_project_root()) / (
+        "capabilities.rs"
+    )
+    existing = (
+        parse_capabilities_rs(existing_path.read_text(encoding="utf-8"))
+        if existing_path.exists()
+        else None
+    )
+    return generate_capabilities_rs(provider_id, models, existing)
 
 
 def prepare_provider_capabilities(
@@ -739,7 +784,11 @@ def prepare_all_capabilities(
     all_providers: dict[str, Any],
 ) -> list[PendingWrite]:
     """
-    Prepare capabilities for all providers (no I/O).
+    Prepare capabilities for every provider that already exists in the crate (no I/O).
+
+    Providers that only exist on models.dev are skipped: a capabilities.rs
+    without a mod.rs, Cargo feature and module declaration would not compile.
+    Use `openai-compatible <id> -c` to add a new provider.
 
     Args:
         all_providers: All providers from models.dev API
@@ -751,6 +800,8 @@ def prepare_all_capabilities(
     pending_writes = []
 
     for provider_id, provider_data in all_providers.items():
+        if not (resolve_provider_dir(provider_id, root) / "mod.rs").exists():
+            continue
         try:
             pending_write = prepare_provider_capabilities(
                 provider_id, provider_data, root
@@ -761,6 +812,367 @@ def prepare_all_capabilities(
             log(f"Error preparing capabilities for '{provider_id}': {e}")
 
     return pending_writes
+
+
+# ============================================================================
+# CAPABILITIES PARSING AND ADDITIVE UPDATE
+# ============================================================================
+
+# Constructor names that would clash with Rust keywords or with inherent
+# methods every provider already has.
+RESERVED_CONSTRUCTOR_NAMES = {
+    "as", "async", "await", "box", "break", "const", "continue", "crate", "dyn",
+    "else", "enum", "extern", "false", "fn", "for", "gen", "if", "impl", "in",
+    "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return", "self",
+    "static", "struct", "super", "trait", "true", "try", "type", "unsafe", "use",
+    "where", "while", "yield", "builder", "default", "new",
+}
+
+# Type names already in scope inside every capabilities.rs.
+RESERVED_TYPE_NAMES = {"DynamicModel", "ModelName", "Self"}
+
+RUST_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+MODEL_ENTRY_RE = re.compile(
+    r"(?P<type_name>\w+)\s*\{\s*"
+    r'model_name:\s*"(?P<model_name>(?:[^"\\]|\\.)*)"\s*,\s*'
+    r"constructor_name:\s*(?P<constructor_name>\w+)\s*,\s*"
+    r'display_name:\s*"(?P<display_name>(?:[^"\\]|\\.)*)"\s*,\s*'
+    r"capabilities:\s*\[(?P<capabilities>[^\]]*)\]\s*,?\s*\}"
+)
+
+
+@dataclass
+class ModelEntry:
+    """One model inside a `model_capabilities!` invocation."""
+
+    type_name: str
+    model_name: str
+    constructor_name: str
+    display_name: str
+    capabilities: list[str]
+
+
+@dataclass
+class CapabilitiesFile:
+    """A parsed capabilities.rs file."""
+
+    header: str  # everything before `model_capabilities! {`
+    provider: str
+    entries: list[ModelEntry]
+
+
+def rust_str_escape(value: str) -> str:
+    """Escape a value for use inside a Rust string literal."""
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def rust_str_unescape(value: str) -> str:
+    """Reverse `rust_str_escape`."""
+    return re.sub(r"\\(.)", r"\1", value)
+
+
+def render_model_entry(entry: ModelEntry) -> list[str]:
+    """Render a model entry as `model_capabilities!` lines."""
+    return [
+        f"        {entry.type_name} {{",
+        f'            model_name: "{rust_str_escape(entry.model_name)}",',
+        f"            constructor_name: {entry.constructor_name},",
+        f'            display_name: "{rust_str_escape(entry.display_name)}",',
+        f"            capabilities: [{', '.join(entry.capabilities)}]",
+        "        },",
+    ]
+
+
+def render_capabilities_rs(parsed: CapabilitiesFile) -> str:
+    """Render a parsed capabilities file back to Rust, models sorted by model name."""
+    lines = parsed.header.rstrip("\n").split("\n") + [
+        "",
+        "model_capabilities! {",
+        f"    provider: {parsed.provider},",
+        "    models: {",
+    ]
+    for entry in sorted(parsed.entries, key=lambda e: e.model_name):
+        lines.extend(render_model_entry(entry))
+    lines.extend(["    }", "}"])
+    return "\n".join(lines) + "\n"
+
+
+def parse_capabilities_rs(content: str) -> CapabilitiesFile:
+    """
+    Parse a capabilities.rs file made of a single `model_capabilities!` call.
+
+    Raises:
+        ValueError: If the file does not have the expected shape.
+    """
+    macro_idx = content.find("model_capabilities! {")
+    if macro_idx == -1:
+        raise ValueError("no `model_capabilities! {` invocation found")
+
+    provider_match = re.search(r"provider:\s*(\w+)", content[macro_idx:])
+    if not provider_match:
+        raise ValueError("no `provider:` field found")
+
+    entries = [
+        ModelEntry(
+            type_name=m["type_name"],
+            model_name=rust_str_unescape(m["model_name"]),
+            constructor_name=m["constructor_name"],
+            display_name=rust_str_unescape(m["display_name"]),
+            capabilities=[c.strip() for c in m["capabilities"].split(",") if c.strip()],
+        )
+        for m in MODEL_ENTRY_RE.finditer(content, macro_idx)
+    ]
+
+    # Every `Name {` inside the macro body must have parsed, otherwise a
+    # rewrite would silently drop models.
+    body = content[macro_idx + len("model_capabilities! {") :]
+    body = re.sub(r'"(?:[^"\\]|\\.)*"', '""', body)  # ignore braces in strings
+    opened = len(re.findall(r"\b\w+\s*\{", body))  # `models: {` has a colon, no match
+    if opened != len(entries):
+        raise ValueError(
+            f"parsed {len(entries)} models but found {opened} entries; "
+            "file was likely edited by hand in an unexpected format"
+        )
+
+    return CapabilitiesFile(
+        header=content[:macro_idx],
+        provider=provider_match.group(1),
+        entries=entries,
+    )
+
+
+@dataclass
+class ProviderUpdate:
+    """Result of additively merging models.dev data into one capabilities.rs."""
+
+    dir_name: str
+    path: Path
+    content: str
+    added_models: list[str]
+    added_capabilities: list[tuple[str, list[str]]]
+    not_upstream: list[str]
+
+
+def merge_capabilities(
+    dir_name: str,
+    path: Path,
+    current: CapabilitiesFile,
+    upstream_models: dict[str, Any],
+) -> ProviderUpdate | None:
+    """
+    Additively merge models.dev data into an existing capabilities file.
+
+    Rules (keep every update semver-compatible, i.e. releasable as a patch):
+    - existing models are never removed, even if deprecated or gone upstream
+    - existing capabilities are never removed; new upstream ones are added
+    - new, non-deprecated upstream models are added
+    - a new model is skipped if its type or constructor name would clash
+
+    Returns:
+        A ProviderUpdate, or None if nothing changed.
+    """
+    entries = list(current.entries)
+    by_model = {e.model_name: e for e in entries}
+    type_names = {e.type_name for e in entries}
+    constructor_names = {e.constructor_name for e in entries}
+
+    not_upstream = sorted(
+        m
+        for m in by_model
+        if m not in upstream_models
+        or upstream_models[m].get("status") == "deprecated"
+    )
+
+    added_models: list[str] = []
+    added_capabilities: list[tuple[str, list[str]]] = []
+
+    for model_id, model_data in sorted(upstream_models.items()):
+        capabilities = get_model_capabilities(model_data)
+
+        if model_id in by_model:
+            entry = by_model[model_id]
+            new_caps = sorted(set(capabilities) - set(entry.capabilities))
+            if new_caps:
+                entry.capabilities = sorted(set(entry.capabilities) | set(new_caps))
+                added_capabilities.append((model_id, new_caps))
+            continue
+
+        if model_data.get("status") == "deprecated":
+            continue
+
+        base_name, folder_prefix = parse_model_id(model_id)
+        type_name = get_model_type_name(base_name, folder_prefix)
+        constructor_name = get_model_constructor_name(base_name, folder_prefix)
+
+        if (
+            not RUST_IDENT_RE.match(type_name)
+            or not RUST_IDENT_RE.match(constructor_name)
+            or type_name in RESERVED_TYPE_NAMES
+            or constructor_name in RESERVED_CONSTRUCTOR_NAMES
+            or type_name in type_names
+            or constructor_name in constructor_names
+        ):
+            log(f"Skipping '{dir_name}/{model_id}': name clash ({type_name})")
+            continue
+
+        entry = ModelEntry(
+            type_name=type_name,
+            model_name=model_id,
+            constructor_name=constructor_name,
+            display_name=get_model_display_name(model_id, model_data),
+            capabilities=capabilities,
+        )
+        entries.append(entry)
+        by_model[model_id] = entry
+        type_names.add(type_name)
+        constructor_names.add(constructor_name)
+        added_models.append(model_id)
+
+    if not added_models and not added_capabilities:
+        return None
+
+    merged = CapabilitiesFile(current.header, current.provider, entries)
+    return ProviderUpdate(
+        dir_name=dir_name,
+        path=path,
+        content=render_capabilities_rs(merged),
+        added_models=added_models,
+        added_capabilities=added_capabilities,
+        not_upstream=not_upstream,
+    )
+
+
+def resolve_models_dev_id(dir_name: str, all_providers: dict[str, Any]) -> str | None:
+    """Map a provider directory name to its models.dev provider ID."""
+    for candidate in (dir_name, dir_name.replace("_", "-")):
+        if candidate in all_providers:
+            return candidate
+    return None
+
+
+def prepare_updates(all_providers: dict[str, Any], root: Path) -> list[ProviderUpdate]:
+    """
+    Compute additive updates for every provider already in the crate (no I/O).
+
+    Raises:
+        RuntimeError: If any existing capabilities.rs cannot be parsed.
+    """
+    updates: list[ProviderUpdate] = []
+    errors: list[str] = []
+
+    for provider_dir in sorted((root / "src" / "providers").iterdir()):
+        path = provider_dir / "capabilities.rs"
+        if not path.exists() or provider_dir.name == "openai_compatible":
+            continue
+
+        provider_id = resolve_models_dev_id(provider_dir.name, all_providers)
+        if provider_id is None:
+            log(f"Skipping '{provider_dir.name}': not listed on models.dev")
+            continue
+
+        try:
+            current = parse_capabilities_rs(path.read_text(encoding="utf-8"))
+        except ValueError as e:
+            errors.append(f"{path}: {e}")
+            continue
+
+        update = merge_capabilities(
+            provider_dir.name,
+            path,
+            current,
+            all_providers[provider_id].get("models", {}),
+        )
+        if update:
+            updates.append(update)
+
+    if errors:
+        raise RuntimeError("Could not parse capabilities files:\n" + "\n".join(errors))
+
+    return updates
+
+
+def changelog_line(updates: list[ProviderUpdate]) -> str:
+    """One-line CHANGELOG summary of an update run."""
+    models = sum(len(u.added_models) for u in updates)
+    caps = sum(len(u.added_capabilities) for u in updates)
+    return (
+        f"Updated model capabilities from models.dev: {models} new models and "
+        f"{caps} capability updates across {len(updates)} providers."
+    )
+
+
+def render_update_summary(updates: list[ProviderUpdate], limit: int = 60000) -> str:
+    """Render a Markdown report of an update run, suitable as a PR body."""
+    out = [
+        "Automated model update from [models.dev](https://models.dev).",
+        "",
+        changelog_line(updates),
+        "",
+        "Updates are additive: no model or capability is ever removed, so this "
+        "is released as a patch version.",
+        "",
+        "| Provider | New models | Capability updates | Not on models.dev anymore (kept) |",
+        "|---|---:|---:|---:|",
+    ]
+    for u in updates:
+        out.append(
+            f"| `{u.dir_name}` | {len(u.added_models)} | "
+            f"{len(u.added_capabilities)} | {len(u.not_upstream)} |"
+        )
+    out.append("")
+
+    details: list[str] = []
+    for u in updates:
+        details.append(f"<details><summary><code>{u.dir_name}</code></summary>\n")
+        if u.added_models:
+            details.append("**New models**\n")
+            details.extend(f"- `{m}`" for m in u.added_models)
+            details.append("")
+        if u.added_capabilities:
+            details.append("**New capabilities**\n")
+            details.extend(f"- `{m}`: {', '.join(c)}" for m, c in u.added_capabilities)
+            details.append("")
+        details.append("</details>\n")
+
+    body = "\n".join(out)
+    detail_text = "\n".join(details)
+    if len(body) + len(detail_text) > limit:
+        detail_text = "_Per-provider details omitted (too long); see the diff._\n"
+    return body + "\n" + detail_text
+
+
+def add_changelog_entry(changelog: Path, line: str):
+    """
+    Add a bullet under `### Changed` in the `[Unreleased]` section.
+
+    Raises:
+        RuntimeError: If the `[Unreleased]` header is missing.
+    """
+    content = changelog.read_text(encoding="utf-8")
+    header = "## [Unreleased] - ReleaseDate"
+    start = content.find(header)
+    if start == -1:
+        raise RuntimeError(f"'{header}' not found in {changelog}")
+
+    section_start = start + len(header)
+    next_release = content.find("\n## [", section_start)
+    section_end = next_release if next_release != -1 else len(content)
+    section = content[section_start:section_end]
+
+    changed_idx = section.find("### Changed\n")
+    if changed_idx != -1:
+        insert_at = section_start + changed_idx + len("### Changed\n")
+        # Keep the blank line after the heading before the new bullet
+        if content[insert_at : insert_at + 1] == "\n":
+            insert_at += 1
+        addition = f"- {line}\n"
+    else:
+        insert_at = section_start
+        addition = f"\n\n### Changed\n\n- {line}"
+
+    changelog.write_text(content[:insert_at] + addition + content[insert_at:], encoding="utf-8")
+    log(f"Added CHANGELOG entry to {changelog}")
 
 
 # ============================================================================
@@ -906,8 +1318,14 @@ app = typer.Typer(
 )
 
 
-def run_cargo_fmt():
-    """Run cargo fmt to format generated code."""
+def run_cargo_fmt(strict: bool = False):
+    """
+    Run cargo fmt to format generated code.
+
+    Args:
+        strict: Raise instead of warning when formatting fails. A failure
+            usually means the generated code does not parse.
+    """
     try:
         root = get_project_root()
         log("Running cargo fmt...")
@@ -915,10 +1333,14 @@ def run_cargo_fmt():
             ["cargo", "fmt", "--all"], cwd=root, capture_output=True, text=True
         )
         if result.returncode != 0:
+            if strict:
+                raise RuntimeError(f"cargo fmt failed: {result.stderr}")
             log(f"Warning: cargo fmt failed: {result.stderr}")
         else:
             log("Code formatted successfully")
-    except Exception as e:
+    except OSError as e:
+        if strict:
+            raise RuntimeError(f"Could not run cargo fmt: {e}") from e
         log(f"Warning: Could not run cargo fmt: {e}")
 
 
@@ -1051,6 +1473,74 @@ def capabilities(
 
         # Report success
         log(f"✓ Successfully wrote {len(written_files)} files")
+
+    except Exception as e:
+        log(f"Error: {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def update(
+    summary: Annotated[
+        Optional[Path],
+        typer.Option(help="Write a Markdown report of the changes here (PR body)"),
+    ] = None,
+    changelog: Annotated[
+        Optional[Path],
+        typer.Option(help="Add an entry under [Unreleased] in this CHANGELOG"),
+    ] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Report changes without writing")
+    ] = False,
+):
+    """
+    Additively sync existing providers' capabilities with models.dev.
+
+    Only providers already in the crate are touched. Models and capabilities
+    are only ever added, never removed, so the result is always releasable as
+    a patch version. This is what the daily `update-models` workflow runs.
+
+    Examples:
+        provider-codegen.py update
+        provider-codegen.py update --dry-run
+        provider-codegen.py update --summary summary.md --changelog CHANGELOG.md
+    """
+    try:
+        root = get_project_root()
+        all_providers = fetch_models_dev_json()
+
+        # PHASE 1: Compute all updates (no I/O)
+        updates = prepare_updates(all_providers, root)
+        if not updates:
+            log("✓ Everything is up to date")
+            return
+
+        for u in updates:
+            log(
+                f"{u.dir_name}: +{len(u.added_models)} models, "
+                f"+{len(u.added_capabilities)} capability updates"
+            )
+
+        if dry_run:
+            log(f"[DRY RUN] {changelog_line(updates)}")
+            return
+
+        # PHASE 2: Write all files atomically
+        batch_write_files(
+            [PendingWrite(u.path, u.content, "capabilities.rs") for u in updates]
+        )
+
+        # PHASE 3: Format (fails if the generated code does not parse)
+        run_cargo_fmt(strict=True)
+
+        # PHASE 4: Reports
+        if changelog:
+            add_changelog_entry(changelog, changelog_line(updates))
+        if summary:
+            summary.write_text(render_update_summary(updates), encoding="utf-8")
+            log(f"Wrote summary to {summary}")
+
+        log(f"✓ {changelog_line(updates)}")
 
     except Exception as e:
         log(f"Error: {e}")

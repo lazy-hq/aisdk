@@ -49,7 +49,9 @@ else
     FORCE_PUSH=""
 fi
 
-git switch -C "$BRANCH"
+## release branches always start from dev (main only holds released code)
+git fetch "$REMOTE" dev
+git switch -C "$BRANCH" "$REMOTE/dev"
 
 ## bump + changelog + commit  (no publish/push)
 echo "Running cargo release..."
@@ -85,5 +87,5 @@ echo
 echo "Next steps:"
 echo "  1. Review the PR: ${PR_URL}"
 echo "  2. Merge the PR to main"
-echo "  3. For crates.io publish, checkout to main"
-echo "  5. git tag v${NEW_V} && git push origin v${NEW_V}"
+echo "  3. That's it: the merge tags v${NEW_V}, publishes to crates.io,"
+echo "     and opens a PR syncing main back into dev (merge it)."
