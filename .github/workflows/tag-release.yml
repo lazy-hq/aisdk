@@ -7,8 +7,7 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: tag-release
@@ -17,31 +16,15 @@ concurrency:
 jobs:
   tag:
     name: tag release
+    if: github.repository_owner == 'lazy-hq'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      # A GitHub App token: tags pushed with GITHUB_TOKEN don't trigger
-      # release.yml, and only bypass actors may create v* tags.
-      - uses: actions/create-github-app-token@v1
-        id: app-token
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-
-      - name: Tag as the app's bot user
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-        run: |
-          id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
-          git config --global user.name "${APP_SLUG}[bot]"
-          git config --global user.email "${id}+${APP_SLUG}[bot]@users.noreply.github.com"
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # tags
-          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - name: Read version
         id: version
@@ -49,55 +32,80 @@ jobs:
           version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Create and push tag
+      # A GitHub App token: tags created with GITHUB_TOKEN don't trigger
+      # release.yml, and only ruleset bypass actors may create v* tags.
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Create tag
         env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           tag="v$VERSION"
-          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-            if [ "$(git rev-list -n1 "$tag")" = "$(git rev-parse HEAD)" ]; then
-              echo "$tag already points at HEAD."
+          existing=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$tag" \
+            --jq ".[] | select(.ref == \"refs/tags/$tag\") | .object.sha")
+          if [ -n "$existing" ]; then
+            commit=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)
+            if [ "$commit" = "$GITHUB_SHA" ]; then
+              echo "$tag already points at $GITHUB_SHA."
               exit 0
             fi
             echo "::error::main changed but the version is still $VERSION ($tag is on another commit). Every merge into main must bump the version."
             exit 1
           fi
-          git tag -a "$tag" -m "Release $tag"
-          git push origin "$tag"
+
+          # Annotated tag, matching earlier releases
+          tag_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/tags" \
+            -f tag="$tag" \
+            -f message="chore: Release aisdk version $VERSION" \
+            -f object="$GITHUB_SHA" \
+            -f type=commit \
+            --jq .sha)
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/$tag" \
+            -f sha="$tag_sha" > /dev/null
+          echo "Created $tag at $GITHUB_SHA."
 
   sync-dev:
     name: sync main into dev
     needs: tag
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/create-github-app-token@v1
+      - name: Generate app token
         id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+          permission-contents: read
+          permission-pull-requests: write
 
       - name: Open PR main -> dev
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ needs.tag.outputs.version }}
         run: |
-          if ! git rev-parse -q --verify origin/dev >/dev/null; then
+          if ! gh api "repos/$GITHUB_REPOSITORY/branches/dev" --silent 2>/dev/null; then
             echo "No dev branch; skipping."
             exit 0
           fi
-          if [ -z "$(git rev-list origin/dev..origin/main)" ]; then
+          ahead=$(gh api "repos/$GITHUB_REPOSITORY/compare/dev...main" --jq .ahead_by)
+          if [ "$ahead" = "0" ]; then
             echo "dev already contains main."
             exit 0
           fi
-          existing=$(gh pr list --base dev --head main --state open --json number --jq '.[0].number')
+          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --base dev --head main --state open --json number --jq '.[0].number')
           if [ -n "$existing" ]; then
             echo "Sync PR #$existing is already open."
             exit 0
           fi
-          gh pr create --base dev --head main \
+          gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head main \
             --title "chore: sync main into dev after v$VERSION" \
             --body "Brings release v$VERSION (version bump, CHANGELOG, model updates) back into dev. Use a merge commit, not squash, so the histories stay connected."

@@ -6,11 +6,10 @@ name: update models
 
 on:
   schedule:
-    - cron: "0 6 * * *" # every day, 06:00 UTC
+    - cron: "17 6 * * *" # every day, 06:17 UTC
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: update-models
@@ -23,36 +22,22 @@ env:
 jobs:
   update:
     name: update models
+    if: github.repository_owner == 'lazy-hq'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      # A GitHub App token (not GITHUB_TOKEN) so the PR triggers CI, which main
-      # requires before merging.
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-
-      - name: Commit as the app's bot user
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-        run: |
-          id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
-          git config --global user.name "${APP_SLUG}[bot]"
-          git config --global user.email "${id}+${APP_SLUG}[bot]@users.noreply.github.com"
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
+          toolchain: stable
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v2
-      - uses: astral-sh/setup-uv@v5
-      - uses: taiki-e/install-action@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - uses: taiki-e/install-action@1e29709c0ec63babbe8f266397a465f29a825f91 # v2.87.31
         with:
           tool: cargo-release@0.25
 
@@ -78,18 +63,40 @@ jobs:
           cargo fmt --all -- --check
           cargo clippy --all-targets --all-features -- -D warnings
 
+      # The app token is created only after all build steps, so no dependency
+      # build script or proc macro runs while it exists.
+      - name: Generate app token
+        if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: Commit and bump patch version
         if: steps.diff.outputs.changed == 'true'
         id: bump
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
+          user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
           git switch -C "$BRANCH"
           git add src/providers CHANGELOG.md
           git commit -m "chore: update models from models.dev"
-          # Bumps Cargo.toml/Cargo.lock, dates the CHANGELOG and commits.
-          # The local tag it creates is never pushed.
+
+          # Bumps Cargo.toml/Cargo.lock and dates the CHANGELOG. The local tag
+          # it creates is never pushed; tag-release.yml tags after the merge.
           cargo release patch -p aisdk --execute --no-confirm --no-publish --no-push
           version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
+          git commit --amend --quiet -m "chore: release v$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
           printf '\n---\n\nMerging this PR releases **v%s** to crates.io.\n\n_This branch is rewritten by the daily job; do not push to it._\n' \
             "$version" >> "$RUNNER_TEMP/summary.md"
 
@@ -99,7 +106,10 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.bump.outputs.version }}
         run: |
-          git push --force origin "$BRANCH"
+          git push --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:refs/heads/${BRANCH}"
+
           title="chore: update models (v$VERSION)"
           existing=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
           if [ -n "$existing" ]; then

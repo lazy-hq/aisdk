@@ -17,7 +17,7 @@ The generator is a single Python executable: `provider-codegen.py`
 
 #### Standard way (with uv):
 
-The script declares its dependencies inline ([PEP 723](https://peps.python.org/pep-0723/)), so `uv run` installs them:
+The script declares its dependencies inline ([PEP 723](https://peps.python.org/pep-0723/)), so `uv run` installs them, at the versions pinned in `provider-codegen.py.lock` (update with `uv lock --script scripts/provider-codegen.py --upgrade`):
 
 ```bash
 uv run scripts/provider-codegen.py update
