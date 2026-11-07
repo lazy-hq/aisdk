@@ -48,6 +48,7 @@ We welcome contributions! To ensure smooth collaboration, please follow these gu
 ### How a release happens
 
 1. From `dev`, run `./release.sh patch|minor|major`. It branches `release-x.y.z` off `origin/dev`, bumps the version, dates the CHANGELOG and opens a PR into `main`.
+   - `release.sh` only bumps `aisdk`. If `aisdk-macros` changed since its last release, bump its version in `macros/Cargo.toml` and in `aisdk`'s dependency on `dev` first. The release then publishes both crates.
 2. A maintainer reviews and merges it.
 3. The merge releases automatically: `tag-release.yml` tags `vx.y.z`, which triggers `release.yml` to publish to crates.io and create the GitHub release. It then opens a PR merging `main` back into `dev`. Merge that PR with a merge commit (not squash).
 
