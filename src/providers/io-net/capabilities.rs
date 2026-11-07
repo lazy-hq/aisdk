@@ -98,19 +98,19 @@ model_capabilities! {
             model_name: "openai/gpt-oss-120b",
             constructor_name: openai_gpt_oss_120b,
             display_name: "GPT-OSS 120B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGptOss20b {
             model_name: "openai/gpt-oss-20b",
             constructor_name: openai_gpt_oss_20b,
             display_name: "GPT-OSS 20B",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm46 {
             model_name: "zai-org/GLM-4.6",
             constructor_name: zai_org_glm_4_6,
             display_name: "GLM 4.6",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

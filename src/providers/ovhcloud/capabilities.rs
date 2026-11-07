@@ -88,5 +88,41 @@ model_capabilities! {
             display_name: "Qwen3-Coder-30B-A3B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Qwen35397bA17b {
+            model_name: "qwen3.5-397b-a17b",
+            constructor_name: qwen3_5_397b_a17b,
+            display_name: "Qwen3.5-397B-A17B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen359b {
+            model_name: "qwen3.5-9b",
+            constructor_name: qwen3_5_9b,
+            display_name: "Qwen3.5-9B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3627b {
+            model_name: "qwen3.6-27b",
+            constructor_name: qwen3_6_27b,
+            display_name: "Qwen3.6-27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3827b {
+            model_name: "qwen3.8-27b",
+            constructor_name: qwen3_8_27b,
+            display_name: "Qwen3.8-27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3guardGen06b {
+            model_name: "qwen3guard-gen-0.6b",
+            constructor_name: qwen3guard_gen_0_6b,
+            display_name: "Qwen3Guard-Gen-0.6B",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        Qwen3guardGen8b {
+            model_name: "qwen3guard-gen-8b",
+            constructor_name: qwen3guard_gen_8b,
+            display_name: "Qwen3Guard-Gen-8B",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
     }
 }

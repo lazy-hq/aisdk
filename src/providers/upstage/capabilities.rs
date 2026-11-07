@@ -16,6 +16,12 @@ model_capabilities! {
             display_name: "solar-mini",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        SolarMini4 {
+            model_name: "solar-mini4",
+            constructor_name: solar_mini4,
+            display_name: "Solar Mini 4",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         SolarPro2 {
             model_name: "solar-pro2",
             constructor_name: solar_pro2,
@@ -27,6 +33,12 @@ model_capabilities! {
             constructor_name: solar_pro3,
             display_name: "solar-pro3",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        SolarPro4 {
+            model_name: "solar-pro4",
+            constructor_name: solar_pro4,
+            display_name: "Solar Pro 4",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

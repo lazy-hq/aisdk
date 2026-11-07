@@ -59,11 +59,14 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Lint (same as CI)
+      - name: Lint and docs (same as CI)
         if: steps.diff.outputs.changed == 'true'
+        env:
+          RUSTDOCFLAGS: -D warnings
         run: |
           cargo fmt --all -- --check
           cargo clippy --all-targets --all-features -- -D warnings
+          cargo doc --no-deps --all-features
 
       # The app token is created only after all build steps, so no dependency
       # build script or proc macro runs while it exists.

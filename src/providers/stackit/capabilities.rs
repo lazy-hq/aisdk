@@ -58,5 +58,11 @@ model_capabilities! {
             display_name: "GPT-OSS 120B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OpenaiGptOss20b {
+            model_name: "openai/gpt-oss-20b",
+            constructor_name: openai_gpt_oss_20b,
+            display_name: "GPT OSS 20B",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
     }
 }
