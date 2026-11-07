@@ -552,14 +552,23 @@ def get_model_display_name(model_id: str, model_data: dict[str, Any]) -> str:
     """
     Get the display name for a model.
 
+    The name ends up in rustdoc comments, so Markdown punctuation is
+    backslash-escaped: e.g. "FLUX.2 [max]" would otherwise be a broken
+    intra-doc link and fail `cargo doc` with `-D warnings`.
+
     Args:
         model_id: Model identifier from API
         model_data: Model configuration data
 
     Returns:
-        Human-readable display name
+        Human-readable display name, escaped for Markdown
     """
-    return model_data.get("name", model_id)
+    return escape_markdown(model_data.get("name", model_id))
+
+
+def escape_markdown(text: str) -> str:
+    """Backslash-escape characters rustdoc's Markdown would interpret."""
+    return re.sub(r"([\\`*_\[\]<>])", r"\\\1", text)
 
 
 def get_model_constructor_name(model_id: str, folder_prefix: str | None = None) -> str:
