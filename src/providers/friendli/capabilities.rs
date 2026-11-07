@@ -34,6 +34,12 @@ model_capabilities! {
             display_name: "Qwen3 235B A22B Instruct 2507",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GoogleGemma431bIt {
+            model_name: "google/gemma-4-31B-it",
+            constructor_name: google_gemma_4_31b_it,
+            display_name: "Gemma 4 31B IT",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MetaLlamaLlama318bInstruct {
             model_name: "meta-llama/Llama-3.1-8B-Instruct",
             constructor_name: meta_llama_llama_3_1_8b_instruct,
@@ -57,6 +63,30 @@ model_capabilities! {
             constructor_name: zai_org_glm_5,
             display_name: "GLM 5",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm51 {
+            model_name: "zai-org/GLM-5.1",
+            constructor_name: zai_org_glm_5_1,
+            display_name: "GLM-5.1",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm52 {
+            model_name: "zai-org/GLM-5.2",
+            constructor_name: zai_org_glm_5_2,
+            display_name: "GLM-5.2",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm53 {
+            model_name: "zai-org/GLM-5.3",
+            constructor_name: zai_org_glm_5_3,
+            display_name: "GLM-5.3",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm53Flash {
+            model_name: "zai-org/GLM-5.3-Flash",
+            constructor_name: zai_org_glm_5_3_flash,
+            display_name: "GLM-5.3-Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
     }
 }

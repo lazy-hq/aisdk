@@ -38,13 +38,13 @@ model_capabilities! {
             model_name: "claude-3.7-sonnet",
             constructor_name: claude_3_7_sonnet,
             display_name: "Anthropic: Claude 3.7 Sonnet",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Claude45Haiku {
             model_name: "claude-4.5-haiku",
             constructor_name: claude_4_5_haiku,
             display_name: "Anthropic: Claude 4.5 Haiku",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Claude45Opus {
             model_name: "claude-4.5-opus",
@@ -62,7 +62,7 @@ model_capabilities! {
             model_name: "claude-haiku-4-5-20251001",
             constructor_name: claude_haiku_4_5_20251001,
             display_name: "Anthropic: Claude 4.5 Haiku (20251001)",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ClaudeOpus4 {
             model_name: "claude-opus-4",
@@ -110,7 +110,7 @@ model_capabilities! {
             model_name: "deepseek-reasoner",
             constructor_name: deepseek_reasoner,
             display_name: "DeepSeek Reasoner",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport]
         },
         DeepseekTngR1t2Chimera {
             model_name: "deepseek-tng-r1t2-chimera",
@@ -224,7 +224,7 @@ model_capabilities! {
             model_name: "gpt-5",
             constructor_name: gpt_5,
             display_name: "OpenAI GPT-5",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5ChatLatest {
             model_name: "gpt-5-chat-latest",
@@ -236,31 +236,31 @@ model_capabilities! {
             model_name: "gpt-5-codex",
             constructor_name: gpt_5_codex,
             display_name: "OpenAI: GPT-5 Codex",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5Mini {
             model_name: "gpt-5-mini",
             constructor_name: gpt_5_mini,
             display_name: "OpenAI GPT-5 Mini",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5Nano {
             model_name: "gpt-5-nano",
             constructor_name: gpt_5_nano,
             display_name: "OpenAI GPT-5 Nano",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt5Pro {
             model_name: "gpt-5-pro",
             constructor_name: gpt_5_pro,
             display_name: "OpenAI: GPT-5 Pro",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt51 {
             model_name: "gpt-5.1",
             constructor_name: gpt_5_1,
             display_name: "OpenAI GPT-5.1",
-            capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt51ChatLatest {
             model_name: "gpt-5.1-chat-latest",
@@ -272,13 +272,13 @@ model_capabilities! {
             model_name: "gpt-5.1-codex",
             constructor_name: gpt_5_1_codex,
             display_name: "OpenAI: GPT-5.1 Codex",
-            capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Gpt51CodexMini {
             model_name: "gpt-5.1-codex-mini",
             constructor_name: gpt_5_1_codex_mini,
             display_name: "OpenAI: GPT-5.1 Codex Mini",
-            capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GptOss120b {
             model_name: "gpt-oss-120b",
@@ -338,7 +338,7 @@ model_capabilities! {
             model_name: "grok-code-fast-1",
             constructor_name: grok_code_fast_1,
             display_name: "xAI Grok Code Fast 1",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Hermes2ProLlama38b {
             model_name: "hermes-2-pro-llama-3-8b",
@@ -362,7 +362,7 @@ model_capabilities! {
             model_name: "kimi-k2-thinking",
             constructor_name: kimi_k2_thinking,
             display_name: "Kimi K2 Thinking",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Llama318bInstant {
             model_name: "llama-3.1-8b-instant",
@@ -440,43 +440,43 @@ model_capabilities! {
             model_name: "mistral-small",
             constructor_name: mistral_small,
             display_name: "Mistral Small",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O1 {
             model_name: "o1",
             constructor_name: o1,
             display_name: "OpenAI: o1",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport]
         },
         O1Mini {
             model_name: "o1-mini",
             constructor_name: o1_mini,
             display_name: "OpenAI: o1-mini",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport]
         },
         O3 {
             model_name: "o3",
             constructor_name: o3,
             display_name: "OpenAI o3",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O3Mini {
             model_name: "o3-mini",
             constructor_name: o3_mini,
             display_name: "OpenAI o3 Mini",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O3Pro {
             model_name: "o3-pro",
             constructor_name: o3_pro,
             display_name: "OpenAI o3 Pro",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         O4Mini {
             model_name: "o4-mini",
             constructor_name: o4_mini,
             display_name: "OpenAI o4 Mini",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Qwen25Coder7bFast {
             model_name: "qwen2.5-coder-7b-fast",
