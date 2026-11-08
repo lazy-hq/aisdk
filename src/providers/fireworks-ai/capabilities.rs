@@ -130,6 +130,12 @@ model_capabilities! {
             display_name: "Kimi K3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksModelsKimiK3p1Pro {
+            model_name: "accounts/fireworks/models/kimi-k3p1-pro",
+            constructor_name: accounts_fireworks_models_kimi_k3p1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ModelsMinimaxM2 {
             model_name: "accounts/fireworks/models/minimax-m2",
             constructor_name: models_minimax_m2,
@@ -200,6 +206,12 @@ model_capabilities! {
             model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-1017-spot",
             constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_1017_spot,
             display_name: "DeepSeek V4.1 Flash 1017 Spot",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersDeepseekV4p1Flash1017Ultrafast {
+            model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast",
+            constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_1017_ultrafast,
+            display_name: "DeepSeek V4.1 Flash 1017 Ultra-fast",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersDeepseekV4p1FlashSpot {
