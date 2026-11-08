@@ -730,6 +730,12 @@ model_capabilities! {
             display_name: "Hy3",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        TencentHy4 {
+            model_name: "tencent/hy4",
+            constructor_name: tencent_hy4,
+            display_name: "Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TencentHy4Preview {
             model_name: "tencent/hy4-preview",
             constructor_name: tencent_hy4_preview,
@@ -842,6 +848,12 @@ model_capabilities! {
             model_name: "zai-org/glm-5.3-flash",
             constructor_name: zai_org_glm_5_3_flash,
             display_name: "GLM-5.3-Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        ZaiOrgGlm53Flashx {
+            model_name: "zai-org/glm-5.3-flashX",
+            constructor_name: zai_org_glm_5_3_flashx,
+            display_name: "GLM 5.3 FlashX",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
     }

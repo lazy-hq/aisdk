@@ -190,6 +190,12 @@ model_capabilities! {
             display_name: "kimi-k3",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        KimiK31Pro {
+            model_name: "kimi-k3.1-pro",
+            constructor_name: kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MimoV26Flash {
             model_name: "mimo-v2.6-flash",
             constructor_name: mimo_v2_6_flash,

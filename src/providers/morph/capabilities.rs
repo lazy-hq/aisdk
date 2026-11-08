@@ -64,6 +64,12 @@ model_capabilities! {
             display_name: "Kimi K3 Fast",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MorphKimik31 {
+            model_name: "morph-kimik31",
+            constructor_name: morph_kimik31,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MorphV3Fast {
             model_name: "morph-v3-fast",
             constructor_name: morph_v3_fast,
