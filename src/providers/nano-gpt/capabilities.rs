@@ -424,6 +424,12 @@ model_capabilities! {
             display_name: "Kimi K3 TEE",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        TeeKimiK31Pro {
+            model_name: "TEE/kimi-k3.1-pro",
+            constructor_name: tee_kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TeeLlama3370b {
             model_name: "TEE/llama3-3-70b",
             constructor_name: tee_llama3_3_70b,
@@ -2686,11 +2692,35 @@ model_capabilities! {
             display_name: "OpenAI o3-pro (2025-06-10)",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OrcaOrcacyberFlash10 {
+            model_name: "orca/orcacyber-flash-1.0",
+            constructor_name: orca_orcacyber_flash_1_0,
+            display_name: "OrcaCyber DeepSeek V4.1 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberFlash10Thinking {
+            model_name: "orca/orcacyber-flash-1.0:thinking",
+            constructor_name: orca_orcacyber_flash_1_0_thinking,
+            display_name: "OrcaCyber DeepSeek V4.1 Flash Thinking",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberGlm53Flash {
+            model_name: "orca/orcacyber-glm-5.3-flash",
+            constructor_name: orca_orcacyber_glm_5_3_flash,
+            display_name: "OrcaCyber GLM 5.3 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OrcaOrcacyberK31Pro {
             model_name: "orca/orcacyber-k3.1-pro",
             constructor_name: orca_orcacyber_k3_1_pro,
             display_name: "OrcaCyber K3.1 Pro Uncensored",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberMimoFlash {
+            model_name: "orca/orcacyber-mimo-flash",
+            constructor_name: orca_orcacyber_mimo_flash,
+            display_name: "OrcaCyber MiMo V2.6 Flash",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OrcaOrcacyberMinimaxM31Flash {
             model_name: "orca/orcacyber-minimax-m3.1-flash",
