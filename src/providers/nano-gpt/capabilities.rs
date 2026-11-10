@@ -676,6 +676,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AnthropicClaudeFable52 {
+            model_name: "anthropic/claude-fable-5.2",
+            constructor_name: anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AnthropicClaudeFableLatest {
             model_name: "anthropic/claude-fable-latest",
             constructor_name: anthropic_claude_fable_latest,
@@ -2288,6 +2294,12 @@ model_capabilities! {
             model_name: "nex-agi/nex-n2.5-pro",
             constructor_name: nex_agi_nex_n2_5_pro,
             display_name: "Nex N2.5 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NexAgiNexN26 {
+            model_name: "nex-agi/nex-n2.6",
+            constructor_name: nex_agi_nex_n2_6,
+            display_name: "Nex N2.6",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NothingiisrealL3170bCelesteV01Bf16 {

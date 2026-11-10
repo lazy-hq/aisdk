@@ -346,6 +346,18 @@ model_capabilities! {
             display_name: "Claude Fable 5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AnthropicClaudeFable52 {
+            model_name: "anthropic/claude-fable-5.2",
+            constructor_name: anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AnthropicClaudeFable52Fast {
+            model_name: "anthropic/claude-fable-5.2-fast",
+            constructor_name: anthropic_claude_fable_5_2_fast,
+            display_name: "Claude Fable 5.2 (Fast)",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AnthropicClaudeHaiku45 {
             model_name: "anthropic/claude-haiku-4.5",
             constructor_name: anthropic_claude_haiku_4_5,
@@ -1305,6 +1317,12 @@ model_capabilities! {
             constructor_name: meta_llama_4_scout,
             display_name: "Llama-4-Scout-17B-16E-Instruct-FP8",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaMuseEmber {
+            model_name: "meta/muse-ember",
+            constructor_name: meta_muse_ember,
+            display_name: "Muse Ember",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MetaMuseGlimmer30b {
             model_name: "meta/muse-glimmer-30b",

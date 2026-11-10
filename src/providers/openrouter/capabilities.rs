@@ -106,6 +106,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AnthropicClaudeFable52 {
+            model_name: "anthropic/claude-fable-5.2",
+            constructor_name: anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AnthropicClaudeHaiku45 {
             model_name: "anthropic/claude-haiku-4.5",
             constructor_name: anthropic_claude_haiku_4_5,
@@ -812,7 +818,7 @@ model_capabilities! {
             model_name: "inclusionai/ling-3.1-flash",
             constructor_name: inclusionai_ling_3_1_flash,
             display_name: "Ling 3.1 Flash",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         InferenceNetSchematronV2Small {
             model_name: "inference-net/schematron-v2-small",
@@ -963,6 +969,12 @@ model_capabilities! {
             constructor_name: meta_llama_llama_guard_4_12b,
             display_name: "Llama Guard 4 12B",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
+        MetaMuseEmber {
+            model_name: "meta/muse-ember",
+            constructor_name: meta_muse_ember,
+            display_name: "Muse Ember",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MetaMuseGlimmer30b {
             model_name: "meta/muse-glimmer-30b",
@@ -1340,6 +1352,12 @@ model_capabilities! {
             model_name: "nex-agi/nex-n2.5-pro",
             constructor_name: nex_agi_nex_n2_5_pro,
             display_name: "Nex-N2.5-Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NexAgiNexN26 {
+            model_name: "nex-agi/nex-n2.6",
+            constructor_name: nex_agi_nex_n2_6,
+            display_name: "Nex-N2.6",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NousresearchDeephermes3Llama38bPreview {
@@ -2330,7 +2348,7 @@ model_capabilities! {
             model_name: "ricursiveai/ripple-65b-preview",
             constructor_name: ricursiveai_ripple_65b_preview,
             display_name: "Ripple 65B Preview",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         SakanaFuguMax {
             model_name: "sakana/fugu-max",
@@ -2499,6 +2517,12 @@ model_capabilities! {
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2SmallFree {
+            model_name: "thinkingmachines/inkling-2-small:free",
+            constructor_name: thinkingmachines_inkling_2_small_free,
+            display_name: "Inkling 2 Small (free)",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInklingSmall {
             model_name: "thinkingmachines/inkling-small",
