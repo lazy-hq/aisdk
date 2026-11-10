@@ -478,6 +478,12 @@ model_capabilities! {
             display_name: "Kimi K3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Longcat25Free {
+            model_name: "longcat-2.5-free",
+            constructor_name: longcat_2_5_free,
+            display_name: "LongCat 2.5 Free",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MimoV26FlashFree {
             model_name: "mimo-v2.6-flash-free",
             constructor_name: mimo_v2_6_flash_free,
