@@ -148,6 +148,12 @@ model_capabilities! {
             display_name: "Qwen3 VL 235B A22B Instruct",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen3527bTee {
+            model_name: "Qwen/Qwen3.5-27B-TEE",
+            constructor_name: qwen_qwen3_5_27b_tee,
+            display_name: "Qwen3.5 27B TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         QwenQwen35397bA17bTee {
             model_name: "Qwen/Qwen3.5-397B-A17B-TEE",
             constructor_name: qwen_qwen3_5_397b_a17b_tee,

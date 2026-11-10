@@ -40,6 +40,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ClaudeFable52 {
+            model_name: "claude-fable-5-2",
+            constructor_name: claude_fable_5_2,
+            display_name: "Claude Fable 5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ClaudeHaiku45 {
             model_name: "claude-haiku-4-5",
             constructor_name: claude_haiku_4_5,
@@ -520,11 +526,23 @@ model_capabilities! {
             display_name: "MiniMax-M3",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        MinimaxM31FlashFree {
+            model_name: "minimax-m3.1-flash-free",
+            constructor_name: minimax_m3_1_flash_free,
+            display_name: "MiniMax M3.1 Flash Free",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         MistralLarge4 {
             model_name: "mistral-large-4",
             constructor_name: mistral_large_4,
             display_name: "Mistral Large 4",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MuseEmber10 {
+            model_name: "muse-ember-1.0",
+            constructor_name: muse_ember_1_0,
+            display_name: "Muse Ember 1.0",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MuseSpark12 {
             model_name: "muse-spark-1.2",

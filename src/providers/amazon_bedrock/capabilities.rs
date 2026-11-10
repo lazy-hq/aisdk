@@ -118,6 +118,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AnthropicClaudeFable52 {
+            model_name: "anthropic.claude-fable-5-2",
+            constructor_name: anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AnthropicClaudeHaiku4520251001V10 {
             model_name: "anthropic.claude-haiku-4-5-20251001-v1:0",
             constructor_name: anthropic_claude_haiku_4_5_20251001_v1_0,
@@ -472,6 +478,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1 (Global)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GlobalAnthropicClaudeFable52 {
+            model_name: "global.anthropic.claude-fable-5-2",
+            constructor_name: global_anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2 (Global)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GlobalAnthropicClaudeHaiku4520251001V10 {
             model_name: "global.anthropic.claude-haiku-4-5-20251001-v1:0",
             constructor_name: global_anthropic_claude_haiku_4_5_20251001_v1_0,
@@ -542,6 +554,12 @@ model_capabilities! {
             model_name: "global.moonshotai.kimi-k3",
             constructor_name: global_moonshotai_kimi_k3,
             display_name: "Kimi K3 (Global)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GlobalMoonshotaiKimiK31 {
+            model_name: "global.moonshotai.kimi-k3.1",
+            constructor_name: global_moonshotai_kimi_k3_1,
+            display_name: "Kimi K3.1 Pro Highspeed (Global)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GlobalOpenaiGpt56Luna {
@@ -1096,6 +1114,12 @@ model_capabilities! {
             display_name: "Claude Fable 5.1 (US)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        UsAnthropicClaudeFable52 {
+            model_name: "us.anthropic.claude-fable-5-2",
+            constructor_name: us_anthropic_claude_fable_5_2,
+            display_name: "Claude Fable 5.2 (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         UsAnthropicClaudeHaiku4520251001V10 {
             model_name: "us.anthropic.claude-haiku-4-5-20251001-v1:0",
             constructor_name: us_anthropic_claude_haiku_4_5_20251001_v1_0,
@@ -1172,6 +1196,12 @@ model_capabilities! {
             model_name: "us.moonshotai.kimi-k3",
             constructor_name: us_moonshotai_kimi_k3,
             display_name: "Kimi K3 (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        UsMoonshotaiKimiK31 {
+            model_name: "us.moonshotai.kimi-k3.1",
+            constructor_name: us_moonshotai_kimi_k3_1,
+            display_name: "Kimi K3.1 Pro Highspeed (US)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         UsOpenaiGpt56Luna {
