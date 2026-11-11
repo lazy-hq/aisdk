@@ -214,6 +214,18 @@ model_capabilities! {
             display_name: "Trinity Mini",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        BaiduErnie55FlashPreviewFree {
+            model_name: "baidu/ernie-5.5-flash-preview:free",
+            constructor_name: baidu_ernie_5_5_flash_preview_free,
+            display_name: "ERNIE-5.5-Flash-Preview (free)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        BaiduErnieLightDt10Intl {
+            model_name: "baidu/ernie-light-dt-1.0-intl",
+            constructor_name: baidu_ernie_light_dt_1_0_intl,
+            display_name: "ERNIE-Light-DT-1.0",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         BlackForestLabsFlux2Flex {
             model_name: "black-forest-labs/flux.2-flex",
             constructor_name: black_forest_labs_flux_2_flex,
@@ -646,6 +658,12 @@ model_capabilities! {
             display_name: "Gemini 4 Argon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Carbon {
+            model_name: "google/gemini-4-carbon",
+            constructor_name: google_gemini_4_carbon,
+            display_name: "Gemini 4 Carbon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         GoogleGeminiNanoBanana21 {
             model_name: "google/gemini-nano-banana-2.1",
             constructor_name: google_gemini_nano_banana_2_1,
@@ -831,6 +849,12 @@ model_capabilities! {
             constructor_name: inference_net_schematron_v2_turbo,
             display_name: "Schematron V2 Turbo",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
+        KtMidmK30Pro {
+            model_name: "kt/midm-k-3.0-pro",
+            constructor_name: kt_midm_k_3_0_pro,
+            display_name: "Mi:dm K 3.0 Pro",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         KwaipilotKatCoderProFree {
             model_name: "kwaipilot/kat-coder-pro:free",
@@ -1341,6 +1365,12 @@ model_capabilities! {
             constructor_name: morph_morph_v3_large,
             display_name: "Morph V3 Large",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
+        MotifTechnologiesMotif3 {
+            model_name: "motif-technologies/motif-3",
+            constructor_name: motif_technologies_motif_3,
+            display_name: "Motif 3",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         NexAgiNexN25Mini {
             model_name: "nex-agi/nex-n2.5-mini",
