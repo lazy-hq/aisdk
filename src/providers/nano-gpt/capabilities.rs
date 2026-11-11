@@ -916,6 +916,12 @@ model_capabilities! {
             display_name: "Auto model (Standard)",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        BaiduErnieLightDt10Intl {
+            model_name: "baidu/ernie-light-dt-1.0-intl",
+            constructor_name: baidu_ernie_light_dt_1_0_intl,
+            display_name: "ERNIE Light DT 1.0 (Intl)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         BytedanceSeedSeed21Turbo {
             model_name: "bytedance-seed/seed-2-1-turbo",
             constructor_name: bytedance_seed_seed_2_1_turbo,
@@ -1588,6 +1594,12 @@ model_capabilities! {
             display_name: "Gemini 4 Argon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Carbon {
+            model_name: "google/gemini-4-carbon",
+            constructor_name: google_gemini_4_carbon,
+            display_name: "Gemini 4 Carbon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         GoogleGeminiFlashLatest {
             model_name: "google/gemini-flash-latest",
             constructor_name: google_gemini_flash_latest,
@@ -1881,6 +1893,12 @@ model_capabilities! {
             constructor_name: meta_llama_llama_4_scout,
             display_name: "Llama 4 Scout",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaMuseEmber {
+            model_name: "meta/muse-ember",
+            constructor_name: meta_muse_ember,
+            display_name: "Muse Ember",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MetaMuseGlimmer30b {
             model_name: "meta/muse-glimmer-30b",

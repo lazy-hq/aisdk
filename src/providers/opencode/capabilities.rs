@@ -214,6 +214,12 @@ model_capabilities! {
             display_name: "Gemini 4 Argon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Gemini4Carbon {
+            model_name: "gemini-4-carbon",
+            constructor_name: gemini_4_carbon,
+            display_name: "Gemini 4 Carbon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Glm46 {
             model_name: "glm-4.6",
             constructor_name: glm_4_6,

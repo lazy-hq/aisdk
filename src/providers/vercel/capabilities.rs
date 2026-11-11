@@ -142,6 +142,12 @@ model_capabilities! {
             display_name: "Qwen 3.6 27B",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AlibabaQwen3635bA3b {
+            model_name: "alibaba/qwen3.6-35b-a3b",
+            constructor_name: alibaba_qwen3_6_35b_a3b,
+            display_name: "Qwen 3.6 35B A3B",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AlibabaQwen36Plus {
             model_name: "alibaba/qwen3.6-plus",
             constructor_name: alibaba_qwen3_6_plus,
@@ -1005,6 +1011,12 @@ model_capabilities! {
             constructor_name: google_gemini_4_argon,
             display_name: "Gemini 4 Argon",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GoogleGemini4Carbon {
+            model_name: "google/gemini-4-carbon",
+            constructor_name: google_gemini_4_carbon,
+            display_name: "Gemini 4 Carbon",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGeminiEmbedding001 {
             model_name: "google/gemini-embedding-001",
