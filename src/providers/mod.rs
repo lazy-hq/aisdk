@@ -57,6 +57,11 @@ pub mod xai;
 #[cfg(feature = "xai")]
 pub use xai::XAI;
 
+#[cfg(feature = "runcrate")]
+pub mod runcrate;
+#[cfg(feature = "runcrate")]
+pub use runcrate::Runcrate;
+
 // Internal module for OpenAI Chat Completions API compatible providers
 #[cfg(feature = "openaichatcompletions")]
 pub(crate) mod openai_chat_completions;

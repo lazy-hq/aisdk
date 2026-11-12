@@ -400,6 +400,7 @@ MANUALLY_MANAGED_MODULES = {
     "amazon_bedrock",
     "togetherai",
     "xai",
+    "runcrate",
 }
 
 
