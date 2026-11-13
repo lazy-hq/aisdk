@@ -2584,6 +2584,12 @@ model_capabilities! {
             display_name: "Pareto 26.10",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        UnbiasedPareto2610Preview {
+            model_name: "unbiased/pareto-26.10-preview",
+            constructor_name: unbiased_pareto_26_10_preview,
+            display_name: "Pareto 26.10 Preview",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         UnbiasedPareto269 {
             model_name: "unbiased/pareto-26.9",
             constructor_name: unbiased_pareto_26_9,
