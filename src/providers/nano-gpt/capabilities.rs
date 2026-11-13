@@ -1150,6 +1150,18 @@ model_capabilities! {
             display_name: "DeepSeek V4 Pro 0813 Thinking",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekDeepseekV4Pro20260423 {
+            model_name: "deepseek/deepseek-v4-pro-20260423",
+            constructor_name: deepseek_deepseek_v4_pro_20260423,
+            display_name: "DeepSeek V4 Pro (April preview)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        DeepseekDeepseekV4Pro20260423Thinking {
+            model_name: "deepseek/deepseek-v4-pro-20260423:thinking",
+            constructor_name: deepseek_deepseek_v4_pro_20260423_thinking,
+            display_name: "DeepSeek V4 Pro (April preview, Thinking)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekDeepseekV4ProThinking {
             model_name: "deepseek/deepseek-v4-pro:thinking",
             constructor_name: deepseek_deepseek_v4_pro_thinking,
@@ -1598,6 +1610,12 @@ model_capabilities! {
             model_name: "google/gemini-4-carbon",
             constructor_name: google_gemini_4_carbon,
             display_name: "Gemini 4 Carbon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        GoogleGemini4Hydrogen {
+            model_name: "google/gemini-4-hydrogen",
+            constructor_name: google_gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGeminiFlashLatest {

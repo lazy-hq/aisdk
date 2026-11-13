@@ -664,6 +664,12 @@ model_capabilities! {
             display_name: "Gemini 4 Carbon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Hydrogen {
+            model_name: "google/gemini-4-hydrogen",
+            constructor_name: google_gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         GoogleGeminiNanoBanana21 {
             model_name: "google/gemini-nano-banana-2.1",
             constructor_name: google_gemini_nano_banana_2_1,
@@ -854,7 +860,7 @@ model_capabilities! {
             model_name: "kt/midm-k-3.0-pro",
             constructor_name: kt_midm_k_3_0_pro,
             display_name: "Mi:dm K 3.0 Pro",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         KwaipilotKatCoderProFree {
             model_name: "kwaipilot/kat-coder-pro:free",
@@ -926,7 +932,7 @@ model_capabilities! {
             model_name: "meta-llama/llama-3.1-70b-instruct",
             constructor_name: meta_llama_llama_3_1_70b_instruct,
             display_name: "Llama-3.1-70B-Instruct",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MetaLlamaLlama318bInstruct {
             model_name: "meta-llama/llama-3.1-8b-instruct",
@@ -1370,7 +1376,7 @@ model_capabilities! {
             model_name: "motif-technologies/motif-3",
             constructor_name: motif_technologies_motif_3,
             display_name: "Motif 3",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NexAgiNexN25Mini {
             model_name: "nex-agi/nex-n2.5-mini",
@@ -1934,6 +1940,12 @@ model_capabilities! {
             model_name: "particle-ai/particle-1",
             constructor_name: particle_ai_particle_1,
             display_name: "Particle-1",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ParticleAiParticle1Free {
+            model_name: "particle-ai/particle-1:free",
+            constructor_name: particle_ai_particle_1_free,
+            display_name: "Particle-1 (free)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         PerceptronPerceptronMk1 {
@@ -2547,6 +2559,12 @@ model_capabilities! {
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Small {
+            model_name: "thinkingmachines/inkling-2-small",
+            constructor_name: thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInkling2SmallFree {
             model_name: "thinkingmachines/inkling-2-small:free",

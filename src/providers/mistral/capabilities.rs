@@ -26,7 +26,7 @@ model_capabilities! {
             model_name: "deepseek-v4-1-flash-1017",
             constructor_name: deepseek_v4_1_flash_1017,
             display_name: "DeepSeek V4.1 Flash 1017",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Devstral2512 {
             model_name: "devstral-2512",
@@ -140,7 +140,7 @@ model_capabilities! {
             model_name: "mistral-large-latest",
             constructor_name: mistral_large_latest,
             display_name: "Mistral Large",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MistralMedium2505 {
             model_name: "mistral-medium-2505",
