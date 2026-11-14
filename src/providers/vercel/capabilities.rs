@@ -1018,6 +1018,12 @@ model_capabilities! {
             display_name: "Gemini 4 Carbon",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GoogleGemini4Hydrogen {
+            model_name: "google/gemini-4-hydrogen",
+            constructor_name: google_gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GoogleGeminiEmbedding001 {
             model_name: "google/gemini-embedding-001",
             constructor_name: google_gemini_embedding_001,
@@ -2320,6 +2326,12 @@ model_capabilities! {
             display_name: "Whisper",
             capabilities: [AudioInputSupport, ImageInputSupport, TextOutputSupport]
         },
+        PaperinstrumentsUltramarine1Flash {
+            model_name: "paperinstruments/ultramarine-1-flash",
+            constructor_name: paperinstruments_ultramarine_1_flash,
+            display_name: "Ultramarine 1 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ParticleParticle1 {
             model_name: "particle/particle-1",
             constructor_name: particle_particle_1,
@@ -2654,6 +2666,12 @@ model_capabilities! {
             model_name: "thinkingmachines/inkling",
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Small {
+            model_name: "thinkingmachines/inkling-2-small",
+            constructor_name: thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInklingSmall {

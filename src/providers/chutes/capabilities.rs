@@ -170,7 +170,7 @@ model_capabilities! {
             model_name: "Qwen/Qwen3.8-2.4T-A95B",
             constructor_name: qwen_qwen3_8_2_4t_a95b,
             display_name: "Qwen3.8 2.4T A95B",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen3827bTee {
             model_name: "Qwen/Qwen3.8-27B-TEE",
@@ -182,7 +182,7 @@ model_capabilities! {
             model_name: "Qwen/Qwen3.8-Max-0902",
             constructor_name: qwen_qwen3_8_max_0902,
             display_name: "Qwen3.8 Max 0902",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         QwenQwen3guardGen06b {
             model_name: "Qwen/Qwen3Guard-Gen-0.6B",
@@ -272,13 +272,13 @@ model_capabilities! {
             model_name: "deepseek-ai/DeepSeek-V4-Pro-0813",
             constructor_name: deepseek_ai_deepseek_v4_pro_0813,
             display_name: "DeepSeek V4 Pro 0813",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         DeepseekAiDeepseekV41Flash1017 {
             model_name: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
             constructor_name: deepseek_ai_deepseek_v4_1_flash_1017,
             display_name: "DeepSeek V4.1 Flash 1017",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGemma431bTurboTee {
             model_name: "google/gemma-4-31B-turbo-TEE",
@@ -326,7 +326,7 @@ model_capabilities! {
             model_name: "moonshotai/Kimi-K2.7-Code",
             constructor_name: moonshotai_kimi_k2_7_code,
             display_name: "Kimi K2.7 Code",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MoonshotaiKimiK3Tee {
             model_name: "moonshotai/Kimi-K3-TEE",
@@ -362,7 +362,7 @@ model_capabilities! {
             model_name: "tencent/Hy4",
             constructor_name: tencent_hy4,
             display_name: "Hy4",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TngtechDeepseekR1tChimera {
             model_name: "tngtech/DeepSeek-R1T-Chimera",
@@ -500,7 +500,7 @@ model_capabilities! {
             model_name: "zai-org/GLM-5.2-Fast",
             constructor_name: zai_org_glm_5_2_fast,
             display_name: "GLM 5.2 Fast",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm52Tee {
             model_name: "zai-org/GLM-5.2-TEE",
@@ -512,7 +512,7 @@ model_capabilities! {
             model_name: "zai-org/GLM-5.3",
             constructor_name: zai_org_glm_5_3,
             display_name: "GLM 5.3",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }
 }

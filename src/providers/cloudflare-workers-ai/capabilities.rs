@@ -292,6 +292,12 @@ model_capabilities! {
             display_name: "QwQ 32B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport]
         },
+        CfThinkingmachinesInkling2Small {
+            model_name: "@cf/thinkingmachines/inkling-2-small",
+            constructor_name: cf_thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         CfZaiOrgGlm47Flash {
             model_name: "@cf/zai-org/glm-4.7-flash",
             constructor_name: cf_zai_org_glm_4_7_flash,
