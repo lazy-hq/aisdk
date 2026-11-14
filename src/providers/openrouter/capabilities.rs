@@ -2846,7 +2846,7 @@ model_capabilities! {
             model_name: "z-ai/glm-5.3-flashx",
             constructor_name: z_ai_glm_5_3_flashx,
             display_name: "GLM 5.3 FlashX",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         ZAiGlm53FlashxLegal {
             model_name: "z-ai/glm-5.3-flashx-legal",
