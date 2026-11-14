@@ -143,10 +143,14 @@ impl<M: ModelName> LanguageModel for OpenAIChatCompletions<M> {
 
                             // Accumulate name and arguments
                             if let Some(function) = tool_call.function {
-                                if let Some(name) = function.name
-                                    && !name.is_empty()
-                                {
-                                    entry.1 = name;
+                                // Some OpenAI-compatible gateways (e.g. Volcengine Ark) resend
+                                // the tool name as an empty string on every chunk after the
+                                // first instead of omitting the field or sending null; guard
+                                // against that overwriting the name we already captured.
+                                if let Some(name) = function.name {
+                                    if !name.is_empty() {
+                                        entry.1 = name;
+                                    }
                                 }
 
                                 // Emit ToolCallStart once we have both id and name
