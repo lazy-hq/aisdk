@@ -382,6 +382,18 @@ model_capabilities! {
             display_name: "Gemini 4 Argon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Gemma426bA4bItFree {
+            model_name: "gemma-4-26b-a4b-it-free",
+            constructor_name: gemma_4_26b_a4b_it_free,
+            display_name: "Gemma 4 26B A4B IT (free)",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gemma431bItFree {
+            model_name: "gemma-4-31b-it-free",
+            constructor_name: gemma_4_31b_it_free,
+            display_name: "Gemma 4 31B IT (free)",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Glm45v {
             model_name: "glm-4.5v",
             constructor_name: glm_4_5v,
@@ -628,6 +640,12 @@ model_capabilities! {
             display_name: "GPT Image 2.5 Sunburst",
             capabilities: [ImageInputSupport, ImageOutputSupport, TextInputSupport]
         },
+        Grok4FastNonReasoning {
+            model_name: "grok-4-fast-non-reasoning",
+            constructor_name: grok_4_fast_non_reasoning,
+            display_name: "X-Ai/Grok-4-Fast-Non-Reasoning",
+            capabilities: [AudioInputSupport, ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Grok43 {
             model_name: "grok-4.3",
             constructor_name: grok_4_3,
@@ -824,6 +842,12 @@ model_capabilities! {
             model_name: "qwen3-coder-480b-a35b-instruct",
             constructor_name: qwen3_coder_480b_a35b_instruct,
             display_name: "Qwen3 Coder 480B A35B Instruct",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3CoderNext {
+            model_name: "qwen3-coder-next",
+            constructor_name: qwen3_coder_next,
+            display_name: "Qwen3 Coder Next",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Qwen3Max20260123 {

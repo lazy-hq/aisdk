@@ -46,6 +46,12 @@ model_capabilities! {
             display_name: "MiniMax-M3",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        MinimaxM31Flash {
+            model_name: "MiniMax-M3.1-Flash",
+            constructor_name: minimax_m3_1_flash,
+            display_name: "MiniMax-M3.1-Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Chatgpt4oLatest {
             model_name: "chatgpt-4o-latest",
             constructor_name: chatgpt_4o_latest,

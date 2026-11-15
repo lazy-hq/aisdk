@@ -46,6 +46,12 @@ model_capabilities! {
             display_name: "Qwen 3 Coder 480B",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        HfQwenQwen3827b {
+            model_name: "hf:Qwen/Qwen3.8-27B",
+            constructor_name: hf_qwen_qwen3_8_27b,
+            display_name: "Qwen3.8 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         HfDeepseekAiDeepseekR1 {
             model_name: "hf:deepseek-ai/DeepSeek-R1",
             constructor_name: hf_deepseek_ai_deepseek_r1,
@@ -158,6 +164,12 @@ model_capabilities! {
             model_name: "hf:moonshotai/Kimi-K3",
             constructor_name: hf_moonshotai_kimi_k3,
             display_name: "Kimi K3",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        HfMoonshotaiKimiK31Pro {
+            model_name: "hf:moonshotai/Kimi-K3.1-Pro",
+            constructor_name: hf_moonshotai_kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         HfNvidiaKimiK25Nvfp4 {
