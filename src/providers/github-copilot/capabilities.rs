@@ -142,6 +142,12 @@ model_capabilities! {
             display_name: "Gemini 4 Carbon",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gemini4Hydrogen {
+            model_name: "gemini-4-hydrogen",
+            constructor_name: gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt41 {
             model_name: "gpt-4.1",
             constructor_name: gpt_4_1,

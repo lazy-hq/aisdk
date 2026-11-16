@@ -154,6 +154,12 @@ model_capabilities! {
             display_name: "gpt-oss:20b",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Inkling2Small {
+            model_name: "inkling-2-small",
+            constructor_name: inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         KimiK2Thinking {
             model_name: "kimi-k2-thinking",
             constructor_name: kimi_k2_thinking,

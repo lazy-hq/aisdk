@@ -208,6 +208,12 @@ model_capabilities! {
             display_name: "Gemini 4 Carbon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gemini4Hydrogen {
+            model_name: "gemini-4-hydrogen",
+            constructor_name: gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gemma327bIt {
             model_name: "gemma-3-27b-it",
             constructor_name: gemma_3_27b_it,
@@ -405,6 +411,12 @@ model_capabilities! {
             constructor_name: hermes_4_405b,
             display_name: "Hermes 4 405B",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Inkling2Small {
+            model_name: "inkling-2-small",
+            constructor_name: inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Intellect3 {
             model_name: "intellect-3",

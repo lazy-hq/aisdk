@@ -226,6 +226,12 @@ model_capabilities! {
             display_name: "Kimi K3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MoonshotaiKimiK31Pro {
+            model_name: "moonshotai/Kimi-K3.1-Pro",
+            constructor_name: moonshotai_kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MoonshotaiKimiK2Instruct {
             model_name: "moonshotai/kimi-k2-instruct",
             constructor_name: moonshotai_kimi_k2_instruct,
@@ -369,6 +375,12 @@ model_capabilities! {
             constructor_name: reflection_beam,
             display_name: "Beam 1.0 501B A23B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Small {
+            model_name: "thinkingmachines/Inkling-2-Small",
+            constructor_name: thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm52 {
             model_name: "zai-org/GLM-5.2",

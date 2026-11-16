@@ -424,6 +424,12 @@ model_capabilities! {
             display_name: "deepseek-ai/DeepSeek-V4-Pro",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekAiDeepseekV41Flash {
+            model_name: "deepseek-ai/DeepSeek-V4.1-Flash",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash,
+            display_name: "DeepSeek V4.1 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekAiDeepseekVl2 {
             model_name: "deepseek-ai/deepseek-vl2",
             constructor_name: deepseek_ai_deepseek_vl2,

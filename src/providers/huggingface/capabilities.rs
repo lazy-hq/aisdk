@@ -394,6 +394,12 @@ model_capabilities! {
             display_name: "Kimi K3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MoonshotaiKimiK31Pro {
+            model_name: "moonshotai/Kimi-K3.1-Pro",
+            constructor_name: moonshotai_kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptOss120b {
             model_name: "openai/gpt-oss-120b",
             constructor_name: openai_gpt_oss_120b,
@@ -434,6 +440,12 @@ model_capabilities! {
             model_name: "thinkingmachines/Inkling",
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Small {
+            model_name: "thinkingmachines/Inkling-2-Small",
+            constructor_name: thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInklingSmall {
