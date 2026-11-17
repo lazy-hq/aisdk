@@ -214,6 +214,12 @@ model_capabilities! {
             display_name: "Qwen 3.8 Omni Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AlibabaQwen4Max {
+            model_name: "alibaba/qwen4-max",
+            constructor_name: alibaba_qwen4_max,
+            display_name: "Qwen 4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AlibabaWanV25T2vPreview {
             model_name: "alibaba/wan-v2.5-t2v-preview",
             constructor_name: alibaba_wan_v2_5_t2v_preview,
@@ -2452,6 +2458,12 @@ model_capabilities! {
             display_name: "Recraft V4.1 Utility Pro",
             capabilities: [ImageOutputSupport, TextInputSupport]
         },
+        RecursiveFlintV10 {
+            model_name: "recursive/flint-v1.0",
+            constructor_name: recursive_flint_v1_0,
+            display_name: "Flint",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ReflectionBeam {
             model_name: "reflection/beam",
             constructor_name: reflection_beam,
@@ -2654,6 +2666,12 @@ model_capabilities! {
             model_name: "tencent/hy4",
             constructor_name: tencent_hy4,
             display_name: "Tencent Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        TencentHy4Flash {
+            model_name: "tencent/hy4-flash",
+            constructor_name: tencent_hy4_flash,
+            display_name: "Tencent Hy4 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHy4Preview {

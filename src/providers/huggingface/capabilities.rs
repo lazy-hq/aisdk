@@ -460,6 +460,12 @@ model_capabilities! {
             display_name: "AutoGLM Phone 9B Multilingual",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
         },
+        ZaiOrgGlm45 {
+            model_name: "zai-org/GLM-4.5",
+            constructor_name: zai_org_glm_4_5,
+            display_name: "GLM-4.5",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ZaiOrgGlm45Air {
             model_name: "zai-org/GLM-4.5-Air",
             constructor_name: zai_org_glm_4_5_air,
@@ -477,6 +483,12 @@ model_capabilities! {
             constructor_name: zai_org_glm_4_6,
             display_name: "GLM-4.6",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ZaiOrgGlm46v {
+            model_name: "zai-org/GLM-4.6V",
+            constructor_name: zai_org_glm_4_6v,
+            display_name: "GLM-4.6V",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm46vFlash {
             model_name: "zai-org/GLM-4.6V-Flash",

@@ -682,6 +682,12 @@ model_capabilities! {
             display_name: "Qwen3.8 Max",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        QwenQwen4Max {
+            model_name: "qwen/qwen4-max",
+            constructor_name: qwen_qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Sao10kL38bSthenoV32 {
             model_name: "sao10k/L3-8B-Stheno-v3.2",
             constructor_name: sao10k_l3_8b_stheno_v3_2,
@@ -734,6 +740,12 @@ model_capabilities! {
             model_name: "tencent/hy4",
             constructor_name: tencent_hy4,
             display_name: "Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        TencentHy4Flash {
+            model_name: "tencent/hy4-flash",
+            constructor_name: tencent_hy4_flash,
+            display_name: "Hy4 flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHy4Preview {

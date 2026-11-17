@@ -442,6 +442,12 @@ model_capabilities! {
             display_name: "Grok Build 0.1",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Hy4FlashFree {
+            model_name: "hy4-flash-free",
+            constructor_name: hy4_flash_free,
+            display_name: "Hy4 flash Free",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         IcemanFree {
             model_name: "iceman-free",
             constructor_name: iceman_free,
