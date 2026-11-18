@@ -178,6 +178,12 @@ model_capabilities! {
             display_name: "Claude Sonnet 5.5",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekAiDeepseekV41Flash1017 {
+            model_name: "deepseek-ai/deepseek-v4.1-flash-1017",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash_1017,
+            display_name: "DeepSeek V4.1 Flash 1017",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekDeepseekV4Pro {
             model_name: "deepseek/deepseek-v4-pro",
             constructor_name: deepseek_deepseek_v4_pro,
@@ -268,6 +274,12 @@ model_capabilities! {
             display_name: "Gemini 4 Carbon",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Hydrogen {
+            model_name: "google/gemini-4-hydrogen",
+            constructor_name: google_gemini_4_hydrogen,
+            display_name: "Gemini 4 Hydrogen",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         MetaMuseEmber10 {
             model_name: "meta/muse-ember-1.0",
             constructor_name: meta_muse_ember_1_0,
@@ -315,6 +327,12 @@ model_capabilities! {
             constructor_name: moonshotai_kimi_k3,
             display_name: "Kimi K3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        MoonshotaiKimiK31Pro {
+            model_name: "moonshotai/kimi-k3.1-pro",
+            constructor_name: moonshotai_kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         OpenaiGpt35Turbo {
             model_name: "openai/gpt-3.5-turbo",
@@ -795,6 +813,12 @@ model_capabilities! {
             constructor_name: xai_grok_4_7,
             display_name: "Grok 4.7",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        XiaomiMimoV26Pro {
+            model_name: "xiaomi/mimo-v2.6-pro",
+            constructor_name: xiaomi_mimo_v2_6_pro,
+            display_name: "MiMo-V2.6-Pro",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
     }
 }

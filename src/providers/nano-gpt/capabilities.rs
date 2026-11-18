@@ -412,6 +412,12 @@ model_capabilities! {
             display_name: "GPT-OSS 120B TEE",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        TeeInkling2Small {
+            model_name: "TEE/inkling-2-small",
+            constructor_name: tee_inkling_2_small,
+            display_name: "Inkling 2 Small TEE",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TeeKimiK26 {
             model_name: "TEE/kimi-k2.6",
             constructor_name: tee_kimi_k2_6,
@@ -1192,6 +1198,18 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekDeepseekV41Flash1017Abliterated {
+            model_name: "deepseek/deepseek-v4.1-flash-1017-abliterated",
+            constructor_name: deepseek_deepseek_v4_1_flash_1017_abliterated,
+            display_name: "DeepSeek V4.1 Flash 1017 Abliterated",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        DeepseekDeepseekV41Flash1017AbliteratedThinking {
+            model_name: "deepseek/deepseek-v4.1-flash-1017-abliterated:thinking",
+            constructor_name: deepseek_deepseek_v4_1_flash_1017_abliterated_thinking,
+            display_name: "DeepSeek V4.1 Flash 1017 Abliterated Thinking",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekDeepseekV41Flash1017Uncensored {
             model_name: "deepseek/deepseek-v4.1-flash-1017-uncensored",
             constructor_name: deepseek_deepseek_v4_1_flash_1017_uncensored,
@@ -1738,6 +1756,12 @@ model_capabilities! {
             display_name: "Qwen 2.5 32B Abliterated",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        HyperresearchOusia1 {
+            model_name: "hyperresearch/ousia-1",
+            constructor_name: hyperresearch_ousia_1,
+            display_name: "Ousia 1",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
         IbmGraniteGranite428b {
             model_name: "ibm-granite/granite-4.2-8b",
             constructor_name: ibm_granite_granite_4_2_8b,
@@ -1810,6 +1834,18 @@ model_capabilities! {
             display_name: "Mag Mell R1",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        KitaniClover2 {
+            model_name: "kitani/clover-2",
+            constructor_name: kitani_clover_2,
+            display_name: "Clover 2",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KitaniClover2Thinking {
+            model_name: "kitani/clover-2:thinking",
+            constructor_name: kitani_clover_2_thinking,
+            display_name: "Clover 2 Thinking",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         LightonaiLightonocr21b {
             model_name: "lightonai/LightOnOCR-2-1B",
             constructor_name: lightonai_lightonocr_2_1b,
@@ -1845,6 +1881,12 @@ model_capabilities! {
             constructor_name: longcat_2_0_thinking,
             display_name: "LongCat 2.0 Thinking",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        LyberKimiK31ProAbliterated {
+            model_name: "lyber/kimi-k3.1-pro-abliterated",
+            constructor_name: lyber_kimi_k3_1_pro_abliterated,
+            display_name: "Kimi K3.1 Pro Abliterated (Lyber)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MeganovaAiMantaFlash10 {
             model_name: "meganova-ai/manta-flash-1.0",
@@ -3303,6 +3345,18 @@ model_capabilities! {
             constructor_name: qwen_qwen3_8_omni_flash,
             display_name: "Qwen3.8 Omni Flash",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        QwenQwen4Max {
+            model_name: "qwen/qwen4-max",
+            constructor_name: qwen_qwen4_max,
+            display_name: "Qwen 4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        QwenQwen4MaxThinking {
+            model_name: "qwen/qwen4-max:thinking",
+            constructor_name: qwen_qwen4_max_thinking,
+            display_name: "Qwen 4 Max Thinking",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Qwen3Vl235bA22bInstructOriginal {
             model_name: "qwen3-vl-235b-a22b-instruct-original",
