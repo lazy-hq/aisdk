@@ -296,13 +296,13 @@ model_capabilities! {
             model_name: "devstral-latest",
             constructor_name: devstral_latest,
             display_name: "devstral-latest",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         DevstralLatestEu {
             model_name: "devstral-latest@eu",
             constructor_name: devstral_latest_eu,
             display_name: "devstral-latest@eu",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         FuguUltra {
             model_name: "fugu-ultra",
@@ -730,6 +730,30 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra (EU)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt62Astra {
+            model_name: "gpt-6.2-astra",
+            constructor_name: gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62AstraEu {
+            model_name: "gpt-6.2-astra@eu",
+            constructor_name: gpt_6_2_astra_eu,
+            display_name: "GPT-6.2 Astra (EU)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62Sol {
+            model_name: "gpt-6.2-sol",
+            constructor_name: gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62SolEu {
+            model_name: "gpt-6.2-sol@eu",
+            constructor_name: gpt_6_2_sol_eu,
+            display_name: "GPT-6.2 Sol (EU)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Grok42Beta {
             model_name: "grok-4.2-beta",
             constructor_name: grok_4_2_beta,
@@ -854,13 +878,13 @@ model_capabilities! {
             model_name: "leanstral-1-5",
             constructor_name: leanstral_1_5,
             display_name: "leanstral-1-5",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Leanstral15Eu {
             model_name: "leanstral-1-5@eu",
             constructor_name: leanstral_1_5_eu,
             display_name: "leanstral-1-5@eu",
-            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Ling261t {
             model_name: "ling-2.6-1t",

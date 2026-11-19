@@ -82,6 +82,12 @@ model_capabilities! {
             display_name: "Qwen3 30B A3B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen330bA3bInstruct2507 {
+            model_name: "Qwen/Qwen3-30B-A3B-Instruct-2507",
+            constructor_name: qwen_qwen3_30b_a3b_instruct_2507,
+            display_name: "Qwen3 30B-A3B Instruct 2507",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         QwenQwen332b {
             model_name: "Qwen/Qwen3-32B",
             constructor_name: qwen_qwen3_32b,
@@ -304,6 +310,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GoogleGemma227bIt {
+            model_name: "google/gemma-2-27b-it",
+            constructor_name: google_gemma_2_27b_it,
+            display_name: "Gemma 2 27B",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         GoogleGemma312bIt {
             model_name: "google/gemma-3-12b-it",
             constructor_name: google_gemma_3_12b_it,
@@ -334,10 +346,28 @@ model_capabilities! {
             display_name: "Gemma 4 31B IT",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MetaLlamaLlama3170bInstruct {
+            model_name: "meta-llama/Llama-3.1-70B-Instruct",
+            constructor_name: meta_llama_llama_3_1_70b_instruct,
+            display_name: "Llama-3.1-70B-Instruct",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MetaLlamaLlama318bInstruct {
             model_name: "meta-llama/Llama-3.1-8B-Instruct",
             constructor_name: meta_llama_llama_3_1_8b_instruct,
             display_name: "Llama-3.1-8B-Instruct",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaLlamaLlama321bInstruct {
+            model_name: "meta-llama/Llama-3.2-1B-Instruct",
+            constructor_name: meta_llama_llama_3_2_1b_instruct,
+            display_name: "Llama 3.2 1B Instruct",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaLlamaLlama323bInstruct {
+            model_name: "meta-llama/Llama-3.2-3B-Instruct",
+            constructor_name: meta_llama_llama_3_2_3b_instruct,
+            display_name: "Llama 3.2 3B Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MetaLlamaLlama3370bInstruct {
@@ -429,6 +459,12 @@ model_capabilities! {
             constructor_name: tencent_hy3,
             display_name: "Hy3",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        TencentHy4Flash {
+            model_name: "tencent/Hy4-flash",
+            constructor_name: tencent_hy4_flash,
+            display_name: "Hy4 flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHy4Preview {
             model_name: "tencent/Hy4-preview",

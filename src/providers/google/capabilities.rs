@@ -256,6 +256,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Gemini4Neon {
+            model_name: "gemini-4-neon",
+            constructor_name: gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         GeminiEmbedding001 {
             model_name: "gemini-embedding-001",
             constructor_name: gemini_embedding_001,

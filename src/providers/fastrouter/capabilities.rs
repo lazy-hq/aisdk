@@ -22,6 +22,12 @@ model_capabilities! {
             display_name: "Claude Opus 4.1",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AnthropicClaudeOpus47 {
+            model_name: "anthropic/claude-opus-4.7",
+            constructor_name: anthropic_claude_opus_4_7,
+            display_name: "Claude Opus 4.7",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AnthropicClaudeOpus48 {
             model_name: "anthropic/claude-opus-4.8",
             constructor_name: anthropic_claude_opus_4_8,
@@ -51,6 +57,18 @@ model_capabilities! {
             constructor_name: anthropic_claude_sonnet_4_6,
             display_name: "Claude Sonnet 4.6",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AnthropicClaudeSonnet5 {
+            model_name: "anthropic/claude-sonnet-5",
+            constructor_name: anthropic_claude_sonnet_5,
+            display_name: "Claude Sonnet 5",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AnthropicClaudeSonnet55 {
+            model_name: "anthropic/claude-sonnet-5.5",
+            constructor_name: anthropic_claude_sonnet_5_5,
+            display_name: "Claude Sonnet 5.5",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         BytedanceSeedance2 {
             model_name: "bytedance/seedance-2",
@@ -190,6 +208,12 @@ model_capabilities! {
             display_name: "GPT-5 Nano",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OpenaiGpt51 {
+            model_name: "openai/gpt-5.1",
+            constructor_name: openai_gpt_5_1,
+            display_name: "GPT-5.1",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGpt52 {
             model_name: "openai/gpt-5.2",
             constructor_name: openai_gpt_5_2,
@@ -200,6 +224,12 @@ model_capabilities! {
             model_name: "openai/gpt-5.3-codex",
             constructor_name: openai_gpt_5_3_codex,
             display_name: "GPT-5.3 Codex",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt54 {
+            model_name: "openai/gpt-5.4",
+            constructor_name: openai_gpt_5_4,
+            display_name: "GPT-5.4",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt54Mini {
@@ -224,6 +254,18 @@ model_capabilities! {
             model_name: "openai/gpt-5.5-pro",
             constructor_name: openai_gpt_5_5_pro,
             display_name: "GPT-5.5 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt56Sol {
+            model_name: "openai/gpt-5.6-sol",
+            constructor_name: openai_gpt_5_6_sol,
+            display_name: "GPT-5.6 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt6Astra {
+            model_name: "openai/gpt-6-astra",
+            constructor_name: openai_gpt_6_astra,
+            display_name: "GPT-6 Astra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt6Luna {

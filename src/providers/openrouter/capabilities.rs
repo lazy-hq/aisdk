@@ -670,6 +670,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Neon {
+            model_name: "google/gemini-4-neon",
+            constructor_name: google_gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         GoogleGeminiNanoBanana21 {
             model_name: "google/gemini-nano-banana-2.1",
             constructor_name: google_gemini_nano_banana_2_1,
@@ -1826,6 +1832,30 @@ model_capabilities! {
             model_name: "openai/gpt-6.1-terra-pro",
             constructor_name: openai_gpt_6_1_terra_pro,
             display_name: "GPT-6.1 Terra Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62Astra {
+            model_name: "openai/gpt-6.2-astra",
+            constructor_name: openai_gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62AstraPro {
+            model_name: "openai/gpt-6.2-astra-pro",
+            constructor_name: openai_gpt_6_2_astra_pro,
+            display_name: "GPT-6.2 Astra Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62Sol {
+            model_name: "openai/gpt-6.2-sol",
+            constructor_name: openai_gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62SolPro {
+            model_name: "openai/gpt-6.2-sol-pro",
+            constructor_name: openai_gpt_6_2_sol_pro,
+            display_name: "GPT-6.2 Sol Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGptAudio {

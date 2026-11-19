@@ -268,6 +268,18 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt62Astra {
+            model_name: "gpt-6.2-astra",
+            constructor_name: gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62Sol {
+            model_name: "gpt-6.2-sol",
+            constructor_name: gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GptDaybreakBlueLatest {
             model_name: "gpt-daybreak-blue-latest",
             constructor_name: gpt_daybreak_blue_latest,

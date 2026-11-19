@@ -254,7 +254,7 @@ model_capabilities! {
             model_name: "qwen3-vl-plus",
             constructor_name: qwen3_vl_plus,
             display_name: "Qwen3-VL Plus",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Qwen35122bA10b {
             model_name: "qwen3.5-122b-a10b",
