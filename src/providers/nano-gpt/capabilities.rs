@@ -1834,6 +1834,18 @@ model_capabilities! {
             display_name: "Mag Mell R1",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        JcartuDeepseekV41Flash1017AbliteratedLosslessCsf {
+            model_name: "jcartu/deepseek-v4.1-flash-1017-abliterated-lossless-csf",
+            constructor_name: jcartu_deepseek_v4_1_flash_1017_abliterated_lossless_csf,
+            display_name: "DeepSeek V4.1 Flash 1017 Abliterated CSF (jcartu)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        JiunsongSupergemma426bUncensored {
+            model_name: "jiunsong/supergemma4-26b-uncensored",
+            constructor_name: jiunsong_supergemma4_26b_uncensored,
+            display_name: "SuperGemma4 26B Uncensored",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         KitaniClover2 {
             model_name: "kitani/clover-2",
             constructor_name: kitani_clover_2,
@@ -1880,6 +1892,12 @@ model_capabilities! {
             model_name: "longcat-2.0:thinking",
             constructor_name: longcat_2_0_thinking,
             display_name: "LongCat 2.0 Thinking",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        LyberDeepseekV41Flash1017Abliterated {
+            model_name: "lyber/deepseek-v4.1-flash-1017-abliterated",
+            constructor_name: lyber_deepseek_v4_1_flash_1017_abliterated,
+            display_name: "DeepSeek V4.1 Flash 1017 Abliterated (Lyber)",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         LyberKimiK31ProAbliterated {
@@ -2698,6 +2716,30 @@ model_capabilities! {
             display_name: "GPT 6.1 Terra Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OpenaiGpt62Astra {
+            model_name: "openai/gpt-6.2-astra",
+            constructor_name: openai_gpt_6_2_astra,
+            display_name: "GPT 6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62AstraPro {
+            model_name: "openai/gpt-6.2-astra-pro",
+            constructor_name: openai_gpt_6_2_astra_pro,
+            display_name: "GPT 6.2 Astra Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62Sol {
+            model_name: "openai/gpt-6.2-sol",
+            constructor_name: openai_gpt_6_2_sol,
+            display_name: "GPT 6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62SolPro {
+            model_name: "openai/gpt-6.2-sol-pro",
+            constructor_name: openai_gpt_6_2_sol_pro,
+            display_name: "GPT 6.2 Sol Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptAstraLatest {
             model_name: "openai/gpt-astra-latest",
             constructor_name: openai_gpt_astra_latest,
@@ -2794,11 +2836,23 @@ model_capabilities! {
             display_name: "OrcaCyber DeepSeek V4.1 Flash Thinking",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OrcaOrcacyberGlm53 {
+            model_name: "orca/orcacyber-glm-5.3",
+            constructor_name: orca_orcacyber_glm_5_3,
+            display_name: "OrcaCyber GLM 5.3",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OrcaOrcacyberGlm53Flash {
             model_name: "orca/orcacyber-glm-5.3-flash",
             constructor_name: orca_orcacyber_glm_5_3_flash,
             display_name: "OrcaCyber GLM 5.3 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberHy4 {
+            model_name: "orca/orcacyber-hy4",
+            constructor_name: orca_orcacyber_hy4,
+            display_name: "OrcaCyber Hy4",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OrcaOrcacyberK31Pro {
             model_name: "orca/orcacyber-k3.1-pro",
@@ -2823,6 +2877,18 @@ model_capabilities! {
             constructor_name: orca_orcacyber_qwen3_8_flash_next,
             display_name: "OrcaCyber Qwen3.8 Flash Next Uncensored",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberUltra10 {
+            model_name: "orca/orcacyber-ultra-1.0",
+            constructor_name: orca_orcacyber_ultra_1_0,
+            display_name: "OrcaCyber Ultra 1.0",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberZero10 {
+            model_name: "orca/orcacyber-zero-1.0",
+            constructor_name: orca_orcacyber_zero_1_0,
+            display_name: "OrcaCyber Zero 1.0",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OrcaOrcacyberZero15 {
             model_name: "orca/orcacyber-zero-1.5",

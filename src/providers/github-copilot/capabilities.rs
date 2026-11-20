@@ -148,6 +148,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gemini4Neon {
+            model_name: "gemini-4-neon",
+            constructor_name: gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt41 {
             model_name: "gpt-4.1",
             constructor_name: gpt_4_1,
@@ -268,6 +274,18 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt62Astra {
+            model_name: "gpt-6.2-astra",
+            constructor_name: gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62Sol {
+            model_name: "gpt-6.2-sol",
+            constructor_name: gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Grok45 {
             model_name: "grok-4.5",
             constructor_name: grok_4_5,
@@ -302,6 +320,18 @@ model_capabilities! {
             model_name: "mai-code-1.1-flash",
             constructor_name: mai_code_1_1_flash,
             display_name: "MAI-Code-1.1-Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MaiCode2 {
+            model_name: "mai-code-2",
+            constructor_name: mai_code_2,
+            display_name: "MAI Code 2",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MaiCode2Flash {
+            model_name: "mai-code-2-flash",
+            constructor_name: mai_code_2_flash,
+            display_name: "MAI Code 2 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
     }

@@ -1030,6 +1030,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GoogleGemini4Neon {
+            model_name: "google/gemini-4-neon",
+            constructor_name: google_gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GoogleGeminiEmbedding001 {
             model_name: "google/gemini-embedding-001",
             constructor_name: google_gemini_embedding_001,
@@ -2164,6 +2170,30 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra (Fast)",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OpenaiGpt62Astra {
+            model_name: "openai/gpt-6.2-astra",
+            constructor_name: openai_gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62AstraFast {
+            model_name: "openai/gpt-6.2-astra-fast",
+            constructor_name: openai_gpt_6_2_astra_fast,
+            display_name: "GPT-6.2 Astra (Fast)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62Sol {
+            model_name: "openai/gpt-6.2-sol",
+            constructor_name: openai_gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62SolFast {
+            model_name: "openai/gpt-6.2-sol-fast",
+            constructor_name: openai_gpt_6_2_sol_fast,
+            display_name: "GPT-6.2 Sol (Fast)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptImage1Mini {
             model_name: "openai/gpt-image-1-mini",
             constructor_name: openai_gpt_image_1_mini,
@@ -2499,6 +2529,12 @@ model_capabilities! {
             constructor_name: sakana_namazu,
             display_name: "Sakana Namazu",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ScaledownExtract1 {
+            model_name: "scaledown/extract-1",
+            constructor_name: scaledown_extract_1,
+            display_name: "Extract-1",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
         },
         ScaledownScaledownExtract1 {
             model_name: "scaledown/scaledown-extract-1",

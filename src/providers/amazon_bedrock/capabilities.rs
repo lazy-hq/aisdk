@@ -610,6 +610,18 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra (Global)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GlobalOpenaiGpt62Astra {
+            model_name: "global.openai.gpt-6.2-astra",
+            constructor_name: global_openai_gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra (Global)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GlobalOpenaiGpt62Sol {
+            model_name: "global.openai.gpt-6.2-sol",
+            constructor_name: global_openai_gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol (Global)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GlobalXaiGrok46 {
             model_name: "global.xai.grok-4.6",
             constructor_name: global_xai_grok_4_6,
@@ -988,6 +1000,18 @@ model_capabilities! {
             display_name: "GPT-6.1 Terra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OpenaiGpt62Astra {
+            model_name: "openai.gpt-6.2-astra",
+            constructor_name: openai_gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGpt62Sol {
+            model_name: "openai.gpt-6.2-sol",
+            constructor_name: openai_gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptOss120b {
             model_name: "openai.gpt-oss-120b",
             constructor_name: openai_gpt_oss_120b,
@@ -1250,6 +1274,18 @@ model_capabilities! {
             model_name: "us.openai.gpt-6.1-terra",
             constructor_name: us_openai_gpt_6_1_terra,
             display_name: "GPT-6.1 Terra (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        UsOpenaiGpt62Astra {
+            model_name: "us.openai.gpt-6.2-astra",
+            constructor_name: us_openai_gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        UsOpenaiGpt62Sol {
+            model_name: "us.openai.gpt-6.2-sol",
+            constructor_name: us_openai_gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol (US)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         UsXaiGrok46 {

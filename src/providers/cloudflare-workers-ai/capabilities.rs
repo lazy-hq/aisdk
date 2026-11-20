@@ -52,6 +52,12 @@ model_capabilities! {
             display_name: "BGE Small EN v1.5",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        CfCloudflareClairicFlash {
+            model_name: "@cf/cloudflare/clairic-flash",
+            constructor_name: cf_cloudflare_clairic_flash,
+            display_name: "Clairic Flash",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         DeepgramAura2En {
             model_name: "@cf/deepgram/aura-2-en",
             constructor_name: deepgram_aura_2_en,
