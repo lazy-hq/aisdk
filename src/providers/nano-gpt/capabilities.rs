@@ -1228,6 +1228,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017 Thinking",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekDeepseekV41FlashAbliterated {
+            model_name: "deepseek/deepseek-v4.1-flash-abliterated",
+            constructor_name: deepseek_deepseek_v4_1_flash_abliterated,
+            display_name: "DeepSeek V4.1 Flash Abliterated",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekDeepseekV41FlashUncensored {
             model_name: "deepseek/deepseek-v4.1-flash-uncensored",
             constructor_name: deepseek_deepseek_v4_1_flash_uncensored,
@@ -1635,6 +1641,12 @@ model_capabilities! {
             constructor_name: google_gemini_4_hydrogen,
             display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        GoogleGemini4Neon {
+            model_name: "google/gemini-4-neon",
+            constructor_name: google_gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGeminiFlashLatest {
             model_name: "google/gemini-flash-latest",
@@ -3430,6 +3442,12 @@ model_capabilities! {
             display_name: "Qwen3 VL 235B A22B Instruct Original",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
         },
+        RadixarkDaisyrose27b {
+            model_name: "radixark/daisyrose-27b",
+            constructor_name: radixark_daisyrose_27b,
+            display_name: "DaisyRose 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ReflectionBeam10 {
             model_name: "reflection/beam-1.0",
             constructor_name: reflection_beam_1_0,
@@ -3566,6 +3584,12 @@ model_capabilities! {
             model_name: "tencent/hy4",
             constructor_name: tencent_hy4,
             display_name: "Tencent Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        TencentHy4Flash {
+            model_name: "tencent/hy4-flash",
+            constructor_name: tencent_hy4_flash,
+            display_name: "Tencent Hy4 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHy4Preview {
@@ -3964,11 +3988,23 @@ model_capabilities! {
             display_name: "GLM 5.3",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ZAiGlm53Abliterated {
+            model_name: "z-ai/glm-5.3-abliterated",
+            constructor_name: z_ai_glm_5_3_abliterated,
+            display_name: "GLM 5.3 Abliterated",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ZAiGlm53Flash {
             model_name: "z-ai/glm-5.3-flash",
             constructor_name: z_ai_glm_5_3_flash,
             display_name: "GLM 5.3 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        ZAiGlm53FlashAbliterated {
+            model_name: "z-ai/glm-5.3-flash-abliterated",
+            constructor_name: z_ai_glm_5_3_flash_abliterated,
+            display_name: "GLM 5.3 Flash Abliterated",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZAiGlm53FlashApex {
             model_name: "z-ai/glm-5.3-flash-apex",
