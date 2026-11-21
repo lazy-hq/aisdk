@@ -214,6 +214,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gemini4Neon {
+            model_name: "gemini-4-neon",
+            constructor_name: gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gemma327bIt {
             model_name: "gemma-3-27b-it",
             constructor_name: gemma_3_27b_it,
@@ -386,6 +392,18 @@ model_capabilities! {
             model_name: "gpt-6.1-terra",
             constructor_name: gpt_6_1_terra,
             display_name: "GPT-6.1 Terra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62Astra {
+            model_name: "gpt-6.2-astra",
+            constructor_name: gpt_6_2_astra,
+            display_name: "GPT-6.2 Astra",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62Sol {
+            model_name: "gpt-6.2-sol",
+            constructor_name: gpt_6_2_sol,
+            display_name: "GPT-6.2 Sol",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GptOss120b {
@@ -597,6 +615,12 @@ model_capabilities! {
             constructor_name: mixtral_8x7b_instruct_v0_1,
             display_name: "Mixtral 8x7B Instruct v0.1",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
+        Nemotron35SuperVl {
+            model_name: "nemotron-3.5-super-vl",
+            constructor_name: nemotron_3_5_super_vl,
+            display_name: "Nemotron 3.5 Super VL 120B A12B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         NemotronNanoV212b {
             model_name: "nemotron-nano-v2-12b",

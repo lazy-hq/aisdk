@@ -1288,6 +1288,12 @@ model_capabilities! {
             display_name: "Mixtral 8x22B Instruct",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MistralaiPixtralLarge2502 {
+            model_name: "mistralai/pixtral-large-2502",
+            constructor_name: mistralai_pixtral_large_2502,
+            display_name: "Pixtral Large (25.02)",
+            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
         MistralaiVoxtralSmall24b2507 {
             model_name: "mistralai/voxtral-small-24b-2507",
             constructor_name: mistralai_voxtral_small_24b_2507,
@@ -2392,6 +2398,12 @@ model_capabilities! {
             display_name: "QwQ 32B (free)",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        RadixarkDaisyrose27b {
+            model_name: "radixark/daisyrose-27b",
+            constructor_name: radixark_daisyrose_27b,
+            display_name: "DaisyRose 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         RecursiveFlintV10Free {
             model_name: "recursive/flint-v1.0:free",
             constructor_name: recursive_flint_v1_0_free,
@@ -2607,6 +2619,12 @@ model_capabilities! {
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Mini {
+            model_name: "thinkingmachines/inkling-2-mini",
+            constructor_name: thinkingmachines_inkling_2_mini,
+            display_name: "Inkling 2 Mini",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInkling2Small {
             model_name: "thinkingmachines/inkling-2-small",
