@@ -460,6 +460,12 @@ model_capabilities! {
             display_name: "Hy3",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        TencentHy4 {
+            model_name: "tencent/Hy4",
+            constructor_name: tencent_hy4,
+            display_name: "Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TencentHy4Flash {
             model_name: "tencent/Hy4-flash",
             constructor_name: tencent_hy4_flash,

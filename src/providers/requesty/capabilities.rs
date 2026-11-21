@@ -454,6 +454,24 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen (US)",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Gemini4Neon {
+            model_name: "gemini-4-neon",
+            constructor_name: gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Gemini4NeonEu {
+            model_name: "gemini-4-neon@eu",
+            constructor_name: gemini_4_neon_eu,
+            display_name: "Gemini 4 Neon (EU)",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Gemini4NeonUs {
+            model_name: "gemini-4-neon@us",
+            constructor_name: gemini_4_neon_us,
+            display_name: "Gemini 4 Neon (US)",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Gemma426bA4bIt {
             model_name: "gemma-4-26b-a4b-it",
             constructor_name: gemma_4_26b_a4b_it,
