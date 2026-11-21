@@ -17,6 +17,8 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+## [0.6.11] - 2026-11-21
+
 ### Changed
 
 - Updated model capabilities from models.dev: 17 new models and 0 capability updates across 5 providers.
@@ -224,7 +226,8 @@ Changelog entries are grouped by type, with the following types:
 - Rebranded to aisdk
 
 <!-- next-url -->
-[Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.6.10...HEAD
+[Unreleased]: https://github.com/lazy-hq/aisdk/compare/v0.6.11...HEAD
+[0.6.11]: https://github.com/lazy-hq/aisdk/compare/v0.6.10...v0.6.11
 [0.6.10]: https://github.com/lazy-hq/aisdk/compare/v0.6.9...v0.6.10
 [0.6.9]: https://github.com/lazy-hq/aisdk/compare/v0.6.8...v0.6.9
 [0.6.8]: https://github.com/lazy-hq/aisdk/compare/v0.6.7...v0.6.8
