@@ -218,7 +218,7 @@ model_capabilities! {
             model_name: "alibaba/qwen4-max",
             constructor_name: alibaba_qwen4_max,
             display_name: "Qwen 4 Max",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AlibabaWanV25T2vPreview {
             model_name: "alibaba/wan-v2.5-t2v-preview",
@@ -1022,19 +1022,19 @@ model_capabilities! {
             model_name: "google/gemini-4-carbon",
             constructor_name: google_gemini_4_carbon,
             display_name: "Gemini 4 Carbon",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGemini4Hydrogen {
             model_name: "google/gemini-4-hydrogen",
             constructor_name: google_gemini_4_hydrogen,
             display_name: "Gemini 4 Hydrogen",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGemini4Neon {
             model_name: "google/gemini-4-neon",
             constructor_name: google_gemini_4_neon,
             display_name: "Gemini 4 Neon",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GoogleGeminiEmbedding001 {
             model_name: "google/gemini-embedding-001",
@@ -2162,13 +2162,13 @@ model_capabilities! {
             model_name: "openai/gpt-6.1-terra",
             constructor_name: openai_gpt_6_1_terra,
             display_name: "GPT-6.1 Terra",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt61TerraFast {
             model_name: "openai/gpt-6.1-terra-fast",
             constructor_name: openai_gpt_6_1_terra_fast,
             display_name: "GPT-6.1 Terra (Fast)",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OpenaiGpt62Astra {
             model_name: "openai/gpt-6.2-astra",

@@ -68,7 +68,7 @@ model_capabilities! {
             model_name: "magistral-medium-latest",
             constructor_name: magistral_medium_latest,
             display_name: "Magistral Medium",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MagistralSmall {
             model_name: "magistral-small",
@@ -80,6 +80,12 @@ model_capabilities! {
             model_name: "ministral-14b-2512",
             constructor_name: ministral_14b_2512,
             display_name: "Ministral 3 14B",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Ministral14bLatest {
+            model_name: "ministral-14b-latest",
+            constructor_name: ministral_14b_latest,
+            display_name: "Ministral 3 14B (latest)",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Ministral3b2512 {

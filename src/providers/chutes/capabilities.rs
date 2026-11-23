@@ -190,6 +190,12 @@ model_capabilities! {
             display_name: "Qwen3Guard Gen 0.6B",
             capabilities: [TextInputSupport, TextOutputSupport]
         },
+        QwenQwen4Max {
+            model_name: "Qwen/Qwen4-Max",
+            constructor_name: qwen_qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         XiaomimimoMimoV2Flash {
             model_name: "XiaomiMiMo/MiMo-V2-Flash",
             constructor_name: xiaomimimo_mimo_v2_flash,

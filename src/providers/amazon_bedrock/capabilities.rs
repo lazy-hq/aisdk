@@ -1306,6 +1306,12 @@ model_capabilities! {
             display_name: "GLM-5.3 (US)",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        WriterPalmyraVision7b {
+            model_name: "writer.palmyra-vision-7b",
+            constructor_name: writer_palmyra_vision_7b,
+            display_name: "Palmyra Vision 7B",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         XaiGrok43 {
             model_name: "xai.grok-4.3",
             constructor_name: xai_grok_4_3,

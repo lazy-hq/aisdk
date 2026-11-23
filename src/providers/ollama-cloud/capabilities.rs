@@ -154,6 +154,12 @@ model_capabilities! {
             display_name: "gpt-oss:20b",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Hy4 {
+            model_name: "hy4",
+            constructor_name: hy4,
+            display_name: "hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Inkling2Small {
             model_name: "inkling-2-small",
             constructor_name: inkling_2_small,

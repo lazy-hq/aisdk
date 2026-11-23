@@ -1604,7 +1604,7 @@ model_capabilities! {
             model_name: "google/gemini-3.5-flash-thinking",
             constructor_name: google_gemini_3_5_flash_thinking,
             display_name: "Gemini 3.5 Flash Thinking",
-            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         GoogleGemini36Flash {
             model_name: "google/gemini-3.6-flash",
@@ -2931,6 +2931,12 @@ model_capabilities! {
             constructor_name: pamanseau_openreasoning_nemotron_32b,
             display_name: "OpenReasoning Nemotron 32B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport]
+        },
+        PaperinstrumentsUltramarine1Flash {
+            model_name: "paperinstruments/ultramarine-1-flash",
+            constructor_name: paperinstruments_ultramarine_1_flash,
+            display_name: "Ultramarine 1 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ParticleAiParticle1 {
             model_name: "particle-ai/particle-1",
