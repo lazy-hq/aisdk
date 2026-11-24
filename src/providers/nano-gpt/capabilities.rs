@@ -944,7 +944,7 @@ model_capabilities! {
             model_name: "bytedance-seed/seed-2.0-lite",
             constructor_name: bytedance_seed_seed_2_0_lite,
             display_name: "ByteDance Seed 2.0 Lite",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, VideoInputSupport]
         },
         BytedanceDoubaoSeed21Pro {
             model_name: "bytedance/doubao-seed-2.1-pro",
@@ -2866,10 +2866,28 @@ model_capabilities! {
             display_name: "OrcaCyber Hy4",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        OrcaOrcacyberHy4Flash {
+            model_name: "orca/orcacyber-hy4-flash",
+            constructor_name: orca_orcacyber_hy4_flash,
+            display_name: "OrcaCyber Hy4 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberInkling2Mini {
+            model_name: "orca/orcacyber-inkling-2-mini",
+            constructor_name: orca_orcacyber_inkling_2_mini,
+            display_name: "OrcaCyber Inkling 2 Mini",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OrcaOrcacyberK31Pro {
             model_name: "orca/orcacyber-k3.1-pro",
             constructor_name: orca_orcacyber_k3_1_pro,
             display_name: "OrcaCyber K3.1 Pro Uncensored",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberLing32Flash {
+            model_name: "orca/orcacyber-ling-3.2-flash",
+            constructor_name: orca_orcacyber_ling_3_2_flash,
+            display_name: "OrcaCyber Ling 3.2 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OrcaOrcacyberMimoFlash {
@@ -2888,6 +2906,12 @@ model_capabilities! {
             model_name: "orca/orcacyber-qwen3.8-flash-next",
             constructor_name: orca_orcacyber_qwen3_8_flash_next,
             display_name: "OrcaCyber Qwen3.8 Flash Next Uncensored",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OrcaOrcacyberStep5Preview {
+            model_name: "orca/orcacyber-step-5-preview",
+            constructor_name: orca_orcacyber_step_5_preview,
+            display_name: "OrcaCyber Step 5 Preview",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         OrcaOrcacyberUltra10 {

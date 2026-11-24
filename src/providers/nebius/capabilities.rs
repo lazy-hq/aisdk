@@ -112,6 +112,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekAiDeepseekV41Flash1017Fast {
+            model_name: "deepseek-ai/DeepSeek-V4.1-Flash-1017-fast",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash_1017_fast,
+            display_name: "DeepSeek V4.1 Flash 1017 (fast)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekAiDeepseekR10528 {
             model_name: "deepseek-ai/deepseek-r1-0528",
             constructor_name: deepseek_ai_deepseek_r1_0528,

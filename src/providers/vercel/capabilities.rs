@@ -290,19 +290,19 @@ model_capabilities! {
             model_name: "amazon/nova-lite",
             constructor_name: amazon_nova_lite,
             display_name: "Nova Lite",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         AmazonNovaMicro {
             model_name: "amazon/nova-micro",
             constructor_name: amazon_nova_micro,
             display_name: "Nova Micro",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AmazonNovaPro {
             model_name: "amazon/nova-pro",
             constructor_name: amazon_nova_pro,
             display_name: "Nova Pro",
-            capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         AmazonTitanEmbedTextV2 {
             model_name: "amazon/titan-embed-text-v2",
@@ -938,7 +938,7 @@ model_capabilities! {
             model_name: "google/gemini-3.1-flash-lite-image",
             constructor_name: google_gemini_3_1_flash_lite_image,
             display_name: "Gemini 3.1 Flash Lite Image (Nano Banana 2 Lite)",
-            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, VideoInputSupport]
         },
         GoogleGemini31ProPreview {
             model_name: "google/gemini-3.1-pro-preview",
@@ -1748,13 +1748,13 @@ model_capabilities! {
             model_name: "morph/morph-v3-fast",
             constructor_name: morph_morph_v3_fast,
             display_name: "Morph v3 Fast",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         MorphMorphV3Large {
             model_name: "morph/morph-v3-large",
             constructor_name: morph_morph_v3_large,
             display_name: "Morph v3 Large",
-            capabilities: [TextInputSupport, TextOutputSupport]
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         NvidiaNemotron3Nano30bA3b {
             model_name: "nvidia/nemotron-3-nano-30b-a3b",

@@ -10,6 +10,18 @@ use crate::providers::huggingface::Huggingface;
 model_capabilities! {
     provider: Huggingface,
     models: {
+        CoherelabsCommandAPlus052026Bf16 {
+            model_name: "CohereLabs/command-a-plus-05-2026-bf16",
+            constructor_name: coherelabs_command_a_plus_05_2026_bf16,
+            display_name: "Command A Plus",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        GrypheMythomaxL213b {
+            model_name: "Gryphe/MythoMax-L2-13b",
+            constructor_name: gryphe_mythomax_l2_13b,
+            display_name: "MythoMax L2 13B",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         MinimaxaiMinimaxM180k {
             model_name: "MiniMaxAI/MiniMax-M1-80k",
             constructor_name: minimaxai_minimax_m1_80k,
@@ -51,6 +63,12 @@ model_capabilities! {
             constructor_name: minimaxai_minimax_m3_1_flash,
             display_name: "MiniMax-M3.1-Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NousresearchHermes3Llama3170b {
+            model_name: "NousResearch/Hermes-3-Llama-3.1-70B",
+            constructor_name: nousresearch_hermes_3_llama_3_1_70b,
+            display_name: "Hermes 3 70B Instruct",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen25Coder32bInstruct {
             model_name: "Qwen/Qwen2.5-Coder-32B-Instruct",
@@ -214,6 +232,18 @@ model_capabilities! {
             display_name: "Qwen3.8 27B",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen38FlashNextFp8 {
+            model_name: "Qwen/Qwen3.8-Flash-Next-FP8",
+            constructor_name: qwen_qwen3_8_flash_next_fp8,
+            display_name: "Qwen3.8 Flash Next",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Undi95RemmSlerpL213b {
+            model_name: "Undi95/ReMM-SLERP-L2-13B",
+            constructor_name: undi95_remm_slerp_l2_13b,
+            display_name: "ReMM SLERP 13B",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         XiaomimimoMimoV2Flash {
             model_name: "XiaomiMiMo/MiMo-V2-Flash",
             constructor_name: xiaomimimo_mimo_v2_flash,
@@ -231,6 +261,24 @@ model_capabilities! {
             constructor_name: xiaomimimo_mimo_v2_5_pro,
             display_name: "MiMo-V2.5-Pro",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AisingaporeGemmaSeaLionV427bIt {
+            model_name: "aisingapore/Gemma-SEA-LION-v4-27B-IT",
+            constructor_name: aisingapore_gemma_sea_lion_v4_27b_it,
+            display_name: "Gemma-SEA-LION-v4-27B-IT",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
+        AlpindaleWizardlm28x22b {
+            model_name: "alpindale/WizardLM-2-8x22B",
+            constructor_name: alpindale_wizardlm_2_8x22b,
+            display_name: "WizardLM 2 8x22B",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        AnthraciteOrgMagnumV472b {
+            model_name: "anthracite-org/magnum-v4-72b",
+            constructor_name: anthracite_org_magnum_v4_72b,
+            display_name: "Magnum v4 72B",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         DeepseekAiDeepseekR1 {
             model_name: "deepseek-ai/DeepSeek-R1",
@@ -310,6 +358,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DphnDolphinMistral24bVeniceEdition {
+            model_name: "dphn/Dolphin-Mistral-24B-Venice-Edition",
+            constructor_name: dphn_dolphin_mistral_24b_venice_edition,
+            display_name: "Uncensored",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
         GoogleGemma227bIt {
             model_name: "google/gemma-2-27b-it",
             constructor_name: google_gemma_2_27b_it,
@@ -346,6 +400,36 @@ model_capabilities! {
             display_name: "Gemma 4 31B IT",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        IbmGraniteGranite428b {
+            model_name: "ibm-granite/granite-4.2-8b",
+            constructor_name: ibm_granite_granite_4_2_8b,
+            display_name: "Granite 4.2 8B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLing30Flash {
+            model_name: "inclusionAI/Ling-3.0-flash",
+            constructor_name: inclusionai_ling_3_0_flash,
+            display_name: "Ling 3.0 Flash",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLing30FlashFin {
+            model_name: "inclusionAI/Ling-3.0-flash-Fin",
+            constructor_name: inclusionai_ling_3_0_flash_fin,
+            display_name: "Ling 3.0 Flash Fin",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLing30FlashVl {
+            model_name: "inclusionAI/Ling-3.0-flash-VL",
+            constructor_name: inclusionai_ling_3_0_flash_vl,
+            display_name: "Ling 3.0 Flash VL",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLing31Flash {
+            model_name: "inclusionAI/Ling-3.1-flash",
+            constructor_name: inclusionai_ling_3_1_flash,
+            display_name: "Ling 3.1 Flash",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MetaLlamaLlama3170bInstruct {
             model_name: "meta-llama/Llama-3.1-70B-Instruct",
             constructor_name: meta_llama_llama_3_1_70b_instruct,
@@ -376,11 +460,41 @@ model_capabilities! {
             display_name: "Llama-3.3-70B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MetaLlamaLlama4Maverick17b128eInstruct {
+            model_name: "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+            constructor_name: meta_llama_llama_4_maverick_17b_128e_instruct,
+            display_name: "Llama 4 Maverick 17B Instruct",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaLlamaLlama4Scout17b16eInstruct {
+            model_name: "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+            constructor_name: meta_llama_llama_4_scout_17b_16e_instruct,
+            display_name: "Llama 4 Scout 17B Instruct",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MetaLlamaLlamaGuard412b {
             model_name: "meta-llama/Llama-Guard-4-12B",
             constructor_name: meta_llama_llama_guard_4_12b,
             display_name: "Llama Guard 4 12B",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport]
+        },
+        MetaModelsMuseGlimmer30b {
+            model_name: "meta-models/Muse-Glimmer-30B",
+            constructor_name: meta_models_muse_glimmer_30b,
+            display_name: "Muse Glimmer 30B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaModelsMuseSparkOpen816bA42b {
+            model_name: "meta-models/Muse-Spark-Open-816B-A42B",
+            constructor_name: meta_models_muse_spark_open_816b_a42b,
+            display_name: "Muse Spark Open",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MistralaiMistralLarge41tA52b {
+            model_name: "mistralai/Mistral-Large-4-1T-A52B",
+            constructor_name: mistralai_mistral_large_4_1t_a52b,
+            display_name: "Mistral Large 4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MoonshotaiKimiK2Instruct {
             model_name: "moonshotai/Kimi-K2-Instruct",
@@ -430,6 +544,42 @@ model_capabilities! {
             display_name: "Kimi K3.1 Pro",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        NvidiaNvidiaNemotron3Nano30bA3bBf16 {
+            model_name: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+            constructor_name: nvidia_nvidia_nemotron_3_nano_30b_a3b_bf16,
+            display_name: "Nemotron 3 Nano 30B A3B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NvidiaNvidiaNemotron3Super120bA12bFp8 {
+            model_name: "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
+            constructor_name: nvidia_nvidia_nemotron_3_super_120b_a12b_fp8,
+            display_name: "Nemotron 3 Super 120B A12B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NvidiaNvidiaNemotron3Ultra550bA55bBf16 {
+            model_name: "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16",
+            constructor_name: nvidia_nvidia_nemotron_3_ultra_550b_a55b_bf16,
+            display_name: "Nemotron 3 Ultra 550B A55B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NvidiaNvidiaNemotron35Lightning30bA3bBf16 {
+            model_name: "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+            constructor_name: nvidia_nvidia_nemotron_3_5_lightning_30b_a3b_bf16,
+            display_name: "Nemotron 3.5 Lightning 30B A3B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NvidiaNvidiaNemotron35SuperVl120bA12bBf16 {
+            model_name: "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16",
+            constructor_name: nvidia_nvidia_nemotron_3_5_super_vl_120b_a12b_bf16,
+            display_name: "Nemotron 3.5 Super VL 120B A12B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        NvidiaNvidiaNemotron35SuperVl120bA12bNvfp4 {
+            model_name: "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4",
+            constructor_name: nvidia_nvidia_nemotron_3_5_super_vl_120b_a12b_nvfp4,
+            display_name: "Nemotron 3.5 Super VL 120B A12B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptOss120b {
             model_name: "openai/gpt-oss-120b",
             constructor_name: openai_gpt_oss_120b,
@@ -440,6 +590,18 @@ model_capabilities! {
             model_name: "openai/gpt-oss-20b",
             constructor_name: openai_gpt_oss_20b,
             display_name: "GPT OSS 20B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OpenaiGptOssSafeguard20b {
+            model_name: "openai/gpt-oss-safeguard-20b",
+            constructor_name: openai_gpt_oss_safeguard_20b,
+            display_name: "GPT OSS Safeguard 20B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ReflectionBeam10501bA23b {
+            model_name: "reflection/Beam-1.0-501B-A23B",
+            constructor_name: reflection_beam_1_0_501b_a23b,
+            display_name: "Beam 1.0 501B A23B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         StepfunAiStep35Flash {
@@ -482,6 +644,12 @@ model_capabilities! {
             model_name: "thinkingmachines/Inkling",
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Mini {
+            model_name: "thinkingmachines/Inkling-2-Mini",
+            constructor_name: thinkingmachines_inkling_2_mini,
+            display_name: "Inkling 2 Mini",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInkling2Small {

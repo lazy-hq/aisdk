@@ -1262,7 +1262,7 @@ model_capabilities! {
             model_name: "seed-2.0-mini",
             constructor_name: seed_2_0_mini,
             display_name: "Seed 2.0 Mini",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Seed20Pro {
             model_name: "seed-2.0-pro",

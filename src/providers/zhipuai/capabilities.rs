@@ -106,6 +106,12 @@ model_capabilities! {
             display_name: "GLM-5.3-FlashX",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Glm53FlashxLegal {
+            model_name: "glm-5.3-flashx-legal",
+            constructor_name: glm_5_3_flashx_legal,
+            display_name: "GLM-5.3-FlashX-Legal",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Glm5vTurbo {
             model_name: "glm-5v-turbo",
             constructor_name: glm_5v_turbo,
