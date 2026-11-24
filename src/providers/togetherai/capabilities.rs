@@ -16,6 +16,12 @@ model_capabilities! {
             display_name: "MiniMax-M3",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        MinimaxaiMinimaxM31Flash {
+            model_name: "MiniMaxAI/MiniMax-M3.1-Flash",
+            constructor_name: minimaxai_minimax_m3_1_flash,
+            display_name: "MiniMax-M3.1-Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         QwenQwen3Coder480bA35bInstructFp8 {
             model_name: "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
             constructor_name: qwen_qwen3_coder_480b_a35b_instruct_fp8,
@@ -39,6 +45,12 @@ model_capabilities! {
             constructor_name: qwen_qwen3_7_max,
             display_name: "Qwen3.7 Max",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen4Max {
+            model_name: "Qwen/Qwen4-Max",
+            constructor_name: qwen_qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         DeepseekAiDeepseekR1 {
             model_name: "deepseek-ai/DeepSeek-R1",
@@ -70,6 +82,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekAiDeepseekV41Flash1017 {
+            model_name: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash_1017,
+            display_name: "DeepSeek V4.1 Flash 1017",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         EssentialaiRnj1Instruct {
             model_name: "essentialai/Rnj-1-Instruct",
             constructor_name: essentialai_rnj_1_instruct,
@@ -81,6 +99,12 @@ model_capabilities! {
             constructor_name: meta_llama_llama_3_3_70b_instruct_turbo,
             display_name: "Llama 3.3 70B",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        MetaModelsMuseGlimmer30b {
+            model_name: "meta-models/Muse-Glimmer-30B",
+            constructor_name: meta_models_muse_glimmer_30b,
+            display_name: "Muse Glimmer 30B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MetaModelsMuseSparkOpen816bA42b {
             model_name: "meta-models/Muse-Spark-Open-816B-A42B",
@@ -130,11 +154,23 @@ model_capabilities! {
             display_name: "Beam 1.0 501B A23B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        TencentHy4 {
+            model_name: "tencent/Hy4",
+            constructor_name: tencent_hy4,
+            display_name: "Hy4",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ThinkingmachinesInkling {
             model_name: "thinkingmachines/Inkling",
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Small {
+            model_name: "thinkingmachines/Inkling-2-Small",
+            constructor_name: thinkingmachines_inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm46 {
             model_name: "zai-org/GLM-4.6",

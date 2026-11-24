@@ -278,7 +278,7 @@ model_capabilities! {
             model_name: "google/gemini-4-hydrogen",
             constructor_name: google_gemini_4_hydrogen,
             display_name: "Gemini 4 Hydrogen",
-            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MetaMuseEmber10 {
             model_name: "meta/muse-ember-1.0",
@@ -290,7 +290,7 @@ model_capabilities! {
             model_name: "meta/muse-spark-1.1",
             constructor_name: meta_muse_spark_1_1,
             display_name: "Muse Spark 1.1",
-            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MetaMuseSpark12 {
             model_name: "meta/muse-spark-1.2",

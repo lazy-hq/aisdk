@@ -472,6 +472,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DotsStudioDots3NotePreviewFree {
+            model_name: "dots-studio/dots-3-note-preview:free",
+            constructor_name: dots_studio_dots_3_note_preview_free,
+            display_name: "Dots3-Note Preview (free)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ElorianGlimpse {
             model_name: "elorian/glimpse",
             constructor_name: elorian_glimpse,
@@ -1028,7 +1034,7 @@ model_capabilities! {
             model_name: "meta/muse-spark-1.1",
             constructor_name: meta_muse_spark_1_1,
             display_name: "Muse Spark 1.1",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         MetaMuseSpark12 {
             model_name: "meta/muse-spark-1.2",
