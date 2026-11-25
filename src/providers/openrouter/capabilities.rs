@@ -2692,10 +2692,22 @@ model_capabilities! {
             display_name: "ReMM SLERP 13B",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
+        UpstageSolarMini45 {
+            model_name: "upstage/solar-mini-4-5",
+            constructor_name: upstage_solar_mini_4_5,
+            display_name: "Solar Mini 4.5 (Preview)",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         UpstageSolarMini4 {
             model_name: "upstage/solar-mini4",
             constructor_name: upstage_solar_mini4,
             display_name: "Solar Mini 4",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        UpstageSolarPro4Contributor {
+            model_name: "upstage/solar-pro-4-contributor",
+            constructor_name: upstage_solar_pro_4_contributor,
+            display_name: "Solar Pro 4 Contributor",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         UpstageSolarPro4 {
@@ -2804,6 +2816,12 @@ model_capabilities! {
             model_name: "xiaomi/mimo-v2.6-flash",
             constructor_name: xiaomi_mimo_v2_6_flash,
             display_name: "MiMo-V2.6-Flash",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        XiaomiMimoV26FlashMopd {
+            model_name: "xiaomi/mimo-v2.6-flash-mopd",
+            constructor_name: xiaomi_mimo_v2_6_flash_mopd,
+            display_name: "MiMo-V2.6-Flash-MOPD",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         XiaomiMimoV26Pro {

@@ -16,6 +16,18 @@ model_capabilities! {
             display_name: "DeepSeek-R1-Distill-Llama-70B",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekV41Flash1017 {
+            model_name: "deepseek-v4.1-flash-1017",
+            constructor_name: deepseek_v4_1_flash_1017,
+            display_name: "DeepSeek-V4.1-Flash-1017",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gemma426bA4b {
+            model_name: "gemma-4-26b-a4b",
+            constructor_name: gemma_4_26b_a4b,
+            display_name: "gemma-4-26b-a4b",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GptOss120b {
             model_name: "gpt-oss-120b",
             constructor_name: gpt_oss_120b,
@@ -26,6 +38,12 @@ model_capabilities! {
             model_name: "gpt-oss-20b",
             constructor_name: gpt_oss_20b,
             display_name: "gpt-oss-20b",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        LagunaXs21 {
+            model_name: "laguna-xs-2.1",
+            constructor_name: laguna_xs_2_1,
+            display_name: "laguna-xs-2.1",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Llama318bInstruct {
@@ -64,6 +82,24 @@ model_capabilities! {
             display_name: "Mixtral-8x7B-Instruct-v0.1",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
+        Nemotron3Nano30b {
+            model_name: "nemotron3-nano-30b",
+            constructor_name: nemotron3_nano_30b,
+            display_name: "nemotron3-nano-30b",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Nemotron3Omni30b {
+            model_name: "nemotron3-omni-30b",
+            constructor_name: nemotron3_omni_30b,
+            display_name: "nemotron3-omni-30b",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        OlalaV10Translate {
+            model_name: "olala-v1.0-translate",
+            constructor_name: olala_v1_0_translate,
+            display_name: "Olala-v1.0-translate",
+            capabilities: [TextInputSupport, TextOutputSupport]
+        },
         Qwen25Coder32bInstruct {
             model_name: "qwen2.5-coder-32b-instruct",
             constructor_name: qwen2_5_coder_32b_instruct,
@@ -88,6 +124,12 @@ model_capabilities! {
             display_name: "Qwen3-Coder-30B-A3B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Qwen3Vl30bA3b {
+            model_name: "qwen3-vl-30b-a3b",
+            constructor_name: qwen3_vl_30b_a3b,
+            display_name: "qwen3-vl-30b-a3b",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Qwen35397bA17b {
             model_name: "qwen3.5-397b-a17b",
             constructor_name: qwen3_5_397b_a17b,
@@ -105,6 +147,12 @@ model_capabilities! {
             constructor_name: qwen3_6_27b,
             display_name: "Qwen3.6-27B",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Qwen3635bA3b {
+            model_name: "qwen3.6-35b-a3b",
+            constructor_name: qwen3_6_35b_a3b,
+            display_name: "qwen3.6-35b-a3b",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Qwen3827b {
             model_name: "qwen3.8-27b",

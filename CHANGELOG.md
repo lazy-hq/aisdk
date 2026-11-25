@@ -17,6 +17,10 @@ Changelog entries are grouped by type, with the following types:
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- Updated model capabilities from models.dev: 53 new models and 18 capability updates across 11 providers.
+
 ## [0.6.13] - 2026-11-24
 
 ### Changed

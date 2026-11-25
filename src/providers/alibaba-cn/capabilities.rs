@@ -88,6 +88,18 @@ model_capabilities! {
             display_name: "DeepSeek V3.2 Exp",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        DeepseekV32 {
+            model_name: "deepseek-v3.2",
+            constructor_name: deepseek_v3_2,
+            display_name: "DeepSeek V3.2",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        DeepseekV4Flash0731 {
+            model_name: "deepseek-v4-flash-0731",
+            constructor_name: deepseek_v4_flash_0731,
+            display_name: "DeepSeek V4 Flash 0731",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepseekV4Pro {
             model_name: "deepseek-v4-pro",
             constructor_name: deepseek_v4_pro,
@@ -124,6 +136,12 @@ model_capabilities! {
             display_name: "GLM-5.3",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Glm53Prime {
+            model_name: "glm-5.3-prime",
+            constructor_name: glm_5_3_prime,
+            display_name: "GLM-5.3 Prime",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         KimiK2Thinking {
             model_name: "kimi-k2-thinking",
             constructor_name: kimi_k2_thinking,
@@ -146,6 +164,18 @@ model_capabilities! {
             model_name: "kimi-k3",
             constructor_name: kimi_k3,
             display_name: "Kimi K3",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KimiK31Pro {
+            model_name: "kimi-k3.1-pro",
+            constructor_name: kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KimiK31ProPrime {
+            model_name: "kimi-k3.1-pro-prime",
+            constructor_name: kimi_k3_1_pro_prime,
+            display_name: "Kimi K3.1 Pro Prime",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         KimiKimiK25 {
@@ -436,6 +466,24 @@ model_capabilities! {
             display_name: "Qwen3-VL Plus",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        Qwen35122bA10b {
+            model_name: "qwen3.5-122b-a10b",
+            constructor_name: qwen3_5_122b_a10b,
+            display_name: "Qwen3.5 122B-A10B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen3527b {
+            model_name: "qwen3.5-27b",
+            constructor_name: qwen3_5_27b,
+            display_name: "Qwen3.5 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen3535bA3b {
+            model_name: "qwen3.5-35b-a3b",
+            constructor_name: qwen3_5_35b_a3b,
+            display_name: "Qwen3.5 35B-A3B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         Qwen35397bA17b {
             model_name: "qwen3.5-397b-a17b",
             constructor_name: qwen3_5_397b_a17b,
@@ -452,6 +500,18 @@ model_capabilities! {
             model_name: "qwen3.5-plus",
             constructor_name: qwen3_5_plus,
             display_name: "Qwen3.5 Plus",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen3627b {
+            model_name: "qwen3.6-27b",
+            constructor_name: qwen3_6_27b,
+            display_name: "Qwen3.6 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen3635bA3b {
+            model_name: "qwen3.6-35b-a3b",
+            constructor_name: qwen3_6_35b_a3b,
+            display_name: "Qwen3.6 35B-A3B",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Qwen36Flash {
@@ -501,6 +561,12 @@ model_capabilities! {
             constructor_name: qwen3_8_omni_flash,
             display_name: "Qwen3.8 Omni Flash",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen4Max {
+            model_name: "qwen4-max",
+            constructor_name: qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Qwq32b {
             model_name: "qwq-32b",

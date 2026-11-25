@@ -106,6 +106,12 @@ model_capabilities! {
             display_name: "GPT OSS 20B",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksModelsHy4Flash {
+            model_name: "accounts/fireworks/models/hy4-flash",
+            constructor_name: accounts_fireworks_models_hy4_flash,
+            display_name: "Hy4 flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ModelsKimiK2Instruct {
             model_name: "accounts/fireworks/models/kimi-k2-instruct",
             constructor_name: models_kimi_k2_instruct,
@@ -196,10 +202,28 @@ model_capabilities! {
             display_name: "Qwen3.8 Max",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksModelsQwen4Max {
+            model_name: "accounts/fireworks/models/qwen4-max",
+            constructor_name: accounts_fireworks_models_qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksModelsUltramarine1FlashUs {
+            model_name: "accounts/fireworks/models/ultramarine-1-flash-us",
+            constructor_name: accounts_fireworks_models_ultramarine_1_flash_us,
+            display_name: "Ultramarine 1 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AccountsFireworksRoutersDeepseekFlashLatest {
             model_name: "accounts/fireworks/routers/deepseek-flash-latest",
             constructor_name: accounts_fireworks_routers_deepseek_flash_latest,
             display_name: "DeepSeek Flash Latest",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersDeepseekV4p1Flash1017Flex {
+            model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-1017-flex",
+            constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_1017_flex,
+            display_name: "DeepSeek V4.1 Flash 1017 Flex",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersDeepseekV4p1Flash1017Spot {
@@ -214,10 +238,22 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash 1017 Ultra-fast",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksRoutersDeepseekV4p1Flash1017Us {
+            model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-1017-us",
+            constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_1017_us,
+            display_name: "DeepSeek V4.1 Flash 1017 (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AccountsFireworksRoutersDeepseekV4p1FlashSpot {
             model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-spot",
             constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_spot,
             display_name: "DeepSeek V4.1 Flash Spot",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersDeepseekV4p1FlashUs {
+            model_name: "accounts/fireworks/routers/deepseek-v4p1-flash-us",
+            constructor_name: accounts_fireworks_routers_deepseek_v4p1_flash_us,
+            display_name: "DeepSeek V4.1 Flash (US)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersGlm5p3Fast {
@@ -230,6 +266,12 @@ model_capabilities! {
             model_name: "accounts/fireworks/routers/glm-5p3-spot",
             constructor_name: accounts_fireworks_routers_glm_5p3_spot,
             display_name: "GLM 5.3 Spot",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersGlm5p3Us {
+            model_name: "accounts/fireworks/routers/glm-5p3-us",
+            constructor_name: accounts_fireworks_routers_glm_5p3_us,
+            display_name: "GLM 5.3 (US)",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersGlmFastLatest {
@@ -266,6 +308,18 @@ model_capabilities! {
             model_name: "accounts/fireworks/routers/kimi-k3-spot",
             constructor_name: accounts_fireworks_routers_kimi_k3_spot,
             display_name: "Kimi K3 Spot",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersKimiK3Us {
+            model_name: "accounts/fireworks/routers/kimi-k3-us",
+            constructor_name: accounts_fireworks_routers_kimi_k3_us,
+            display_name: "Kimi K3 (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersKimiK3p1ProUs {
+            model_name: "accounts/fireworks/routers/kimi-k3p1-pro-us",
+            constructor_name: accounts_fireworks_routers_kimi_k3p1_pro_us,
+            display_name: "Kimi K3.1 Pro (US)",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersKimiLatest {
