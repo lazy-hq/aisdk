@@ -58,6 +58,12 @@ model_capabilities! {
             display_name: "DeepSeek V4.1 Flash Fast",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        MetaModelsMuseSparkOpen {
+            model_name: "meta-models/muse-spark-open",
+            constructor_name: meta_models_muse_spark_open,
+            display_name: "Muse Spark Open",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         MoonshotaiKimiK2Instruct0905 {
             model_name: "moonshotai/Kimi-K2-Instruct-0905",
             constructor_name: moonshotai_kimi_k2_instruct_0905,
@@ -94,10 +100,22 @@ model_capabilities! {
             display_name: "Nemotron 3 Ultra",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        NvidiaNvidiaNemotron35SuperVl120bA12b {
+            model_name: "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B",
+            constructor_name: nvidia_nvidia_nemotron_3_5_super_vl_120b_a12b,
+            display_name: "Nemotron 3.5 Super VL",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         OpenaiGptOss120b {
             model_name: "openai/gpt-oss-120b",
             constructor_name: openai_gpt_oss_120b,
             display_name: "OpenAI GPT 120B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ReflectionBeam10 {
+            model_name: "reflection/Beam-1.0",
+            constructor_name: reflection_beam_1_0,
+            display_name: "Beam",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZaiOrgGlm46 {

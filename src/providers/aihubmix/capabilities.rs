@@ -344,7 +344,7 @@ model_capabilities! {
             model_name: "gemini-3.1-flash-lite-image",
             constructor_name: gemini_3_1_flash_lite_image,
             display_name: "Nano Banana 2 Lite",
-            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         Gemini31ProPreview {
             model_name: "gemini-3.1-pro-preview",

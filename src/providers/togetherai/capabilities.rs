@@ -46,6 +46,18 @@ model_capabilities! {
             display_name: "Qwen3.7 Max",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen37Plus {
+            model_name: "Qwen/Qwen3.7-Plus",
+            constructor_name: qwen_qwen3_7_plus,
+            display_name: "Qwen3.7 Plus",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen38Flash {
+            model_name: "Qwen/Qwen3.8-Flash",
+            constructor_name: qwen_qwen3_8_flash,
+            display_name: "Qwen3.8 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         QwenQwen4Max {
             model_name: "Qwen/Qwen4-Max",
             constructor_name: qwen_qwen4_max,
@@ -87,6 +99,18 @@ model_capabilities! {
             constructor_name: deepseek_ai_deepseek_v4_1_flash_1017,
             display_name: "DeepSeek V4.1 Flash 1017",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        DeepseekAiDeepseekV41Flash1017Fast {
+            model_name: "deepseek-ai/DeepSeek-V4.1-Flash-1017-fast",
+            constructor_name: deepseek_ai_deepseek_v4_1_flash_1017_fast,
+            display_name: "DeepSeek V4.1 Flash 1017 Fast",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ElorianLabsGlimpse10 {
+            model_name: "elorian-labs/glimpse-1.0",
+            constructor_name: elorian_labs_glimpse_1_0,
+            display_name: "Glimpse 1.0",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         EssentialaiRnj1Instruct {
             model_name: "essentialai/Rnj-1-Instruct",

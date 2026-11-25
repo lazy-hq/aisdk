@@ -260,13 +260,13 @@ model_capabilities! {
             model_name: "bytedance-seed/seed-2.0-lite",
             constructor_name: bytedance_seed_seed_2_0_lite,
             display_name: "Seed 2.0 Lite",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         BytedanceSeedSeed20Mini {
             model_name: "bytedance-seed/seed-2.0-mini",
             constructor_name: bytedance_seed_seed_2_0_mini,
             display_name: "Seed 2.0 Mini",
-            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         BytedanceSeedSeedream45 {
             model_name: "bytedance-seed/seedream-4.5",
@@ -608,7 +608,7 @@ model_capabilities! {
             model_name: "google/gemini-3.1-flash-lite-image",
             constructor_name: google_gemini_3_1_flash_lite_image,
             display_name: "Nano Banana 2 Lite",
-            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport]
+            capabilities: [ImageInputSupport, ImageOutputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, VideoInputSupport]
         },
         GoogleGemini31FlashLitePreview {
             model_name: "google/gemini-3.1-flash-lite-preview",
@@ -836,7 +836,7 @@ model_capabilities! {
             model_name: "inclusionai/ling-3.0-flash",
             constructor_name: inclusionai_ling_3_0_flash,
             display_name: "Ling 3.0 Flash",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         InclusionaiLing30FlashVl {
             model_name: "inclusionai/ling-3.0-flash-vl",
