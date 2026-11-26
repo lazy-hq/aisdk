@@ -70,6 +70,12 @@ model_capabilities! {
             display_name: "Hermes 3 70B Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        NousresearchHermes4405b {
+            model_name: "NousResearch/Hermes-4-405B",
+            constructor_name: nousresearch_hermes_4_405b,
+            display_name: "Hermes 4 405B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         QwenQwen25Coder32bInstruct {
             model_name: "Qwen/Qwen2.5-Coder-32B-Instruct",
             constructor_name: qwen_qwen2_5_coder_32b_instruct,
@@ -231,6 +237,12 @@ model_capabilities! {
             constructor_name: qwen_qwen3_8_27b,
             display_name: "Qwen3.8 27B",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        QwenQwen38FlashNext {
+            model_name: "Qwen/Qwen3.8-Flash-Next",
+            constructor_name: qwen_qwen3_8_flash_next,
+            display_name: "Qwen3.8 Flash Next",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QwenQwen38FlashNextFp8 {
             model_name: "Qwen/Qwen3.8-Flash-Next-FP8",

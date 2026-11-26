@@ -22,6 +22,12 @@ model_capabilities! {
             display_name: "MiniMax-M3.1-Flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        PrismMlTernaryBonsai27b {
+            model_name: "Prism-ML/Ternary-Bonsai-27B",
+            constructor_name: prism_ml_ternary_bonsai_27b,
+            display_name: "Ternary Bonsai 27B",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         QwenQwen3Coder480bA35bInstructFp8 {
             model_name: "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
             constructor_name: qwen_qwen3_coder_480b_a35b_instruct_fp8,
@@ -176,6 +182,12 @@ model_capabilities! {
             model_name: "reflection/Beam-1.0-501B-A23B",
             constructor_name: reflection_beam_1_0_501b_a23b,
             display_name: "Beam 1.0 501B A23B",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        RicursiveAiRipple65bPreview {
+            model_name: "ricursive-ai/Ripple-65B-Preview",
+            constructor_name: ricursive_ai_ripple_65b_preview,
+            display_name: "Ripple 65B Preview",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         TencentHy4 {

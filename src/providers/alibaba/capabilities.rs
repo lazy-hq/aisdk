@@ -22,10 +22,28 @@ model_capabilities! {
             display_name: "GLM-5.2",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Glm53Prime {
+            model_name: "glm-5.3-prime",
+            constructor_name: glm_5_3_prime,
+            display_name: "GLM-5.3 Prime",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         KimiK3 {
             model_name: "kimi-k3",
             constructor_name: kimi_k3,
             display_name: "Kimi K3",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KimiK31Pro {
+            model_name: "kimi-k3.1-pro",
+            constructor_name: kimi_k3_1_pro,
+            display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        KimiK31ProPrime {
+            model_name: "kimi-k3.1-pro-prime",
+            constructor_name: kimi_k3_1_pro_prime,
+            display_name: "Kimi K3.1 Pro Prime",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         QvqMax {
@@ -351,6 +369,12 @@ model_capabilities! {
             constructor_name: qwen3_8_omni_flash,
             display_name: "Qwen3.8 Omni Flash",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        Qwen4Max {
+            model_name: "qwen4-max",
+            constructor_name: qwen4_max,
+            display_name: "Qwen4 Max",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         QwqPlus {
             model_name: "qwq-plus",

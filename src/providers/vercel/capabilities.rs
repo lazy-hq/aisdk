@@ -1036,6 +1036,12 @@ model_capabilities! {
             display_name: "Gemini 4 Neon",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        GoogleGemini4NeonFast {
+            model_name: "google/gemini-4-neon-fast",
+            constructor_name: google_gemini_4_neon_fast,
+            display_name: "Gemini 4 Neon (Fast)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         GoogleGeminiEmbedding001 {
             model_name: "google/gemini-embedding-001",
             constructor_name: google_gemini_embedding_001,
@@ -2720,6 +2726,12 @@ model_capabilities! {
             model_name: "thinkingmachines/inkling",
             constructor_name: thinkingmachines_inkling,
             display_name: "Inkling",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ThinkingmachinesInkling2Mini {
+            model_name: "thinkingmachines/inkling-2-mini",
+            constructor_name: thinkingmachines_inkling_2_mini,
+            display_name: "Inkling 2 Mini",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ThinkingmachinesInkling2Small {

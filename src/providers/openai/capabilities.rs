@@ -244,6 +244,12 @@ model_capabilities! {
             display_name: "GPT-6 Astra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt6AstraHealthcare {
+            model_name: "gpt-6-astra-healthcare",
+            constructor_name: gpt_6_astra_healthcare,
+            display_name: "GPT-6 Astra Healthcare",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt6Luna {
             model_name: "gpt-6-luna",
             constructor_name: gpt_6_luna,
@@ -262,6 +268,12 @@ model_capabilities! {
             display_name: "GPT-6.1 Sol",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt61SolHealthcare {
+            model_name: "gpt-6.1-sol-healthcare",
+            constructor_name: gpt_6_1_sol_healthcare,
+            display_name: "GPT-6.1 Sol Healthcare",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt61Terra {
             model_name: "gpt-6.1-terra",
             constructor_name: gpt_6_1_terra,
@@ -274,10 +286,22 @@ model_capabilities! {
             display_name: "GPT-6.2 Astra",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        Gpt62AstraHealthcare {
+            model_name: "gpt-6.2-astra-healthcare",
+            constructor_name: gpt_6_2_astra_healthcare,
+            display_name: "GPT-6.2 Astra Healthcare",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Gpt62Sol {
             model_name: "gpt-6.2-sol",
             constructor_name: gpt_6_2_sol,
             display_name: "GPT-6.2 Sol",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Gpt62SolHealthcare {
+            model_name: "gpt-6.2-sol-healthcare",
+            constructor_name: gpt_6_2_sol_healthcare,
+            display_name: "GPT-6.2 Sol Healthcare",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         GptDaybreakBlueLatest {

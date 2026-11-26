@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "aisdk"
-version = "0.6.13"
+version = "0.6.14"
 dependencies = [
  "aisdk-macros",
  "async-trait",
