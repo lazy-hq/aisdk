@@ -640,6 +640,12 @@ model_capabilities! {
             display_name: "Qwen3.8 Max",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        SeaglassAlphaFree {
+            model_name: "seaglass-alpha-free",
+            constructor_name: seaglass_alpha_free,
+            display_name: "Seaglass Alpha Free",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TidepoolAlphaFree {
             model_name: "tidepool-alpha-free",
             constructor_name: tidepool_alpha_free,

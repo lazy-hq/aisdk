@@ -776,7 +776,7 @@ model_capabilities! {
             model_name: "grok-4.2-beta",
             constructor_name: grok_4_2_beta,
             display_name: "Grok 4.20 (Reasoning)",
-            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Grok43 {
             model_name: "grok-4.3",

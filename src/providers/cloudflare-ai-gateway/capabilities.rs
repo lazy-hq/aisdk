@@ -280,6 +280,12 @@ model_capabilities! {
             display_name: "Gemini 4 Hydrogen",
             capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        GoogleGemini4Neon {
+            model_name: "google/gemini-4-neon",
+            constructor_name: google_gemini_4_neon,
+            display_name: "Gemini 4 Neon",
+            capabilities: [AudioInputSupport, ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
         MetaMuseEmber10 {
             model_name: "meta/muse-ember-1.0",
             constructor_name: meta_muse_ember_1_0,
@@ -332,6 +338,12 @@ model_capabilities! {
             model_name: "moonshotai/kimi-k3.1-pro",
             constructor_name: moonshotai_kimi_k3_1_pro,
             display_name: "Kimi K3.1 Pro",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
+        },
+        MoonshotaiKimiK31ProHighspeed {
+            model_name: "moonshotai/kimi-k3.1-pro-highspeed",
+            constructor_name: moonshotai_kimi_k3_1_pro_highspeed,
+            display_name: "Kimi K3.1 Pro Highspeed",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
         OpenaiGpt35Turbo {
@@ -543,6 +555,12 @@ model_capabilities! {
             constructor_name: openai_o4_mini,
             display_name: "o4-mini",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        ParticleParticle1 {
+            model_name: "particle/particle-1",
+            constructor_name: particle_particle_1,
+            display_name: "Particle-1",
+            capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ReflectionAiBeam10501bA23b {
             model_name: "reflection-ai/beam-1.0-501b-a23b",

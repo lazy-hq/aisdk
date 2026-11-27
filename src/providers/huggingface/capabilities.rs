@@ -82,6 +82,12 @@ model_capabilities! {
             display_name: "Qwen2.5-Coder-32B-Instruct",
             capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        QwenQwen25Vl72bInstruct {
+            model_name: "Qwen/Qwen2.5-VL-72B-Instruct",
+            constructor_name: qwen_qwen2_5_vl_72b_instruct,
+            display_name: "Qwen2.5-VL 72B Instruct",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         QwenQwen3235bA22b {
             model_name: "Qwen/Qwen3-235B-A22B",
             constructor_name: qwen_qwen3_235b_a22b,
@@ -250,6 +256,18 @@ model_capabilities! {
             display_name: "Qwen3.8 Flash Next",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        RekaaiRekaEdge2603 {
+            model_name: "RekaAI/reka-edge-2603",
+            constructor_name: rekaai_reka_edge_2603,
+            display_name: "Reka Edge",
+            capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        Sao10kL38bLunarisV1 {
+            model_name: "Sao10K/L3-8B-Lunaris-v1",
+            constructor_name: sao10k_l3_8b_lunaris_v1,
+            display_name: "Llama 3 8B Lunaris",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport]
+        },
         Undi95RemmSlerpL213b {
             model_name: "Undi95/ReMM-SLERP-L2-13B",
             constructor_name: undi95_remm_slerp_l2_13b,
@@ -272,6 +290,24 @@ model_capabilities! {
             model_name: "XiaomiMiMo/MiMo-V2.5-Pro",
             constructor_name: xiaomimimo_mimo_v2_5_pro,
             display_name: "MiMo-V2.5-Pro",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        XiaomimimoMimoV26FlashMopd {
+            model_name: "XiaomiMiMo/MiMo-V2.6-Flash-MOPD",
+            constructor_name: xiaomimimo_mimo_v2_6_flash_mopd,
+            display_name: "MiMo-V2.6-Flash-MOPD",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        XiaomimimoMimoV26FlashRl {
+            model_name: "XiaomiMiMo/MiMo-V2.6-Flash-RL",
+            constructor_name: xiaomimimo_mimo_v2_6_flash_rl,
+            display_name: "MiMo-V2.6-Flash",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        XiaomimimoMimoV26ProRl {
+            model_name: "XiaomiMiMo/MiMo-V2.6-Pro-RL",
+            constructor_name: xiaomimimo_mimo_v2_6_pro_rl,
+            display_name: "MiMo-V2.6-Pro",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AisingaporeGemmaSeaLionV427bIt {
@@ -441,6 +477,12 @@ model_capabilities! {
             constructor_name: inclusionai_ling_3_1_flash,
             display_name: "Ling 3.1 Flash",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLingsante31AirVl {
+            model_name: "inclusionAI/LingSante-3.1-air-VL",
+            constructor_name: inclusionai_lingsante_3_1_air_vl,
+            display_name: "LingSante 3.1 Air VL",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         MetaLlamaLlama3170bInstruct {
             model_name: "meta-llama/Llama-3.1-70B-Instruct",
