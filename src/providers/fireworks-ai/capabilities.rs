@@ -112,6 +112,18 @@ model_capabilities! {
             display_name: "Hy4 flash",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksModelsInkling2Mini {
+            model_name: "accounts/fireworks/models/inkling-2-mini",
+            constructor_name: accounts_fireworks_models_inkling_2_mini,
+            display_name: "Inkling 2 Mini",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksModelsInkling2Small {
+            model_name: "accounts/fireworks/models/inkling-2-small",
+            constructor_name: accounts_fireworks_models_inkling_2_small,
+            display_name: "Inkling 2 Small",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ModelsKimiK2Instruct {
             model_name: "accounts/fireworks/models/kimi-k2-instruct",
             constructor_name: models_kimi_k2_instruct,
@@ -262,6 +274,18 @@ model_capabilities! {
             display_name: "GLM 5.3 Fast",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        AccountsFireworksRoutersGlm5p3FlashFlex {
+            model_name: "accounts/fireworks/routers/glm-5p3-flash-flex",
+            constructor_name: accounts_fireworks_routers_glm_5p3_flash_flex,
+            display_name: "GLM 5.3 Flash Flex",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersGlm5p3Flex {
+            model_name: "accounts/fireworks/routers/glm-5p3-flex",
+            constructor_name: accounts_fireworks_routers_glm_5p3_flex,
+            display_name: "GLM 5.3 Flex",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         AccountsFireworksRoutersGlm5p3Spot {
             model_name: "accounts/fireworks/routers/glm-5p3-spot",
             constructor_name: accounts_fireworks_routers_glm_5p3_spot,
@@ -314,6 +338,12 @@ model_capabilities! {
             model_name: "accounts/fireworks/routers/kimi-k3-us",
             constructor_name: accounts_fireworks_routers_kimi_k3_us,
             display_name: "Kimi K3 (US)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        AccountsFireworksRoutersKimiK3p1ProUltrafast {
+            model_name: "accounts/fireworks/routers/kimi-k3p1-pro-ultrafast",
+            constructor_name: accounts_fireworks_routers_kimi_k3p1_pro_ultrafast,
+            display_name: "Kimi K3.1 Pro Ultra-fast",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         AccountsFireworksRoutersKimiK3p1ProUs {

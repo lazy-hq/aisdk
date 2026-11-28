@@ -856,10 +856,22 @@ model_capabilities! {
             display_name: "Ling 3.1 Flash",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        InclusionaiLing32Flash {
+            model_name: "inclusionai/ling-3.2-flash",
+            constructor_name: inclusionai_ling_3_2_flash,
+            display_name: "Ling 3.2 Flash",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         InclusionaiLing32FlashFree {
             model_name: "inclusionai/ling-3.2-flash:free",
             constructor_name: inclusionai_ling_3_2_flash_free,
             display_name: "Ling 3.2 Flash (free)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLingsante31AirVl {
+            model_name: "inclusionai/lingsante-3.1-air-vl",
+            constructor_name: inclusionai_lingsante_3_1_air_vl,
+            display_name: "LingSante 3.1 Air VL",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         InferenceNetSchematronV2Small {
@@ -2655,6 +2667,12 @@ model_capabilities! {
             constructor_name: thudm_glm_z1_32b_free,
             display_name: "GLM Z1 32B (free)",
             capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        TngtechDeepseekR1t2Chimera {
+            model_name: "tngtech/deepseek-r1t2-chimera",
+            constructor_name: tngtech_deepseek_r1t2_chimera,
+            display_name: "DeepSeek R1T2 Chimera",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
         TngtechDeepseekR1t2ChimeraFree {
             model_name: "tngtech/deepseek-r1t2-chimera:free",

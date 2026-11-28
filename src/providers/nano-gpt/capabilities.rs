@@ -406,6 +406,12 @@ model_capabilities! {
             display_name: "GLM 5.3 Flash TEE",
             capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        TeeGlm53Uncensored {
+            model_name: "TEE/glm-5.3-uncensored",
+            constructor_name: tee_glm_5_3_uncensored,
+            display_name: "GLM 5.3 Uncensored TEE",
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         TeeGptOss120b {
             model_name: "TEE/gpt-oss-120b",
             constructor_name: tee_gpt_oss_120b,
@@ -1798,6 +1804,12 @@ model_capabilities! {
             display_name: "Ling 3.0 Flash",
             capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        InclusionaiLing30FlashSante {
+            model_name: "inclusionai/ling-3.0-flash-sante",
+            constructor_name: inclusionai_ling_3_0_flash_sante,
+            display_name: "Ling-3.0-flash-Sante",
+            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         InclusionaiLing30FlashVl {
             model_name: "inclusionai/ling-3.0-flash-vl",
             constructor_name: inclusionai_ling_3_0_flash_vl,
@@ -1827,6 +1839,12 @@ model_capabilities! {
             constructor_name: inclusionai_ling_3_1_flash,
             display_name: "Ling 3.1 Flash",
             capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InclusionaiLingsante31AirVl {
+            model_name: "inclusionai/lingsante-3.1-air-vl",
+            constructor_name: inclusionai_lingsante_3_1_air_vl,
+            display_name: "LingSante 3.1 Air VL",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         InferenceNetSchematronV2Small {
             model_name: "inference-net/schematron-v2-small",
@@ -1904,13 +1922,13 @@ model_capabilities! {
             model_name: "longcat-2.0",
             constructor_name: longcat_2_0,
             display_name: "LongCat 2.0",
-            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         Longcat20Thinking {
             model_name: "longcat-2.0:thinking",
             constructor_name: longcat_2_0_thinking,
             display_name: "LongCat 2.0 Thinking",
-            capabilities: [ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+            capabilities: [ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         LyberDeepseekV41Flash1017Abliterated {
             model_name: "lyber/deepseek-v4.1-flash-1017-abliterated",
@@ -3652,6 +3670,12 @@ model_capabilities! {
             display_name: "Inkling",
             capabilities: [AudioInputSupport, ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
+        ThinkingmachinesInkling2Mini {
+            model_name: "thinkingmachines/inkling-2-mini",
+            constructor_name: thinkingmachines_inkling_2_mini,
+            display_name: "Inkling 2 Mini",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         ThinkingmachinesInklingThinking {
             model_name: "thinkingmachines/inkling:thinking",
             constructor_name: thinkingmachines_inkling_thinking,
@@ -3885,6 +3909,12 @@ model_capabilities! {
             constructor_name: xtools_at_deepseek_v4_pro_qwen3_5_9b_uncensored_heretic,
             display_name: "DeepSeek V4 Pro Qwen3.5 9B Uncensored Heretic",
             capabilities: [TextInputSupport, TextOutputSupport]
+        },
+        YetalabsKimiK31ProAbliterated {
+            model_name: "yetalabs/kimi-k3.1-pro-abliterated",
+            constructor_name: yetalabs_kimi_k3_1_pro_abliterated,
+            display_name: "Kimi K3.1 Pro Abliterated (YetaLabs)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         ZAiGlm45Air {
             model_name: "z-ai/GLM-4.5-Air",

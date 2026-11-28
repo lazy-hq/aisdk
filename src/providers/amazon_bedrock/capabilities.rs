@@ -316,6 +316,18 @@ model_capabilities! {
             display_name: "Nova Lite (CA)",
             capabilities: [ImageInputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport, VideoInputSupport]
         },
+        CaAnthropicClaudeHaiku55 {
+            model_name: "ca.anthropic.claude-haiku-5-5",
+            constructor_name: ca_anthropic_claude_haiku_5_5,
+            display_name: "Claude Haiku 5.5 (Canada)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        CaAnthropicClaudeSonnet55 {
+            model_name: "ca.anthropic.claude-sonnet-5-5",
+            constructor_name: ca_anthropic_claude_sonnet_5_5,
+            display_name: "Claude Sonnet 5.5 (Canada)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         CohereCommandLightTextV14 {
             model_name: "cohere.command-light-text-v14",
             constructor_name: cohere_command_light_text_v14,
@@ -693,6 +705,18 @@ model_capabilities! {
             constructor_name: in_anthropic_claude_sonnet_5,
             display_name: "Claude Sonnet 5 (India)",
             capabilities: [ImageInputSupport, ReasoningSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InMoonshotaiKimiK3 {
+            model_name: "in.moonshotai.kimi-k3",
+            constructor_name: in_moonshotai_kimi_k3,
+            display_name: "Kimi K3 (India)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
+        InMoonshotaiKimiK31 {
+            model_name: "in.moonshotai.kimi-k3.1",
+            constructor_name: in_moonshotai_kimi_k3_1,
+            display_name: "Kimi K3.1 Pro Highspeed (India)",
+            capabilities: [ImageInputSupport, ReasoningSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
         },
         InOpenaiGpt56Luna {
             model_name: "in.openai.gpt-5.6-luna",

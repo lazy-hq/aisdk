@@ -10,6 +10,12 @@ use crate::providers::zai::Zai;
 model_capabilities! {
     provider: Zai,
     models: {
+        Glm432b0414128k {
+            model_name: "glm-4-32b-0414-128k",
+            constructor_name: glm_4_32b_0414_128k,
+            display_name: "GLM-4-32B-0414-128K",
+            capabilities: [StructuredOutputSupport, TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         Glm45 {
             model_name: "glm-4.5",
             constructor_name: glm_4_5,

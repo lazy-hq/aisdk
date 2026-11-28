@@ -58,6 +58,12 @@ model_capabilities! {
             display_name: "Clairic Flash",
             capabilities: [ImageInputSupport, StructuredOutputSupport, TextInputSupport, TextOutputSupport]
         },
+        CfDailyCoPhonellmMiniAlpha2 {
+            model_name: "@cf/daily-co/phonellm-mini-alpha-2",
+            constructor_name: cf_daily_co_phonellm_mini_alpha_2,
+            display_name: "PhoneLLM Mini Alpha 2",
+            capabilities: [TextInputSupport, TextOutputSupport, ToolCallSupport]
+        },
         DeepgramAura2En {
             model_name: "@cf/deepgram/aura-2-en",
             constructor_name: deepgram_aura_2_en,
